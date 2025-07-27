@@ -1,0 +1,37 @@
+[
+  {
+    "Id": 1,
+    "email": "participant@demo.com",
+    "password": "demo123",
+    "role": "participant",
+    "createdAt": "2024-01-15T10:00:00Z"
+  },
+  {
+    "Id": 2,
+    "email": "admin@demo.com",
+    "password": "admin123",
+    "role": "admin",
+    "createdAt": "2024-01-15T10:00:00Z"
+  },
+  {
+    "Id": 3,
+    "email": "john.smith@familybiz.com",
+    "password": "demo123",
+    "role": "participant",
+    "createdAt": "2024-01-20T14:30:00Z"
+  },
+  {
+    "Id": 4,
+    "email": "sarah.johnson@heritage.co",
+    "password": "demo123",
+    "role": "participant",
+    "createdAt": "2024-01-22T09:15:00Z"
+  },
+  {
+    "Id": 5,
+    "email": "mike.williams@legacy.net",
+    "password": "demo123",
+    "role": "participant",
+    "createdAt": "2024-01-25T16:45:00Z"
+  }
+]

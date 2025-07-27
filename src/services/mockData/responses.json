@@ -1,0 +1,42 @@
+[
+  {
+    "Id": 1,
+    "userId": 1,
+    "pillarId": "raison-detre",
+    "questionId": "q1",
+    "content": "<p>Our family started this business because we believed in creating quality products that would stand the test of time. My grandfather always said that if you're going to do something, do it right the first time. That philosophy has driven us for three generations.</p><p>We're here because we want to build something meaningful together - something that provides for our family while also serving our community with integrity and excellence.</p>",
+    "lastUpdated": "2024-01-20T15:30:00Z"
+  },
+  {
+    "Id": 2,
+    "userId": 1,
+    "pillarId": "raison-detre",
+    "questionId": "q2",
+    "content": "<p>I would tell them that our family business represents more than just making money - it's about carrying forward the values and work ethic that built this company. It's about being part of something bigger than yourself.</p><p>This business has provided opportunities for education, growth, and financial security for our family for decades. It's taught us the value of hard work, persistence, and treating people fairly.</p>",
+    "lastUpdated": "2024-01-20T15:35:00Z"
+  },
+  {
+    "Id": 3,
+    "userId": 1,
+    "pillarId": "raison-detre",
+    "questionId": "q3",
+    "content": "<p>We must never compromise on:</p><ul><li><strong>Quality</strong> - Our reputation depends on delivering excellent products and services</li><li><strong>Integrity</strong> - We do what we say we'll do, even when it's difficult</li><li><strong>Family first</strong> - The business serves the family, not the other way around</li><li><strong>Employee respect</strong> - Our team members are part of our extended family</li></ul>",
+    "lastUpdated": "2024-01-20T15:40:00Z"
+  },
+  {
+    "Id": 4,
+    "userId": 3,
+    "pillarId": "raison-detre",
+    "questionId": "q1",
+    "content": "<p>We started Smith & Sons because construction runs in our blood. My father taught me that building isn't just about structures - it's about building communities, building relationships, and building a legacy.</p><p>Every project we complete makes our community a little bit better. That's what drives us every day.</p>",
+    "lastUpdated": "2024-01-22T10:15:00Z"
+  },
+  {
+    "Id": 5,
+    "userId": 3,
+    "pillarId": "type-of-business",
+    "questionId": "q1",
+    "content": "<p>I want to keep this business in the family for generations. Construction is more than a job for us - it's our craft, our identity. My sons have grown up on job sites and understand the business from the ground up.</p><p>However, I also want them to have choices. If they decide construction isn't for them, we'll need to consider other options, including potentially selling to employees or another family business that shares our values.</p>",
+    "lastUpdated": "2024-01-22T10:20:00Z"
+  }
+]

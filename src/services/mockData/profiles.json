@@ -1,0 +1,58 @@
+[
+  {
+    "Id": 1,
+    "userId": 1,
+    "fullName": "Demo Participant",
+    "phone": "+1-555-0123",
+    "businessName": "Demo Family Business",
+    "position": "CEO",
+    "otherOwners": "Jane Doe (Sister), Bob Doe (Father)",
+    "businessType": "Manufacturing",
+    "yearsInBusiness": 25,
+    "annualRevenue": "$1M - $5M",
+    "country": "United States",
+    "city": "Chicago"
+  },
+  {
+    "Id": 2,
+    "userId": 3,
+    "fullName": "John Smith",
+    "phone": "+1-555-0234",
+    "businessName": "Smith & Sons Construction",
+    "position": "Owner",
+    "otherOwners": "Michael Smith (Son), David Smith (Son)",
+    "businessType": "Construction",
+    "yearsInBusiness": 35,
+    "annualRevenue": "$5M - $10M",
+    "country": "United States",
+    "city": "Denver"
+  },
+  {
+    "Id": 3,
+    "userId": 4,
+    "fullName": "Sarah Johnson",
+    "phone": "+1-555-0345",
+    "businessName": "Heritage Foods Inc",
+    "position": "President",
+    "otherOwners": "Robert Johnson (Father), Lisa Johnson (Sister)",
+    "businessType": "Food & Beverage",
+    "yearsInBusiness": 42,
+    "annualRevenue": "$10M - $50M",
+    "country": "Canada",
+    "city": "Toronto"
+  },
+  {
+    "Id": 4,
+    "userId": 5,
+    "fullName": "Mike Williams",
+    "phone": "+1-555-0456",
+    "businessName": "Williams Tech Solutions",
+    "position": "Founder & CEO",
+    "otherOwners": "Emma Williams (Wife), Alex Williams (Brother)",
+    "businessType": "Technology",
+    "yearsInBusiness": 12,
+    "annualRevenue": "$1M - $5M",
+    "country": "United States",
+    "city": "Austin"
+  }
+]

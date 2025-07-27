@@ -30,11 +30,9 @@
   .card {
     @apply bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100;
   }
-  
-  .pillar-card {
-    @apply card p-8 cursor-pointer transform hover:scale-[1.02] hover:shadow-xl transition-all duration-300 group;
+.pillar-card {
+    @apply card p-8 cursor-pointer transform hover:scale-[1.02] hover:shadow-xl transition-all duration-300;
   }
-  
   .form-field {
     @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 bg-white;
   }

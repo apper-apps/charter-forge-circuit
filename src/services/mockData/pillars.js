@@ -5,10 +5,15 @@ export const PILLARS = [
     subtitle: "Why Are We in Business Together?",
     description: "Explore the fundamental purpose and values that drive your family business. Understanding your 'why' provides the foundation for all future decisions.",
     gradient: "from-primary-600 to-primary-700",
-    questions: [
+questions: [
       "What was the original heartbeat behind this business? Why did we start—or why are we still here?",
       "If your children or grandchildren asked, 'Why does our family own this business?'—what would you say?",
-      "What values must we never compromise, even when things get tough?"
+      "What values must we never compromise, even when things get tough?",
+      "What is the fundamental objective of our business family? This question helps define the family's philosophy and purpose, which might involve enhancing the pursuit of happiness of individual members and preserving human, intellectual, and financial capital.",
+      "What vision do we share for the future? Families should look ahead and form a consensus on a shared long-term goal, embracing a \"seventh-generation thinking\" approach that considers the impact of decisions far into the future. This includes articulating a long-term vision for the project.",
+      "What are our core family values, and how do they translate to the business? This involves identifying values that reflect the family's uniqueness and guide its actions. Examples of values include generosity, humility, service, and communication. It's crucial to identify these values, make them explicit, and share them within the family to serve as the best resource for the firm.",
+      "How will we define our unique \"differentness\" as a family? This involves exploring the values that make the family distinct.",
+      "How will we ensure these values are passed down through generations? Methods include setting an example, appointing mentors, emphasizing meritocracy, respecting individual vocations, and documenting family history."
     ]
   },
   {

@@ -1,23 +1,23 @@
+import "@/index.css";
 import React, { createContext, useEffect, useState } from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { clearUser, setUser } from "./store/slices/userSlice";
-import Signup from "@/components/pages/Signup";
-import Callback from "@/components/pages/Callback";
-import ErrorPage from "@/components/pages/ErrorPage";
-import ResetPassword from "@/components/pages/ResetPassword";
-import PromptPassword from "@/components/pages/PromptPassword";
-import "@/index.css";
 import Layout from "@/components/organisms/Layout";
 import Onboarding from "@/components/pages/Onboarding";
 import Login from "@/components/pages/Login";
 import Profile from "@/components/pages/Profile";
+import PromptPassword from "@/components/pages/PromptPassword";
+import ResetPassword from "@/components/pages/ResetPassword";
 import Export from "@/components/pages/Export";
 import PillarQuestions from "@/components/pages/PillarQuestions";
 import AdminParticipant from "@/components/pages/AdminParticipant";
+import Callback from "@/components/pages/Callback";
 import Dashboard from "@/components/pages/Dashboard";
+import ErrorPage from "@/components/pages/ErrorPage";
+import Signup from "@/components/pages/Signup";
 import AdminDashboard from "@/components/pages/AdminDashboard";
+import { clearUser, setUser } from "@/store/slices/userSlice";
 
 // Create auth context
 export const AuthContext = createContext(null)
@@ -118,37 +118,44 @@ function App() {
     }
   }
   
-  // Don't render routes until initialization is complete
+// Don't render routes until initialization is complete
   if (!isInitialized) {
-    return <div className="loading flex items-center justify-center p-6 h-full w-full"><svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v4"></path><path d="m16.2 7.8 2.9-2.9"></path><path d="M18 12h4"></path><path d="m16.2 16.2 2.9 2.9"></path><path d="M12 18v4"></path><path d="m4.9 19.1 2.9-2.9"></path><path d="M2 12h4"></path><path d="m4.9 4.9 2.9 2.9"></path></svg></div>
-  }
-  if (!user) {
     return (
-      <>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-          className="toast-container"
-        />
-      </>
-    )
+      <AuthContext.Provider value={authMethods}>
+        <div className="loading flex items-center justify-center p-6 h-full w-full"><svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v4"></path><path d="m16.2 7.8 2.9-2.9"></path><path d="M18 12h4"></path><path d="m16.2 16.2 2.9 2.9"></path><path d="M12 18v4"></path><path d="m4.9 19.1 2.9-2.9"></path><path d="M2 12h4"></path><path d="m4.9 4.9 2.9 2.9"></path></svg></div>
+      </AuthContext.Provider>
+    );
   }
-const isAdmin = user?.role === "admin"
+  
+  return (
+    <AuthContext.Provider value={authMethods}>
+      {!user ? (
+        <>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+            className="toast-container"
+          />
+        </>
+      ) : (
+        <>
+          {(() => {
+            const isAdmin = user?.role === "admin"
 
-  if (!isAuthenticated) {
-    return (
+            if (!isAuthenticated) {
+              return (
       <AuthContext.Provider value={authMethods}>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -209,9 +216,15 @@ const isAdmin = user?.role === "admin"
         draggable
         pauseOnHover
         theme="light"
-        className="toast-container"
+className="toast-container"
       />
     </AuthContext.Provider>
   )
+          })()}
+        </>
+      )}
+    </AuthContext.Provider>
+  );
 }
-export default App
+
+export default App;

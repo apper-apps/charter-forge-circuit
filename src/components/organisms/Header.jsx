@@ -1,17 +1,17 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { motion, AnimatePresence } from "framer-motion"
-import { logout } from "@/store/slices/authSlice"
+import { AuthContext } from '../../App'
 import ApperIcon from "@/components/ApperIcon"
 import Button from "@/components/atoms/Button"
-
 const Header = () => {
   const dispatch = useDispatch()
-  const { user } = useSelector((state) => state.auth)
+  const { user } = useSelector((state) => state.user)
   const [showDropdown, setShowDropdown] = useState(false)
+  const { logout: authLogout } = useContext(AuthContext)
 
-  const handleLogout = () => {
-    dispatch(logout())
+  const handleLogout = async () => {
+    await authLogout()
     setShowDropdown(false)
   }
 

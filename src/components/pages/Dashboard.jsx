@@ -22,11 +22,11 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user?.id) return
 
-    const loadData = async () => {
+const loadData = async () => {
       // Load profile
       dispatch(fetchProfileStart())
       try {
-        const profileData = await profileService.getProfile(user.id)
+        const profileData = await profileService.getProfile(user.userId)
         dispatch(fetchProfileSuccess(profileData))
       } catch (error) {
         dispatch(fetchProfileFailure(error.message))
@@ -35,7 +35,7 @@ const Dashboard = () => {
       // Load responses
       dispatch(fetchResponsesStart())
       try {
-        const responsesData = await responsesService.getUserResponses(user.id)
+        const responsesData = await responsesService.getUserResponses(user.userId)
         dispatch(fetchResponsesSuccess(responsesData))
       } catch (error) {
         dispatch(fetchResponsesFailure(error.message))
@@ -43,7 +43,7 @@ const Dashboard = () => {
     }
 
     loadData()
-  }, [dispatch, user?.id])
+  }, [dispatch, user?.userId])
 
   const handlePillarClick = (pillarId) => {
     navigate(`/pillar/${pillarId}`)

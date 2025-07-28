@@ -25,11 +25,11 @@ const Export = () => {
   useEffect(() => {
     if (!user?.id) return
 
-    const loadData = async () => {
+const loadData = async () => {
       // Load profile
       dispatch(fetchProfileStart())
       try {
-        const profileData = await profileService.getProfile(user.id)
+        const profileData = await profileService.getProfile(user.userId)
         dispatch(fetchProfileSuccess(profileData))
       } catch (error) {
         dispatch(fetchProfileFailure(error.message))
@@ -38,7 +38,7 @@ const Export = () => {
       // Load responses
       dispatch(fetchResponsesStart())
       try {
-        const responsesData = await responsesService.getUserResponses(user.id)
+        const responsesData = await responsesService.getUserResponses(user.userId)
         dispatch(fetchResponsesSuccess(responsesData))
       } catch (error) {
         dispatch(fetchResponsesFailure(error.message))
@@ -46,7 +46,7 @@ const Export = () => {
     }
 
     loadData()
-  }, [dispatch, user?.id])
+  }, [dispatch, user?.userId])
 
   const handleRetry = () => {
     window.location.reload()

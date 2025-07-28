@@ -60,16 +60,16 @@ const [formData, setFormData] = useState({
   const [errors, setErrors] = useState({})
 
   useEffect(() => {
-    if (!user?.id) return
+if (!user?.userId) return
 
     const loadProfile = async () => {
       dispatch(fetchProfileStart())
       try {
-        const profileData = await profileService.getProfile(user.id)
+        const profileData = await profileService.getProfile(user.userId)
         dispatch(fetchProfileSuccess(profileData))
         
         if (profileData) {
-setFormData({
+          setFormData({
             fullName: profileData.fullName || "",
             email: profileData.email || "",
             phone: profileData.phone || "",
@@ -91,7 +91,7 @@ setFormData({
     }
 
     loadProfile()
-  }, [dispatch, user?.id])
+  }, [dispatch, user?.userId])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -156,7 +156,7 @@ dispatch(saveProfileStart())
         numberOfEmployees: parseInt(formData.numberOfEmployees)
       }
       
-      const savedProfile = await profileService.saveProfile(user.id, profileData)
+      const savedProfile = await profileService.saveProfile(user.userId, profileData)
       dispatch(saveProfileSuccess(savedProfile))
       toast.success("Profile updated successfully!")
     } catch (error) {

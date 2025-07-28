@@ -5,9 +5,8 @@ import ApperIcon from "@/components/ApperIcon"
 import { cn } from "@/utils/cn"
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const { user } = useSelector((state) => state.auth)
+  const { user } = useSelector((state) => state.user)
   const isAdmin = user?.role === "admin"
-
   const participantNavItems = [
     { to: "/dashboard", icon: "LayoutDashboard", label: "Dashboard" },
     { to: "/export", icon: "Download", label: "Export Charter" },

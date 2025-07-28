@@ -55,7 +55,7 @@ export const profileService = {
     }
   },
 
-  async saveProfile(userId, profileData) {
+async saveProfile(userId, profileData) {
     try {
       const { ApperClient } = window.ApperSDK
       const apperClient = new ApperClient({
@@ -66,21 +66,21 @@ export const profileService = {
       // Check if profile exists
       const existingProfile = await this.getProfile(userId)
       
-      // Prepare data with only updateable fields
+      // Prepare data with only updateable fields that exist in the database schema
       const updateableData = {
-        Name: profileData.fullName || profileData.Name,
+        Name: profileData.fullName || profileData.Name || "",
         Tags: profileData.Tags || "",
         Owner: profileData.Owner,
-        fullName: profileData.fullName,
-        phone: profileData.phone,
-        businessName: profileData.businessName,
-        position: profileData.position,
-        otherOwners: profileData.otherOwners,
-        businessType: profileData.businessType,
+        fullName: profileData.fullName || "",
+        phone: profileData.phone || "",
+        businessName: profileData.businessName || "",
+        position: profileData.position || "",
+        otherOwners: profileData.otherOwners || "",
+        businessType: profileData.businessType || "",
         yearsInBusiness: parseInt(profileData.yearsInBusiness) || 0,
-        annualRevenue: profileData.annualRevenue,
-        country: profileData.country,
-        city: profileData.city,
+        annualRevenue: profileData.annualRevenue || "",
+        country: profileData.country || "",
+        city: profileData.city || "",
         userId: parseInt(userId)
       }
 

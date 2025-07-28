@@ -43,7 +43,6 @@ const Profile = () => {
   
 const [formData, setFormData] = useState({
     fullName: "",
-    email: "",
     phone: "",
     businessName: "",
     position: "",
@@ -51,7 +50,6 @@ const [formData, setFormData] = useState({
     businessType: "",
     customBusinessType: "",
     yearsInBusiness: "",
-    numberOfEmployees: "",
     annualRevenue: "",
     country: "",
     city: ""
@@ -69,9 +67,8 @@ if (!user?.userId) return
         dispatch(fetchProfileSuccess(profileData))
         
         if (profileData) {
-          setFormData({
+setFormData({
             fullName: profileData.fullName || "",
-            email: profileData.email || "",
             phone: profileData.phone || "",
             businessName: profileData.businessName || "",
             position: profileData.position || "",
@@ -79,7 +76,6 @@ if (!user?.userId) return
             businessType: BUSINESS_TYPES.includes(profileData.businessType) ? profileData.businessType : "Other",
             customBusinessType: !BUSINESS_TYPES.includes(profileData.businessType) ? profileData.businessType : "",
             yearsInBusiness: profileData.yearsInBusiness?.toString() || "",
-            numberOfEmployees: profileData.numberOfEmployees?.toString() || "",
             annualRevenue: profileData.annualRevenue || "",
             country: profileData.country || "",
             city: profileData.city || ""
@@ -113,11 +109,6 @@ const validateForm = () => {
     const newErrors = {}
     
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required"
-    if (!formData.email.trim()) {
-      newErrors.email = "Email address is required"
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address"
-    }
     if (!formData.businessName.trim()) newErrors.businessName = "Business name is required"
     if (!formData.position.trim()) newErrors.position = "Position is required"
     if (!formData.businessType) newErrors.businessType = "Business type is required"
@@ -127,9 +118,6 @@ const validateForm = () => {
     if (!formData.yearsInBusiness || formData.yearsInBusiness < 0) {
       newErrors.yearsInBusiness = "Years in business is required"
     }
-    if (!formData.numberOfEmployees || formData.numberOfEmployees < 1) {
-      newErrors.numberOfEmployees = "Number of employees is required"
-    }
     if (!formData.annualRevenue) newErrors.annualRevenue = "Annual revenue range is required"
     if (!formData.country.trim()) newErrors.country = "Country is required"
     if (!formData.city.trim()) newErrors.city = "City is required"
@@ -138,7 +126,7 @@ const validateForm = () => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (!validateForm()) {
@@ -146,14 +134,20 @@ const validateForm = () => {
       return
     }
 
-dispatch(saveProfileStart())
+    dispatch(saveProfileStart())
     
     try {
       const profileData = {
-        ...formData,
+        fullName: formData.fullName,
+        phone: formData.phone,
+        businessName: formData.businessName,
+        position: formData.position,
+        otherOwners: formData.otherOwners,
         businessType: formData.businessType === "Other" ? formData.customBusinessType : formData.businessType,
         yearsInBusiness: parseInt(formData.yearsInBusiness),
-        numberOfEmployees: parseInt(formData.numberOfEmployees)
+        annualRevenue: formData.annualRevenue,
+        country: formData.country,
+        city: formData.city
       }
       
       const savedProfile = await profileService.saveProfile(user.userId, profileData)
@@ -205,20 +199,11 @@ dispatch(saveProfileStart())
                 error={errors.fullName}
                 required
               />
-<FormField
-                label="Email Address"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Enter your email address"
-                error={errors.email}
-                required
-              />
-            </div>
+</div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
+
+<FormField
                 label="Phone Number"
                 name="phone"
                 type="tel"
@@ -304,21 +289,6 @@ dispatch(saveProfileStart())
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                label="Number of Employees"
-                name="numberOfEmployees"
-                type="number"
-                min="1"
-                value={formData.numberOfEmployees}
-                onChange={handleChange}
-                placeholder="Enter number of employees"
-                error={errors.numberOfEmployees}
-                required
-              />
-
-              <div></div>
-            </div>
 
             <FormField
               label="Annual Revenue Range"

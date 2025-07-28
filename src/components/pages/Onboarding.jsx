@@ -40,7 +40,7 @@ const Onboarding = () => {
   const { user } = useSelector((state) => state.auth)
   const { isSaving, error } = useSelector((state) => state.profile)
   
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
     businessName: "",
@@ -93,7 +93,7 @@ const Onboarding = () => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (!validateForm()) {
@@ -105,9 +105,16 @@ const Onboarding = () => {
     
     try {
       const profileData = {
-        ...formData,
+        fullName: formData.fullName,
+        phone: formData.phone,
+        businessName: formData.businessName,
+        position: formData.position,
+        otherOwners: formData.otherOwners,
         businessType: formData.businessType === "Other" ? formData.customBusinessType : formData.businessType,
-        yearsInBusiness: parseInt(formData.yearsInBusiness)
+        yearsInBusiness: parseInt(formData.yearsInBusiness),
+        annualRevenue: formData.annualRevenue,
+        country: formData.country,
+        city: formData.city
       }
       
       const savedProfile = await profileService.saveProfile(user.id, profileData)

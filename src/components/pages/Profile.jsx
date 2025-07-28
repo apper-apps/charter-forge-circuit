@@ -85,7 +85,6 @@ setFormData({
         dispatch(fetchProfileFailure(error.message))
       }
     }
-
     loadProfile()
   }, [dispatch, user?.userId])
 
@@ -142,7 +141,7 @@ const handleSubmit = async (e) => {
         phone: formData.phone,
         businessName: formData.businessName,
         position: formData.position,
-        otherOwners: formData.otherOwners,
+otherOwners: formData.otherOwners,
         businessType: formData.businessType === "Other" ? formData.customBusinessType : formData.businessType,
         yearsInBusiness: parseInt(formData.yearsInBusiness),
         annualRevenue: formData.annualRevenue,

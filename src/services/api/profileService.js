@@ -22,7 +22,7 @@ export const profileService = {
           { field: { Name: "annualRevenue" } },
           { field: { Name: "country" } },
           { field: { Name: "city" } },
-          { field: { Name: "userId" } }
+{ field: { Name: "userId" } }
         ],
         where: [
           {
@@ -43,8 +43,7 @@ export const profileService = {
         console.error(response.message)
         throw new Error(response.message)
       }
-
-      return response.data && response.data.length > 0 ? response.data[0] : null
+return response.data && response.data.length > 0 ? response.data[0] : null
     } catch (error) {
       if (error?.response?.data?.message) {
         console.error("Error fetching profile:", error?.response?.data?.message)
@@ -81,7 +80,7 @@ async saveProfile(userId, profileData) {
         annualRevenue: profileData.annualRevenue || "",
         country: profileData.country || "",
         city: profileData.city || "",
-        userId: parseInt(userId)
+userId: parseInt(userId)
       }
 
       let response
@@ -116,7 +115,7 @@ async saveProfile(userId, profileData) {
           throw new Error(failedRecords[0].message || "Failed to save profile")
         }
         
-        return successfulRecords.length > 0 ? successfulRecords[0].data : null
+return successfulRecords.length > 0 ? successfulRecords[0].data : null
       }
 
       return null

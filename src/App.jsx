@@ -17,8 +17,7 @@ import Dashboard from "@/components/pages/Dashboard";
 import ErrorPage from "@/components/pages/ErrorPage";
 import Signup from "@/components/pages/Signup";
 import AdminDashboard from "@/components/pages/AdminDashboard";
-import { clearUser, setUser } from "@/store/slices/userSlice";
-
+import { clearUser, setUser } from "@/store/slices/authSlice";
 // Create auth context
 export const AuthContext = createContext(null)
 
@@ -69,7 +68,7 @@ function App() {
           } else {
             navigate('/dashboard')
           }
-          // Store user information in Redux
+// Store user information in Redux
           dispatch(setUser(JSON.parse(JSON.stringify(user))))
         } else {
           // User is not authenticated

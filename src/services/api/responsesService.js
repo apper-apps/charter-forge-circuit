@@ -94,8 +94,9 @@ export const responsesService = {
         throw new Error(existingResponse.message);
       }
 
-      // Prepare data with only Updateable fields
+// Prepare data with only Updateable fields
       const updateableData = {
+        Name: `Response - ${pillarId} - ${questionId} - User ${userId}`,
         userId: parseInt(userId),
         pillarId: pillarId,
         questionId: questionId,

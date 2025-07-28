@@ -101,9 +101,10 @@ const RichTextEditor = ({
       </div>
 
       {/* Editor */}
-      <div
+<div
         ref={editorRef}
         contentEditable
+        dir="ltr"
         onInput={handleInput}
         onFocus={handleFocus}
         onBlur={handleBlur}

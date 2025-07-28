@@ -127,12 +127,17 @@ function App() {
     );
   }
   
-  return (
+return (
     <AuthContext.Provider value={authMethods}>
-      {!user ? (
+      {!isAuthenticated ? (
         <>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/callback" element={<Callback />} />
+            <Route path="/error" element={<ErrorPage />} />
+            <Route path="/prompt-password/:appId/:emailAddress/:provider" element={<PromptPassword />} />
+            <Route path="/reset-password/:appId/:fields" element={<ResetPassword />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
           <ToastContainer
@@ -151,76 +156,39 @@ function App() {
         </>
       ) : (
         <>
-          {(() => {
-            const isAdmin = user?.role === "admin"
-
-            if (!isAuthenticated) {
-              return (
-      <AuthContext.Provider value={authMethods}>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/callback" element={<Callback />} />
-          <Route path="/error" element={<ErrorPage />} />
-          <Route path="/prompt-password/:appId/:emailAddress/:provider" element={<PromptPassword />} />
-          <Route path="/reset-password/:appId/:fields" element={<ResetPassword />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-          className="toast-container"
-        />
-      </AuthContext.Provider>
-    )
-  }
-
-  return (
-    <AuthContext.Provider value={authMethods}>
-      <Layout>
-        <Routes>
-          {isAdmin ? (
-            <>
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/participant/:userId" element={<AdminParticipant />} />
-              <Route path="*" element={<Navigate to="/admin" replace />} />
-            </>
-          ) : (
-            <>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/pillar/:pillarId" element={<PillarQuestions />} />
-              <Route path="/export" element={<Export />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
-            </>
-          )}
-        </Routes>
-      </Layout>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-className="toast-container"
-      />
-    </AuthContext.Provider>
-  )
-          })()}
+          <Layout>
+            <Routes>
+              {user?.role === "admin" ? (
+                <>
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin/participant/:userId" element={<AdminParticipant />} />
+                  <Route path="*" element={<Navigate to="/admin" replace />} />
+                </>
+              ) : (
+                <>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/onboarding" element={<Onboarding />} />
+                  <Route path="/pillar/:pillarId" element={<PillarQuestions />} />
+                  <Route path="/export" element={<Export />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                </>
+              )}
+            </Routes>
+          </Layout>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+            className="toast-container"
+          />
         </>
       )}
     </AuthContext.Provider>

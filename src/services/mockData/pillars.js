@@ -46,10 +46,22 @@ questions: [
     subtitle: "What Could Go Wrong?",
     description: "Identify potential risks and vulnerabilities that could threaten family unity in business. Develop strategies for resilience and conflict resolution.",
     gradient: "from-red-600 to-red-700",
-    questions: [
+questions: [
       "What's the biggest threat to our family staying united in business?",
       "Where are we strong—and where are we vulnerable—when it comes to people, money, skills, and relationships?",
-      "Who makes the tough calls in our family business today? Is that clear—and is it working?"
+      "Who makes the tough calls in our family business today? Is that clear—and is it working?",
+      "How will the golden goose (core business) be protected? This involves prioritizing survival, then profit, then growth, and potentially diversifying the portfolio.",
+      "How will a portfolio be built to last generations, blending value creation and family values?",
+      "What are the dividend policies, and how much liquidity will be taken out of the company? This balances reinvestment with shareholder needs.",
+      "How will the family be prepared to be responsible with its wealth, especially for younger generations? This includes exposing children to the business early on and understanding diverse stances on wealth.",
+      "How will shared family property be managed? A specific plan covering design, decision making, value, information and transfer is recommended.",
+      "What internal and external causes could endanger the company's continued existence? This includes market competitiveness, merger/takeover offers, or internal family disputes.",
+      "What strategies will be followed in scenarios of potential extinction of major disruption (e.g. death, new family entrants, inequality, behavioral health issues etc)?",
+      "How will conflicts be managed to avoid them escalating into family wars? This involves understanding the conflict spiral and adopting strategies for constructive conflict resolution.",
+      "How should the family be organized and governed to achieve its vision and promote its values? This involves outlining the system of governance bodies.",
+      "What governance bodies are needed (e.g., Board of Directors, Family Council, Family Assembly, Family Foundation)? The roles, responsibilities, and membership of each body, and how they interact, should be specified.",
+      "How will decision-making authority be allocated across different \"rooms\" (Owner Room, Board Room, Management Room, Family Room)? This clarity ensures everyone knows their participation and how rooms work together.",
+      "What key decisions are reserved for owners and should not be delegated (e.g., ownership transfer, major business changes, setting goals, electing board members)?"
     ]
   }
 ]

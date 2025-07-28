@@ -11,20 +11,20 @@ const FormField = ({
   children,
   ...props 
 }) => {
-  const renderInput = () => {
+const renderInput = () => {
     if (type === "textarea") {
-      return <Textarea error={!!error} {...props} />
+      return <Textarea error={!!error} dir="ltr" {...props} />
     }
     
     if (type === "select") {
       return (
-        <Select error={!!error} {...props}>
+        <Select error={!!error} dir="ltr" {...props}>
           {children}
         </Select>
       )
     }
     
-    return <Input type={type} error={!!error} {...props} />
+    return <Input type={type} error={!!error} dir="ltr" {...props} />
   }
 
   return (

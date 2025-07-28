@@ -34,10 +34,21 @@ questions: [
     subtitle: "The Three Circles & Beyond",
     description: "Clarify roles, responsibilities, and expectations across family, business, and ownership circles. Establish clear boundaries and accountability.",
     gradient: "from-heritage-600 to-heritage-700",
-    questions: [
+questions: [
       "Where do I sit today—Family, Business, Ownership? Am I clear about that?",
       "Do I believe we have a clear succession plan—or are we hoping things just work out?",
-      "What do I expect from other family members—and what do I think they expect of me?"
+      "What do I expect from other family members—and what do I think they expect of me?",
+      "What do family members expect from the family business (e.g., economic performance, job security, pride, social status)? All expectations should be validated, and an agreement should be reached among all members for maximum understanding and conflict prevention.",
+      "What role should family members play in the firm? This includes considering who is willing and qualified to join, and ensuring that family members contribute something unique to their positions, beyond what an outsider might.",
+      "How do we manage the individual vocations and aspirations of family members, respecting their choices inside or outside the business?",
+      "How do we ensure fair assessment of family candidates for positions, avoiding favoritism?",
+      "How long will the charter remain in effect, and what is the process for extending or renewing its term? It should typically be at least a generation.",
+      "What is the process of amending the charter or adding specific provisions to the charter? This ensures adaptability to changing family needs.",
+      "What type of family business do we want to be (e.g., Sole Owner, Partnership, Distributed, Concentrated)? This choice influences how the business evolves and how new spaces are created for future generations, preventing power struggles.",
+      "What is the scope of our shared assets? Families must decide how much of their assets, beyond the operating company, they will own collectively (e.g., car collections, vacation homes, investments, philanthropic endowments).",
+      "Who is eligible to be an owner? This decision determines whether ownership is restricted to bloodline descendants, or includes in-laws, and if there are participation criteria (e.g., only operators, governors, or investors).",
+      "Which owners will have control? Families must decide whether control is unified in a subset of owners or shared among all owners, considering voting rights, non-voting shares, or trust arrangements.",
+      "Has our ownership type changed over time, and does it still work for our family's future needs? Families should reflect on their ownership history and consider whether the current structure is appropriate for the future, especially as the family grows in numbers or capabilities."
     ]
   },
   {

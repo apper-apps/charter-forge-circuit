@@ -43,6 +43,7 @@ const Profile = () => {
   
 const [formData, setFormData] = useState({
     fullName: "",
+    email: "",
     phone: "",
     businessName: "",
     position: "",
@@ -50,6 +51,7 @@ const [formData, setFormData] = useState({
     businessType: "",
     customBusinessType: "",
     yearsInBusiness: "",
+    numberOfEmployees: "",
     annualRevenue: "",
     country: "",
     city: ""
@@ -58,17 +60,18 @@ const [formData, setFormData] = useState({
   const [errors, setErrors] = useState({})
 
   useEffect(() => {
-if (!user?.userId) return
+    if (!user?.id) return
 
     const loadProfile = async () => {
       dispatch(fetchProfileStart())
       try {
-        const profileData = await profileService.getProfile(user.userId)
+        const profileData = await profileService.getProfile(user.id)
         dispatch(fetchProfileSuccess(profileData))
         
         if (profileData) {
 setFormData({
             fullName: profileData.fullName || "",
+            email: profileData.email || "",
             phone: profileData.phone || "",
             businessName: profileData.businessName || "",
             position: profileData.position || "",
@@ -76,6 +79,7 @@ setFormData({
             businessType: BUSINESS_TYPES.includes(profileData.businessType) ? profileData.businessType : "Other",
             customBusinessType: !BUSINESS_TYPES.includes(profileData.businessType) ? profileData.businessType : "",
             yearsInBusiness: profileData.yearsInBusiness?.toString() || "",
+            numberOfEmployees: profileData.numberOfEmployees?.toString() || "",
             annualRevenue: profileData.annualRevenue || "",
             country: profileData.country || "",
             city: profileData.city || ""
@@ -85,8 +89,9 @@ setFormData({
         dispatch(fetchProfileFailure(error.message))
       }
     }
+
     loadProfile()
-  }, [dispatch, user?.userId])
+  }, [dispatch, user?.id])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -108,6 +113,11 @@ const validateForm = () => {
     const newErrors = {}
     
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required"
+    if (!formData.email.trim()) {
+      newErrors.email = "Email address is required"
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address"
+    }
     if (!formData.businessName.trim()) newErrors.businessName = "Business name is required"
     if (!formData.position.trim()) newErrors.position = "Position is required"
     if (!formData.businessType) newErrors.businessType = "Business type is required"
@@ -117,6 +127,9 @@ const validateForm = () => {
     if (!formData.yearsInBusiness || formData.yearsInBusiness < 0) {
       newErrors.yearsInBusiness = "Years in business is required"
     }
+    if (!formData.numberOfEmployees || formData.numberOfEmployees < 1) {
+      newErrors.numberOfEmployees = "Number of employees is required"
+    }
     if (!formData.annualRevenue) newErrors.annualRevenue = "Annual revenue range is required"
     if (!formData.country.trim()) newErrors.country = "Country is required"
     if (!formData.city.trim()) newErrors.city = "City is required"
@@ -125,7 +138,7 @@ const validateForm = () => {
     return Object.keys(newErrors).length === 0
   }
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (!validateForm()) {
@@ -133,23 +146,17 @@ const handleSubmit = async (e) => {
       return
     }
 
-    dispatch(saveProfileStart())
+dispatch(saveProfileStart())
     
     try {
       const profileData = {
-        fullName: formData.fullName,
-        phone: formData.phone,
-        businessName: formData.businessName,
-        position: formData.position,
-otherOwners: formData.otherOwners,
+        ...formData,
         businessType: formData.businessType === "Other" ? formData.customBusinessType : formData.businessType,
         yearsInBusiness: parseInt(formData.yearsInBusiness),
-        annualRevenue: formData.annualRevenue,
-        country: formData.country,
-        city: formData.city
+        numberOfEmployees: parseInt(formData.numberOfEmployees)
       }
       
-      const savedProfile = await profileService.saveProfile(user.userId, profileData)
+      const savedProfile = await profileService.saveProfile(user.id, profileData)
       dispatch(saveProfileSuccess(savedProfile))
       toast.success("Profile updated successfully!")
     } catch (error) {
@@ -198,11 +205,20 @@ otherOwners: formData.otherOwners,
                 error={errors.fullName}
                 required
               />
-</div>
+<FormField
+                label="Email Address"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your email address"
+                error={errors.email}
+                required
+              />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-<FormField
+              <FormField
                 label="Phone Number"
                 name="phone"
                 type="tel"
@@ -288,6 +304,21 @@ otherOwners: formData.otherOwners,
               />
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                label="Number of Employees"
+                name="numberOfEmployees"
+                type="number"
+                min="1"
+                value={formData.numberOfEmployees}
+                onChange={handleChange}
+                placeholder="Enter number of employees"
+                error={errors.numberOfEmployees}
+                required
+              />
+
+              <div></div>
+            </div>
 
             <FormField
               label="Annual Revenue Range"

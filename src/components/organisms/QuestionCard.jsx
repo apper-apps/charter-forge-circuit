@@ -18,20 +18,20 @@ const QuestionCard = ({ question, pillarId, questionIndex }) => {
   const isSaving = savingQuestions[`${pillarId}-${questionId}`]
   const [lastSaved, setLastSaved] = useState(null)
 
-const saveResponse = useCallback(async (content) => {
-    if (!user?.userId) return
+  const saveResponse = useCallback(async (content) => {
+    if (!user?.id) return
 
     dispatch(saveResponseStart({ pillarId, questionId }))
     
     try {
-      await responsesService.saveResponse(user.userId, pillarId, questionId, content)
+      await responsesService.saveResponse(user.id, pillarId, questionId, content)
       dispatch(saveResponseSuccess({ pillarId, questionId, content }))
       setLastSaved(new Date())
     } catch (error) {
       dispatch(saveResponseFailure({ pillarId, questionId, error: error.message }))
       toast.error("Failed to save response")
     }
-  }, [dispatch, pillarId, questionId, user?.userId])
+  }, [dispatch, pillarId, questionId, user?.id])
 
   const handleContentChange = (content) => {
     dispatch(updateResponseLocal({ pillarId, questionId, content }))

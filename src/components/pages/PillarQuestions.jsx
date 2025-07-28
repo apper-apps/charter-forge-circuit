@@ -20,13 +20,13 @@ const PillarQuestions = () => {
 
   const pillar = PILLARS.find(p => p.id === pillarId)
 
-useEffect(() => {
-    if (!user?.userId) return
+  useEffect(() => {
+    if (!user?.id) return
 
     const loadResponses = async () => {
       dispatch(fetchResponsesStart())
       try {
-        const responsesData = await responsesService.getUserResponses(user.userId)
+        const responsesData = await responsesService.getUserResponses(user.id)
         dispatch(fetchResponsesSuccess(responsesData))
       } catch (error) {
         dispatch(fetchResponsesFailure(error.message))
@@ -34,7 +34,8 @@ useEffect(() => {
     }
 
     loadResponses()
-  }, [dispatch, user?.userId])
+  }, [dispatch, user?.id])
+
   const handleRetry = () => {
     window.location.reload()
   }

@@ -1,15 +1,16 @@
-import { useState, useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { motion } from "framer-motion"
-import { fetchProfileStart, fetchProfileSuccess, fetchProfileFailure, saveProfileStart, saveProfileSuccess, saveProfileFailure } from "@/store/slices/profileSlice"
-import { profileService } from "@/services/api/profileService"
-import Button from "@/components/atoms/Button"
-import FormField from "@/components/molecules/FormField"
-import Card from "@/components/atoms/Card"
-import Loading from "@/components/ui/Loading"
-import Error from "@/components/ui/Error"
-import ApperIcon from "@/components/ApperIcon"
-import { toast } from "react-toastify"
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import { profileService } from "@/services/api/profileService";
+import ApperIcon from "@/components/ApperIcon";
+import FormField from "@/components/molecules/FormField";
+import Loading from "@/components/ui/Loading";
+import Error from "@/components/ui/Error";
+import Button from "@/components/atoms/Button";
+import Select from "@/components/atoms/Select";
+import Card from "@/components/atoms/Card";
+import { fetchProfileFailure, fetchProfileStart, fetchProfileSuccess, saveProfileFailure, saveProfileStart, saveProfileSuccess } from "@/store/slices/profileSlice";
 
 const BUSINESS_TYPES = [
   "Manufacturing",
@@ -40,8 +41,9 @@ const Profile = () => {
   const { user } = useSelector((state) => state.auth)
   const { profile, isLoading, isSaving, error } = useSelector((state) => state.profile)
   
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     fullName: "",
+    email: "",
     phone: "",
     businessName: "",
     position: "",
@@ -49,6 +51,7 @@ const Profile = () => {
     businessType: "",
     customBusinessType: "",
     yearsInBusiness: "",
+    numberOfEmployees: "",
     annualRevenue: "",
     country: "",
     city: ""
@@ -66,8 +69,9 @@ const Profile = () => {
         dispatch(fetchProfileSuccess(profileData))
         
         if (profileData) {
-          setFormData({
+setFormData({
             fullName: profileData.fullName || "",
+            email: profileData.email || "",
             phone: profileData.phone || "",
             businessName: profileData.businessName || "",
             position: profileData.position || "",
@@ -75,6 +79,7 @@ const Profile = () => {
             businessType: BUSINESS_TYPES.includes(profileData.businessType) ? profileData.businessType : "Other",
             customBusinessType: !BUSINESS_TYPES.includes(profileData.businessType) ? profileData.businessType : "",
             yearsInBusiness: profileData.yearsInBusiness?.toString() || "",
+            numberOfEmployees: profileData.numberOfEmployees?.toString() || "",
             annualRevenue: profileData.annualRevenue || "",
             country: profileData.country || "",
             city: profileData.city || ""
@@ -104,10 +109,15 @@ const Profile = () => {
     }
   }
 
-  const validateForm = () => {
+const validateForm = () => {
     const newErrors = {}
     
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required"
+    if (!formData.email.trim()) {
+      newErrors.email = "Email address is required"
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address"
+    }
     if (!formData.businessName.trim()) newErrors.businessName = "Business name is required"
     if (!formData.position.trim()) newErrors.position = "Position is required"
     if (!formData.businessType) newErrors.businessType = "Business type is required"
@@ -116,6 +126,9 @@ const Profile = () => {
     }
     if (!formData.yearsInBusiness || formData.yearsInBusiness < 0) {
       newErrors.yearsInBusiness = "Years in business is required"
+    }
+    if (!formData.numberOfEmployees || formData.numberOfEmployees < 1) {
+      newErrors.numberOfEmployees = "Number of employees is required"
     }
     if (!formData.annualRevenue) newErrors.annualRevenue = "Annual revenue range is required"
     if (!formData.country.trim()) newErrors.country = "Country is required"
@@ -133,13 +146,14 @@ const Profile = () => {
       return
     }
 
-    dispatch(saveProfileStart())
+dispatch(saveProfileStart())
     
     try {
       const profileData = {
         ...formData,
         businessType: formData.businessType === "Other" ? formData.customBusinessType : formData.businessType,
-        yearsInBusiness: parseInt(formData.yearsInBusiness)
+        yearsInBusiness: parseInt(formData.yearsInBusiness),
+        numberOfEmployees: parseInt(formData.numberOfEmployees)
       }
       
       const savedProfile = await profileService.saveProfile(user.id, profileData)
@@ -191,7 +205,19 @@ const Profile = () => {
                 error={errors.fullName}
                 required
               />
+<FormField
+                label="Email Address"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your email address"
+                error={errors.email}
+                required
+              />
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 label="Phone Number"
                 name="phone"
@@ -201,6 +227,8 @@ const Profile = () => {
                 placeholder="Enter your phone number"
                 error={errors.phone}
               />
+
+              <div></div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -263,8 +291,7 @@ const Profile = () => {
                   required
                 />
               )}
-
-              <FormField
+<FormField
                 label="Number of Years in Business"
                 name="yearsInBusiness"
                 type="number"
@@ -275,6 +302,22 @@ const Profile = () => {
                 error={errors.yearsInBusiness}
                 required
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                label="Number of Employees"
+                name="numberOfEmployees"
+                type="number"
+                min="1"
+                value={formData.numberOfEmployees}
+                onChange={handleChange}
+                placeholder="Enter number of employees"
+                error={errors.numberOfEmployees}
+                required
+              />
+
+              <div></div>
             </div>
 
             <FormField

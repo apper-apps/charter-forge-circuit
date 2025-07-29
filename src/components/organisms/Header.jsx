@@ -24,15 +24,30 @@ const Header = () => {
           <div className="flex items-center space-x-4">
 <div className="flex items-center space-x-3">
 <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-accent-600 rounded-lg flex items-center justify-center overflow-hidden">
-                <img 
-                  src="https://ln5.sync.com/dl/316c01840/t3423qw5-542xuitq-n6sxigph-vh4hrsbe" 
-                  alt="Legacy Align Logo" 
-                  className="w-8 h-8 object-contain"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextElementSibling.style.display = 'block';
-                  }}
-                />
+{user?.profile?.logoUrl ? (
+                  <img 
+                    src={user.profile.logoUrl} 
+                    alt="Company Logo" 
+                    className="w-8 h-8 object-contain"
+                    onError={(e) => {
+                      e.target.src = "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=64&h=64&fit=crop&crop=center";
+                      e.target.onerror = () => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'block';
+                      };
+                    }}
+                  />
+                ) : (
+                  <img 
+                    src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=64&h=64&fit=crop&crop=center" 
+                    alt="Legacy Align Logo" 
+                    className="w-8 h-8 object-contain"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextElementSibling.style.display = 'block';
+                    }}
+                  />
+                )}
                 <ApperIcon 
                   name="FileText" 
                   className="w-6 h-6 text-white hidden" 

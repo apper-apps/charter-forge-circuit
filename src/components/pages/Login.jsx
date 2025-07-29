@@ -28,8 +28,8 @@ const Login = () => {
     
     try {
       const user = await authService.login(formData.email, formData.password)
-      dispatch(loginSuccess(user))
-      toast.success(`Welcome ${user.role === "admin" ? "back, Admin" : "to Charter Forge"}!`)
+dispatch(loginSuccess(user))
+      toast.success(`Welcome ${user.role === "admin" ? "back, Admin" : "to Legacy Align"}!`)
     } catch (error) {
       dispatch(loginFailure(error.message))
       toast.error(error.message)
@@ -54,8 +54,8 @@ const Login = () => {
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gradient-to-br from-primary-600 to-accent-600 rounded-xl flex items-center justify-center mx-auto mb-4">
               <ApperIcon name="FileText" className="w-8 h-8 text-white" />
-            </div>
-<h1 className="text-2xl font-bold text-gray-900 mb-2 text-left">Welcome to Charter Forge</h1>
+</div>
+<h1 className="text-2xl font-bold text-gray-900 mb-2 text-left">Welcome to Legacy Align</h1>
             <p className="text-gray-600 text-left">Build your Family Business Charter</p>
           </div>
 

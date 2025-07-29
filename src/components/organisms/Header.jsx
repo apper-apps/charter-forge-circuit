@@ -26,8 +26,8 @@ const Header = () => {
               <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-accent-600 rounded-lg flex items-center justify-center">
                 <ApperIcon name="FileText" className="w-6 h-6 text-white" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 text-left">CILC Family Charter Builder</h1>
+<div>
+                <h1 className="text-xl font-bold text-gray-900 text-left">Legacy Align</h1>
                 <p className="text-sm text-gray-600 text-left">
                   {isAdmin ? "Admin Dashboard" : "Build Your Family Charter"}
                 </p>

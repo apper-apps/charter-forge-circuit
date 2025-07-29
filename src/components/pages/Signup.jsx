@@ -1,17 +1,20 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { useContext } from 'react';
 import { AuthContext } from '../../App';
 import ApperIcon from "@/components/ApperIcon";
 
-function Login() {
+function Signup() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { isInitialized } = useContext(AuthContext);
   
   useEffect(() => {
     if (isInitialized) {
-      // Show login UI in this component
+      // Show signup UI in this component
       const { ApperUI } = window.ApperSDK;
-      ApperUI.showLogin("#authentication");
+      ApperUI.showSignup("#authentication");
     }
   }, [isInitialized]);
   
@@ -24,19 +27,19 @@ function Login() {
           </div>
           <div className="flex flex-col gap-1 items-center justify-center">
             <div className="text-center text-2xl font-bold text-gray-900">
-              Welcome to Legacy Align
+              Create Account
             </div>
             <div className="text-center text-gray-600">
-              Build your Family Business Charter
+              Join Legacy Align to build your Family Business Charter
             </div>
           </div>
         </div>
         <div id="authentication" />
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
-            <Link to="/signup" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
-              Sign up
+            Already have an account?{' '}
+            <Link to="/login" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
+              Sign in
             </Link>
           </p>
         </div>
@@ -45,4 +48,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Signup;

@@ -13,18 +13,18 @@ const FormField = ({
 }) => {
 const renderInput = () => {
     if (type === "textarea") {
-      return <Textarea error={!!error} dir="ltr" {...props} />
+      return <Textarea error={!!error} {...props} />
     }
     
     if (type === "select") {
       return (
-        <Select error={!!error} dir="ltr" {...props}>
+        <Select error={!!error} {...props}>
           {children}
         </Select>
       )
     }
     
-    return <Input type={type} error={!!error} dir="ltr" {...props} />
+    return <Input type={type} error={!!error} {...props} />
   }
 
   return (

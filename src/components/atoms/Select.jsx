@@ -7,10 +7,11 @@ const Select = forwardRef(({
   children,
   ...props 
 }, ref) => {
-  return (
+return (
     <select
+      ref={ref}
+      dir="ltr"
       className={cn(
-        "form-field cursor-pointer",
         error && "border-red-500 focus:ring-red-500 focus:border-red-500",
         className
       )}

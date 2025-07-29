@@ -55,7 +55,7 @@ const QuestionCard = ({ question, pillarId, questionIndex }) => {
               </h3>
             </div>
             <p className="text-gray-700 text-base leading-relaxed">
-              {question}
+{question}
             </p>
           </div>
           <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} />

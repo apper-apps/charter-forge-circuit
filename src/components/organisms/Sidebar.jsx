@@ -47,9 +47,9 @@ const Sidebar = ({ isOpen, onClose }) => {
             <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-accent-600 rounded-lg flex items-center justify-center">
               <ApperIcon name="FileText" className="w-6 h-6 text-white" />
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">Charter Forge</h2>
-              <p className="text-xs text-gray-600">
+<div>
+              <h2 className="text-lg font-bold text-gray-900 text-left">Charter Forge</h2>
+              <p className="text-xs text-gray-600 text-left">
                 {isAdmin ? "Admin Panel" : "Charter Builder"}
               </p>
             </div>

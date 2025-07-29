@@ -27,8 +27,8 @@ const Header = () => {
                 <ApperIcon name="FileText" className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">CILC Family Charter Builder</h1>
-                <p className="text-sm text-gray-600">
+                <h1 className="text-xl font-bold text-gray-900 text-left">CILC Family Charter Builder</h1>
+                <p className="text-sm text-gray-600 text-left">
                   {isAdmin ? "Admin Dashboard" : "Build Your Family Charter"}
                 </p>
               </div>
@@ -58,9 +58,9 @@ const Header = () => {
                     exit={{ opacity: 0, scale: 0.95, y: -10 }}
                     className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
                   >
-                    <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900">{user?.email}</p>
-                      <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+<div className="px-4 py-2 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900 text-left">{user?.email}</p>
+                      <p className="text-xs text-gray-500 capitalize text-left">{user?.role}</p>
                     </div>
                     <button
                       onClick={handleLogout}

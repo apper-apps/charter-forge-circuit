@@ -118,10 +118,10 @@ const PillarQuestions = () => {
             </div>
             <div>
               <h1 className="text-2xl font-bold">{pillar.title}</h1>
-              <p className="text-white text-opacity-90">{pillar.subtitle}</p>
+<p className="text-white text-opacity-90 text-left">{pillar.subtitle}</p>
             </div>
           </div>
-          <p className="text-white text-opacity-90 text-lg leading-relaxed">
+          <p className="text-white text-opacity-90 text-lg leading-relaxed text-left">
             {pillar.description}
           </p>
         </div>
@@ -156,10 +156,10 @@ const PillarQuestions = () => {
         className="flex items-center justify-between p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl"
       >
         <div>
-          <h3 className="font-semibold text-gray-900 mb-1">
+<h3 className="font-semibold text-gray-900 mb-1 text-left">
             {completedQuestions === pillar.questions.length ? "Pillar Complete!" : "Keep Going"}
           </h3>
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-600 text-sm text-left">
             {completedQuestions === pillar.questions.length
               ? "You've completed all questions in this pillar."
               : "Take your time to thoughtfully answer each question."

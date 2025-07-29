@@ -126,8 +126,8 @@ const Export = () => {
           <div className="w-16 h-16 bg-gradient-to-br from-accent-600 to-primary-600 rounded-xl flex items-center justify-center mx-auto mb-4">
             <ApperIcon name="Download" className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Export Your Charter</h1>
-          <p className="text-lg text-gray-600">
+<h1 className="text-3xl font-bold text-gray-900 mb-2 text-left">Export Your Charter</h1>
+          <p className="text-lg text-gray-600 text-left">
             Download your Family Business Charter as a professional document
           </p>
         </div>
@@ -136,8 +136,8 @@ const Export = () => {
         <Card className="p-8 mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Charter Completion Status</h2>
-              <p className="text-gray-600">
+<h2 className="text-xl font-semibold text-gray-900 mb-2 text-left">Charter Completion Status</h2>
+              <p className="text-gray-600 text-left">
                 You've completed {stats.completed} of {stats.total} questions
               </p>
             </div>
@@ -170,8 +170,8 @@ const Export = () => {
               return (
                 <div key={pillar.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
-                    <h3 className="font-medium text-gray-900">{pillar.title}</h3>
-                    <p className="text-sm text-gray-600">
+<h3 className="font-medium text-gray-900 text-left">{pillar.title}</h3>
+                    <p className="text-sm text-gray-600 text-left">
                       {completed} of {pillar.questions.length} questions
                     </p>
                   </div>
@@ -193,7 +193,7 @@ const Export = () => {
               <ApperIcon name="FileText" className="w-8 h-8 text-red-600" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">PDF Export</h3>
-            <p className="text-gray-600 mb-6">
+<p className="text-gray-600 mb-6 text-left">
               Download a professional PDF version of your charter, perfect for sharing and printing.
             </p>
             <Button
@@ -214,7 +214,7 @@ const Export = () => {
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Word Document</h3>
             <p className="text-gray-600 mb-6">
-              Download as a Microsoft Word document for easy editing and customization.
+Download as a Microsoft Word document for easy editing and customization.
             </p>
             <Button
               variant="secondary"
@@ -235,7 +235,7 @@ const Export = () => {
             <ApperIcon name="Info" className="w-6 h-6 text-blue-600 mt-1" />
             <div>
               <h3 className="font-semibold text-blue-900 mb-2">About Your Charter Export</h3>
-              <ul className="text-blue-800 text-sm space-y-1">
+<ul className="text-blue-800 text-sm space-y-1 text-left">
                 <li>• Your charter includes all completed responses organized by the four pillars</li>
                 <li>• Business profile information is included as a header</li>
                 <li>• Documents are formatted professionally for business use</li>
@@ -252,7 +252,7 @@ const Export = () => {
               <ApperIcon name="AlertCircle" className="w-6 h-6 text-amber-600" />
               <div>
                 <h3 className="font-semibold text-amber-900 mb-1">No responses yet</h3>
-                <p className="text-amber-800 text-sm">
+<p className="text-amber-800 text-sm text-left">
                   Start answering questions in the four pillars to create your charter. 
                   You can export at any time once you begin.
                 </p>

@@ -187,8 +187,8 @@ dispatch(saveProfileStart())
           <div className="w-16 h-16 bg-gradient-to-br from-heritage-600 to-primary-600 rounded-xl flex items-center justify-center mx-auto mb-4">
             <ApperIcon name="User" className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Business Profile</h1>
-          <p className="text-lg text-gray-600">
+<h1 className="text-3xl font-bold text-gray-900 mb-2 text-left">Business Profile</h1>
+          <p className="text-lg text-gray-600 text-left">
             Manage your family business information
           </p>
         </div>
@@ -358,7 +358,7 @@ dispatch(saveProfileStart())
             </div>
 
             <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-              <p className="text-sm text-gray-600">
+<p className="text-sm text-gray-600 text-left">
                 Keep your business information up to date for a personalized charter experience
               </p>
               <Button

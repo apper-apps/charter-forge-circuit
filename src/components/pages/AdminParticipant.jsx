@@ -111,7 +111,7 @@ const AdminParticipant = () => {
                 <h1 className="text-2xl font-bold text-gray-900 mb-1">
                   {selectedParticipant.profile?.fullName || "No name provided"}
                 </h1>
-                <p className="text-gray-600 mb-2">{selectedParticipant.email}</p>
+<p className="text-gray-600 mb-2 text-left">{selectedParticipant.email}</p>
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
                   <span>Last activity: {selectedParticipant.lastActivity ? new Date(selectedParticipant.lastActivity).toLocaleDateString() : "Never"}</span>
                 </div>
@@ -136,27 +136,27 @@ const AdminParticipant = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Business Name</p>
-                  <p className="text-gray-900">{selectedParticipant.profile.businessName || "Not specified"}</p>
+<p className="text-gray-900 text-left">{selectedParticipant.profile.businessName || "Not specified"}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Position</p>
-                  <p className="text-gray-900">{selectedParticipant.profile.position || "Not specified"}</p>
+                  <p className="text-sm font-medium text-gray-600 text-left">Position</p>
+                  <p className="text-gray-900 text-left">{selectedParticipant.profile.position || "Not specified"}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Business Type</p>
-                  <p className="text-gray-900">{selectedParticipant.profile.businessType || "Not specified"}</p>
+                  <p className="text-sm font-medium text-gray-600 text-left">Business Type</p>
+                  <p className="text-gray-900 text-left">{selectedParticipant.profile.businessType || "Not specified"}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Years in Business</p>
-                  <p className="text-gray-900">{selectedParticipant.profile.yearsInBusiness || "Not specified"}</p>
+                  <p className="text-sm font-medium text-gray-600 text-left">Years in Business</p>
+                  <p className="text-gray-900 text-left">{selectedParticipant.profile.yearsInBusiness || "Not specified"}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Annual Revenue</p>
-                  <p className="text-gray-900">{selectedParticipant.profile.annualRevenue || "Not specified"}</p>
+                  <p className="text-sm font-medium text-gray-600 text-left">Annual Revenue</p>
+                  <p className="text-gray-900 text-left">{selectedParticipant.profile.annualRevenue || "Not specified"}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Location</p>
-                  <p className="text-gray-900">
+                  <p className="text-sm font-medium text-gray-600 text-left">Location</p>
+                  <p className="text-gray-900 text-left">
                     {selectedParticipant.profile.city && selectedParticipant.profile.country
                       ? `${selectedParticipant.profile.city}, ${selectedParticipant.profile.country}`
                       : "Not specified"
@@ -221,17 +221,17 @@ const AdminParticipant = () => {
                               </span>
                               <div className="flex-1">
                                 <h4 className="font-medium text-gray-900 mb-2">
-                                  {question}
+{question}
                                 </h4>
                                 {hasResponse ? (
                                   <div className="prose prose-sm max-w-none">
-                                    <div 
-                                      className="text-gray-700 bg-gray-50 rounded-lg p-4"
+<div 
+                                      className="text-gray-700 bg-gray-50 rounded-lg p-4 text-left"
                                       dangerouslySetInnerHTML={{ __html: response }}
                                     />
                                   </div>
                                 ) : (
-                                  <div className="text-gray-500 italic bg-gray-50 rounded-lg p-4">
+<div className="text-gray-500 italic bg-gray-50 rounded-lg p-4 text-left">
                                     No response provided yet
                                   </div>
                                 )}

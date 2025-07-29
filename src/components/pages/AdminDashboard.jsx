@@ -118,8 +118,8 @@ const AdminDashboard = () => {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Participant Dashboard</h1>
-          <p className="text-lg text-gray-600">
+<h1 className="text-3xl font-bold text-gray-900 mb-2 text-left">Participant Dashboard</h1>
+          <p className="text-lg text-gray-600 text-left">
             Monitor progress and manage family business charter participants
           </p>
         </div>
@@ -191,13 +191,13 @@ const AdminDashboard = () => {
         <Card className="overflow-hidden">
           <div className="admin-table">
             <table className="w-full">
-              <thead>
+<thead>
                 <tr>
-                  <th>Participant</th>
-                  <th>Business</th>
-                  <th>Progress</th>
-                  <th>Last Activity</th>
-                  <th>Actions</th>
+                  <th className="text-left">Participant</th>
+                  <th className="text-left">Business</th>
+                  <th className="text-left">Progress</th>
+                  <th className="text-left">Last Activity</th>
+                  <th className="text-left">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -214,19 +214,19 @@ const AdminDashboard = () => {
                             </span>
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">
+<p className="font-medium text-gray-900 text-left">
                               {participant.profile?.fullName || "No name"}
                             </p>
-                            <p className="text-sm text-gray-500">{participant.email}</p>
+                            <p className="text-sm text-gray-500 text-left">{participant.email}</p>
                           </div>
                         </div>
                       </td>
                       <td>
                         <div>
-                          <p className="font-medium text-gray-900">
+<p className="font-medium text-gray-900 text-left">
                             {participant.profile?.businessName || "Not specified"}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 text-left">
                             {participant.profile?.position || "No position"}
                           </p>
                         </div>
@@ -250,12 +250,12 @@ const AdminDashboard = () => {
                             {Math.round(status.percentage)}%
                           </span>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">
+<p className="text-xs text-gray-500 mt-1 text-left">
                           {status.completed} of {status.total} questions
                         </p>
                       </td>
                       <td>
-                        <p className="text-sm text-gray-600">
+<p className="text-sm text-gray-600 text-left">
                           {participant.lastActivity ? new Date(participant.lastActivity).toLocaleDateString() : "Never"}
                         </p>
                       </td>
@@ -279,10 +279,10 @@ const AdminDashboard = () => {
         </Card>
 
         {filteredParticipants.length === 0 && participants.length > 0 && (
-          <div className="text-center py-8">
+<div className="text-center py-8">
             <ApperIcon name="Search" className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No participants found</h3>
-            <p className="text-gray-600">Try adjusting your search or filter criteria.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2 text-left">No participants found</h3>
+            <p className="text-gray-600 text-left">Try adjusting your search or filter criteria.</p>
           </div>
         )}
       </motion.div>

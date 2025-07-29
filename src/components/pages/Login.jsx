@@ -55,8 +55,8 @@ const Login = () => {
             <div className="w-16 h-16 bg-gradient-to-br from-primary-600 to-accent-600 rounded-xl flex items-center justify-center mx-auto mb-4">
               <ApperIcon name="FileText" className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to Charter Forge</h1>
-            <p className="text-gray-600">Build your Family Business Charter</p>
+<h1 className="text-2xl font-bold text-gray-900 mb-2 text-left">Welcome to Charter Forge</h1>
+            <p className="text-gray-600 text-left">Build your Family Business Charter</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

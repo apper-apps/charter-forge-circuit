@@ -7,9 +7,8 @@ import Button from "@/components/atoms/Button"
 
 const Header = () => {
   const dispatch = useDispatch()
-  const { user } = useSelector((state) => state.auth)
+  const { user } = useSelector((state) => state.user)
   const [showDropdown, setShowDropdown] = useState(false)
-
   const handleLogout = () => {
     dispatch(logout())
     setShowDropdown(false)

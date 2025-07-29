@@ -5,7 +5,7 @@ import Sidebar from "@/components/organisms/Sidebar"
 
 const Layout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { user } = useSelector((state) => state.auth)
+  const { user } = useSelector((state) => state.user)
 
   if (!user) {
     return children

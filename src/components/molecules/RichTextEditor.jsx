@@ -15,11 +15,11 @@ const RichTextEditor = ({
   const editorRef = useRef(null)
   const autoSaveTimeoutRef = useRef(null)
 
-  useEffect(() => {
-    if (editorRef.current) {
+useEffect(() => {
+    if (editorRef.current && !isFocused) {
       editorRef.current.innerHTML = value
     }
-  }, [value])
+  }, [value, isFocused])
 
   useEffect(() => {
     if (autoSave && onAutoSave && content !== value) {
@@ -45,12 +45,16 @@ const RichTextEditor = ({
     onChange?.(newContent)
   }
 
-  const handleFocus = () => {
+const handleFocus = () => {
     setIsFocused(true)
   }
 
   const handleBlur = () => {
     setIsFocused(false)
+    // Sync content after blur to ensure latest value is applied
+    if (editorRef.current && value !== editorRef.current.innerHTML) {
+      editorRef.current.innerHTML = value
+    }
   }
 
   const execCommand = (command, value = null) => {

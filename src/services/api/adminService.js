@@ -235,14 +235,14 @@ const responsesResponse = await apperClient.fetchRecords("response", responsePar
         },
         responses: groupedResponses
       };
-    } catch (error) {
+} catch (error) {
       if (error?.response?.data?.message) {
-if (error?.response?.data?.message) {
         console.error("Error fetching participant responses:", error?.response?.data?.message);
       } else {
         console.error("Error fetching participant responses:", error.message);
       }
       throw error;
+    }
   },
 
   async createParticipant(participantData) {
@@ -255,7 +255,6 @@ if (error?.response?.data?.message) {
 password: participantData.password
         }]
       };
-
 const response = await apperClient.createRecord('profile', params);
       
       if (!response.success) {

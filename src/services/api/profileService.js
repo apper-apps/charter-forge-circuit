@@ -1,4 +1,4 @@
-const { ApperClient } = = window.ApperSDK;
+const { ApperClient } = window.ApperSDK;
 
 const apperClient = new ApperClient({
   apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,

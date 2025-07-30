@@ -70,7 +70,7 @@ const [formData, setFormData] = useState({
         if (profileData) {
 setFormData({
             fullName: profileData.fullName || "",
-            email: profileData.Name || profileData.email || "",
+            email: profileData.Name || "",
             phone: profileData.phone || "",
             businessName: profileData.businessName || "",
             position: profileData.position || "",
@@ -122,11 +122,8 @@ const validateForm = () => {
     if (formData.businessType === "Other" && !formData.customBusinessType.trim()) {
       newErrors.customBusinessType = "Please specify business type"
     }
-    if (!formData.yearsInBusiness || formData.yearsInBusiness < 0) {
+if (!formData.yearsInBusiness || formData.yearsInBusiness < 0) {
       newErrors.yearsInBusiness = "Years in business is required"
-    }
-    if (!formData.numberOfEmployees || formData.numberOfEmployees < 1) {
-      newErrors.numberOfEmployees = "Number of employees is required"
     }
     if (!formData.annualRevenue) newErrors.annualRevenue = "Annual revenue range is required"
     if (!formData.country.trim()) newErrors.country = "Country is required"
@@ -301,21 +298,6 @@ const profileData = {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                label="Number of Employees"
-                name="numberOfEmployees"
-                type="number"
-                min="1"
-                value={formData.numberOfEmployees}
-                onChange={handleChange}
-                placeholder="Enter number of employees"
-                error={errors.numberOfEmployees}
-                required
-              />
-
-              <div></div>
-            </div>
 
             <FormField
               label="Annual Revenue Range"

@@ -5,7 +5,6 @@ const Input = forwardRef(({
   className, 
   type = "text",
   error = false,
-  value = "",
   ...props 
 }, ref) => {
 return (
@@ -18,7 +17,6 @@ return (
         className
       )}
       ref={ref}
-      value={value}
       {...props}
     />
   )

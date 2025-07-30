@@ -30,10 +30,9 @@ export const responsesService = {
 
       const response = await apperClient.fetchRecords("response", params);
       
-if (!response.success) {
-        const errorMessage = response.message || "Failed to fetch responses data";
-        console.error("Responses service error:", errorMessage);
-        throw new Error(errorMessage);
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
       }
 
       const userResponses = response.data || [];
@@ -88,14 +87,14 @@ if (!response.success) {
         ]
       };
 
-const existingResponse = await apperClient.fetchRecords("response", params);
+      const existingResponse = await apperClient.fetchRecords("response", params);
+      
       if (!existingResponse.success) {
-        const errorMessage = existingResponse.message || "Failed to fetch existing response";
-        console.error("Responses service fetch error:", errorMessage);
-        throw new Error(errorMessage);
+        console.error(existingResponse.message);
+        throw new Error(existingResponse.message);
       }
 
-      // Prepare data with only Updateable fields
+// Prepare data with only Updateable fields
       const updateableData = {
         Name: `Response - ${pillarId} - ${questionId} - User ${userId}`,
         userId: parseInt(userId),
@@ -119,9 +118,8 @@ const existingResponse = await apperClient.fetchRecords("response", params);
         const response = await apperClient.updateRecord("response", updateParams);
         
         if (!response.success) {
-          const errorMessage = response.message || "Failed to update response";
-          console.error("Responses service update error:", errorMessage);
-          throw new Error(errorMessage);
+          console.error(response.message);
+          throw new Error(response.message);
         }
 
         if (response.results) {
@@ -147,11 +145,11 @@ const existingResponse = await apperClient.fetchRecords("response", params);
           records: [updateableData]
         };
 
-const response = await apperClient.createRecord("response", createParams);
+        const response = await apperClient.createRecord("response", createParams);
+        
         if (!response.success) {
-          const errorMessage = response.message || "Failed to create response";
-          console.error("Responses service create error:", errorMessage);
-          throw new Error(errorMessage);
+          console.error(response.message);
+          throw new Error(response.message);
         }
 
         if (response.results) {

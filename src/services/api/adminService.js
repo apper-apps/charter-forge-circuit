@@ -30,10 +30,9 @@ export const adminService = {
 
       const profilesResponse = await apperClient.fetchRecords("profile", profileParams);
       
-if (!profilesResponse.success) {
-        const errorMessage = profilesResponse.message || "Failed to fetch profiles data";
-        console.error("Admin service profiles error:", errorMessage);
-        throw new Error(errorMessage);
+      if (!profilesResponse.success) {
+        console.error(profilesResponse.message);
+        throw new Error(profilesResponse.message);
       }
 
       const profiles = profilesResponse.data || [];
@@ -52,12 +51,11 @@ if (!profilesResponse.success) {
         ]
       };
 
-const responsesResponse = await apperClient.fetchRecords("response", responseParams);
+      const responsesResponse = await apperClient.fetchRecords("response", responseParams);
       
       if (!responsesResponse.success) {
-        const errorMessage = responsesResponse.message || "Failed to fetch responses data";
-        console.error("Admin service responses error:", errorMessage);
-        throw new Error(errorMessage);
+        console.error(responsesResponse.message);
+        throw new Error(responsesResponse.message);
       }
 
       const responses = responsesResponse.data || [];
@@ -171,10 +169,9 @@ const responsesResponse = await apperClient.fetchRecords("response", responsePar
 
       const profileResponse = await apperClient.fetchRecords("profile", profileParams);
       
-if (!profileResponse.success) {
-        const errorMessage = profileResponse.message || "Failed to fetch participant profile";
-        console.error("Admin service participant profile error:", errorMessage);
-        throw new Error(errorMessage);
+      if (!profileResponse.success) {
+        console.error(profileResponse.message);
+        throw new Error(profileResponse.message);
       }
 
       const profile = profileResponse.data && profileResponse.data.length > 0 ? profileResponse.data[0] : null;
@@ -200,12 +197,11 @@ if (!profileResponse.success) {
         ]
       };
 
-const responsesResponse = await apperClient.fetchRecords("response", responseParams);
+      const responsesResponse = await apperClient.fetchRecords("response", responseParams);
       
       if (!responsesResponse.success) {
-        const errorMessage = responsesResponse.message || "Failed to fetch participant responses";
-        console.error("Admin service participant responses error:", errorMessage);
-        throw new Error(errorMessage);
+        console.error(responsesResponse.message);
+        throw new Error(responsesResponse.message);
       }
 
       const userResponses = responsesResponse.data || [];
@@ -235,60 +231,11 @@ const responsesResponse = await apperClient.fetchRecords("response", responsePar
         },
         responses: groupedResponses
       };
-} catch (error) {
+    } catch (error) {
       if (error?.response?.data?.message) {
         console.error("Error fetching participant responses:", error?.response?.data?.message);
       } else {
         console.error("Error fetching participant responses:", error.message);
-      }
-      throw error;
-    }
-  },
-
-  async createParticipant(participantData) {
-    try {
-      const params = {
-        records: [{
-          // Use Name field for email as per requirement
-          Name: participantData.email,
-          fullName: participantData.name,
-password: participantData.password
-        }]
-      };
-const response = await apperClient.createRecord('profile', params);
-      
-      if (!response.success) {
-        const errorMessage = response.message || "Failed to create participant";
-        console.error("Admin service create participant error:", errorMessage);
-        throw new Error(errorMessage);
-      }
-
-      if (response.results) {
-        const failedRecords = response.results.filter(result => !result.success);
-        
-        if (failedRecords.length > 0) {
-          console.error(`Failed to create participant records:${JSON.stringify(failedRecords)}`);
-          
-          // Return first error for user feedback
-          const firstError = failedRecords[0];
-          if (firstError.errors && firstError.errors.length > 0) {
-            throw new Error(`${firstError.errors[0].fieldLabel}: ${firstError.errors[0].message}`);
-          }
-          if (firstError.message) {
-            throw new Error(firstError.message);
-          }
-        }
-
-        const successfulRecords = response.results.filter(result => result.success);
-        return successfulRecords.map(result => result.data);
-      }
-
-      return [];
-    } catch (error) {
-      if (error?.response?.data?.message) {
-        console.error("Error creating participant:", error?.response?.data?.message);
-      } else {
-        console.error("Error creating participant:", error.message);
       }
       throw error;
     }

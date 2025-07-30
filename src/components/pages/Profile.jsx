@@ -51,6 +51,7 @@ const [formData, setFormData] = useState({
     businessType: "",
     customBusinessType: "",
     yearsInBusiness: "",
+    numberOfEmployees: "",
     annualRevenue: "",
     country: "",
     city: ""
@@ -70,7 +71,7 @@ const [formData, setFormData] = useState({
         if (profileData) {
 setFormData({
             fullName: profileData.fullName || "",
-            email: profileData.Name || "",
+            email: profileData.email || "",
             phone: profileData.phone || "",
             businessName: profileData.businessName || "",
             position: profileData.position || "",
@@ -78,6 +79,7 @@ setFormData({
             businessType: BUSINESS_TYPES.includes(profileData.businessType) ? profileData.businessType : "Other",
             customBusinessType: !BUSINESS_TYPES.includes(profileData.businessType) ? profileData.businessType : "",
             yearsInBusiness: profileData.yearsInBusiness?.toString() || "",
+            numberOfEmployees: profileData.numberOfEmployees?.toString() || "",
             annualRevenue: profileData.annualRevenue || "",
             country: profileData.country || "",
             city: profileData.city || ""
@@ -122,8 +124,11 @@ const validateForm = () => {
     if (formData.businessType === "Other" && !formData.customBusinessType.trim()) {
       newErrors.customBusinessType = "Please specify business type"
     }
-if (!formData.yearsInBusiness || formData.yearsInBusiness < 0) {
+    if (!formData.yearsInBusiness || formData.yearsInBusiness < 0) {
       newErrors.yearsInBusiness = "Years in business is required"
+    }
+    if (!formData.numberOfEmployees || formData.numberOfEmployees < 1) {
+      newErrors.numberOfEmployees = "Number of employees is required"
     }
     if (!formData.annualRevenue) newErrors.annualRevenue = "Annual revenue range is required"
     if (!formData.country.trim()) newErrors.country = "Country is required"
@@ -133,7 +138,7 @@ if (!formData.yearsInBusiness || formData.yearsInBusiness < 0) {
     return Object.keys(newErrors).length === 0
   }
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (!validateForm()) {
@@ -141,13 +146,14 @@ const handleSubmit = async (e) => {
       return
     }
 
-    dispatch(saveProfileStart())
+dispatch(saveProfileStart())
     
     try {
-const profileData = {
+      const profileData = {
         ...formData,
         businessType: formData.businessType === "Other" ? formData.customBusinessType : formData.businessType,
-        yearsInBusiness: parseInt(formData.yearsInBusiness)
+        yearsInBusiness: parseInt(formData.yearsInBusiness),
+        numberOfEmployees: parseInt(formData.numberOfEmployees)
       }
       
       const savedProfile = await profileService.saveProfile(user.id, profileData)
@@ -155,7 +161,7 @@ const profileData = {
       toast.success("Profile updated successfully!")
     } catch (error) {
       dispatch(saveProfileFailure(error.message))
-      toast.error(`Failed to update profile: ${error.message}`)
+      toast.error("Failed to update profile")
     }
   }
 
@@ -298,6 +304,21 @@ const profileData = {
               />
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                label="Number of Employees"
+                name="numberOfEmployees"
+                type="number"
+                min="1"
+                value={formData.numberOfEmployees}
+                onChange={handleChange}
+                placeholder="Enter number of employees"
+                error={errors.numberOfEmployees}
+                required
+              />
+
+              <div></div>
+            </div>
 
             <FormField
               label="Annual Revenue Range"

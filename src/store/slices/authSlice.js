@@ -1,45 +1,72 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit"
 
 const initialState = {
   user: null,
-  isAuthenticated: false,
   isLoading: false,
-  error: null
-};
+  error: null,
+  forgotPasswordLoading: false,
+  forgotPasswordError: null,
+  forgotPasswordSuccess: false
+}
 
-export const authSlice = createSlice({
-  name: 'auth',
+const authSlice = createSlice({
+  name: "auth",
   initialState,
   reducers: {
     loginStart: (state) => {
-      state.isLoading = true;
-      state.error = null;
+      state.isLoading = true
+      state.error = null
     },
     loginSuccess: (state, action) => {
-      // CRITICAL: Always use deep cloning to avoid reference issues
-      // This prevents potential issues with object mutations
-      state.user = JSON.parse(JSON.stringify(action.payload));
-      state.isAuthenticated = !!action.payload;
-      state.isLoading = false;
-      state.error = null;
+      state.isLoading = false
+      state.user = action.payload
+      state.error = null
     },
     loginFailure: (state, action) => {
-      state.user = null;
-      state.isAuthenticated = false;
-      state.isLoading = false;
-      state.error = action.payload;
+      state.isLoading = false
+      state.error = action.payload
+      state.user = null
     },
     logout: (state) => {
-      state.user = null;
-      state.isAuthenticated = false;
-      state.isLoading = false;
-      state.error = null;
+      state.user = null
+      state.error = null
+      state.isLoading = false
     },
     clearError: (state) => {
-      state.error = null;
+      state.error = null
+    },
+    forgotPasswordStart: (state) => {
+      state.forgotPasswordLoading = true
+      state.forgotPasswordError = null
+      state.forgotPasswordSuccess = false
+    },
+    forgotPasswordSuccess: (state) => {
+      state.forgotPasswordLoading = false
+      state.forgotPasswordError = null
+      state.forgotPasswordSuccess = true
+    },
+    forgotPasswordFailure: (state, action) => {
+      state.forgotPasswordLoading = false
+      state.forgotPasswordError = action.payload
+      state.forgotPasswordSuccess = false
+    },
+    clearForgotPasswordState: (state) => {
+      state.forgotPasswordLoading = false
+      state.forgotPasswordError = null
+      state.forgotPasswordSuccess = false
     }
-  },
-});
+  }
+})
 
-export const { loginStart, loginSuccess, loginFailure, logout, clearError } = authSlice.actions;
+export const { 
+  loginStart, 
+  loginSuccess, 
+  loginFailure, 
+  logout, 
+  clearError,
+  forgotPasswordStart,
+  forgotPasswordSuccess,
+  forgotPasswordFailure,
+  clearForgotPasswordState
+} = authSlice.actions
 export default authSlice.reducer

@@ -30,7 +30,7 @@ const Header = () => {
                     alt="Company Logo" 
                     className="w-8 h-8 object-contain"
                     onError={(e) => {
-                      e.target.src = "https://ln5.sync.com/dl/316c01840/t3423qw5-542xuitq-n6sxigph-vh4hrsbe";
+                      e.target.src = "https://ln5.sync.com/dl/38e785030/bgpk2d5j-xhgfhcjs-46apugsn-arkekbda";
                       e.target.onerror = () => {
                         e.target.style.display = 'none';
                         e.target.nextElementSibling.style.display = 'block';
@@ -39,7 +39,7 @@ const Header = () => {
                   />
                 ) : (
                   <img 
-                    src="https://ln5.sync.com/dl/316c01840/t3423qw5-542xuitq-n6sxigph-vh4hrsbe" 
+                    src="https://ln5.sync.com/dl/38e785030/bgpk2d5j-xhgfhcjs-46apugsn-arkekbda" 
                     alt="Legacy Align Logo" 
                     className="w-8 h-8 object-contain"
                     onError={(e) => {

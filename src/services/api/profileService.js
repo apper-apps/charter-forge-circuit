@@ -1,5 +1,4 @@
 const { ApperClient } = window.ApperSDK;
-
 const apperClient = new ApperClient({
   apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
   apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
@@ -51,96 +50,73 @@ if (!response.success) {
       }
       throw error;
     }
-  },
+},
 
   async saveProfile(userId, profileData) {
     try {
-      // First check if profile exists
+      // First, check if profile already exists
       const existingProfile = await this.getProfile(userId);
       
-      // Prepare data with only Updateable fields
-const updateableData = {
-        Name: profileData.fullName || profileData.email || `User ${userId}`,
+      // Filter data to only include Updateable fields based on schema
+      const allowedFields = {
         fullName: profileData.fullName,
         phone: profileData.phone,
         businessName: profileData.businessName,
         position: profileData.position,
         otherOwners: profileData.otherOwners,
         businessType: profileData.businessType,
-        yearsInBusiness: parseInt(profileData.yearsInBusiness),
+        yearsInBusiness: profileData.yearsInBusiness,
         annualRevenue: profileData.annualRevenue,
         country: profileData.country,
         city: profileData.city,
         userId: parseInt(userId)
       };
 
+      // Remove undefined fields
+      const filteredData = Object.fromEntries(
+        Object.entries(allowedFields).filter(([_, value]) => value !== undefined)
+      );
+
+      let response;
+      
       if (existingProfile) {
         // Update existing profile
         const params = {
-          records: [
-            {
-              Id: existingProfile.Id,
-              ...updateableData
-            }
-          ]
+          records: [{
+            Id: existingProfile.Id,
+            ...filteredData
+          }]
         };
-
-        const response = await apperClient.updateRecord("profile", params);
         
-if (!response.success) {
-          const errorMessage = response.message || "Failed to update profile";
-          console.error("Profile service update error:", errorMessage);
-          throw new Error(errorMessage);
-        }
-
-        if (response.results) {
-          const failedUpdates = response.results.filter(result => !result.success);
-          
-          if (failedUpdates.length > 0) {
-            console.error(`Failed to update profile ${failedUpdates.length} records:${JSON.stringify(failedUpdates)}`);
-            
-            failedUpdates.forEach(record => {
-              record.errors?.forEach(error => {
-                throw new Error(`${error.fieldLabel}: ${error.message}`);
-              });
-              if (record.message) throw new Error(record.message);
-            });
-          }
-          
-          const successfulUpdates = response.results.filter(result => result.success);
-          return successfulUpdates.length > 0 ? successfulUpdates[0].data : null;
-        }
+        response = await apperClient.updateRecord("profile", params);
       } else {
         // Create new profile
         const params = {
-          records: [updateableData]
+          records: [filteredData]
         };
-const response = await apperClient.createRecord("profile", params);
         
-        if (!response.success) {
-          const errorMessage = response.message || "Failed to create profile";
-          console.error("Profile service create error:", errorMessage);
-          throw new Error(errorMessage);
-        }
-
-        if (response.results) {
-          const failedCreates = response.results.filter(result => !result.success);
-          
-          if (failedCreates.length > 0) {
-            console.error(`Failed to create profile ${failedCreates.length} records:${JSON.stringify(failedCreates)}`);
-            
-            failedCreates.forEach(record => {
-              record.errors?.forEach(error => {
-                throw new Error(`${error.fieldLabel}: ${error.message}`);
-              });
-              if (record.message) throw new Error(record.message);
-            });
-          }
-          
-          const successfulCreates = response.results.filter(result => result.success);
-          return successfulCreates.length > 0 ? successfulCreates[0].data : null;
-        }
+        response = await apperClient.createRecord("profile", params);
       }
+
+      if (!response.success) {
+        const errorMessage = response.message || "Failed to save profile data";
+        console.error("Profile service error:", errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      if (response.results) {
+        const successfulRecords = response.results.filter(result => result.success);
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to save profile ${failedRecords.length} records:${JSON.stringify(failedRecords)}`);
+          throw new Error(failedRecords[0].message || "Failed to save profile");
+        }
+        
+        return successfulRecords.length > 0 ? successfulRecords[0].data : null;
+      }
+
+      return null;
     } catch (error) {
       if (error?.response?.data?.message) {
         console.error("Error saving profile:", error?.response?.data?.message);
@@ -148,6 +124,6 @@ const response = await apperClient.createRecord("profile", params);
         console.error("Error saving profile:", error.message);
       }
       throw error;
-    }
-  }
 }
+  }
+};

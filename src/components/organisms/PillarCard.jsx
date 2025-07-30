@@ -1,8 +1,9 @@
-import { motion } from "framer-motion"
-import { useSelector } from "react-redux"
-import ApperIcon from "@/components/ApperIcon"
-import ProgressRing from "@/components/molecules/ProgressRing"
-import Card from "@/components/atoms/Card"
+import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
+import React from "react";
+import ApperIcon from "@/components/ApperIcon";
+import ProgressRing from "@/components/molecules/ProgressRing";
+import Card from "@/components/atoms/Card";
 
 const PillarCard = ({ pillar, onClick }) => {
   const { responses } = useSelector((state) => state.responses)
@@ -62,11 +63,11 @@ const getIconForPillar = (pillarId) => {
           {pillar.description}
         </p>
 
-        <div className="flex items-center justify-between">
+<div className="flex items-center justify-between">
           <span className="text-sm text-gray-500">
             {completedQuestions} of {pillar.questions.length} questions completed
           </span>
-          <ApperIcon 
+          <ApperIcon
             name="ArrowRight" 
             className="w-5 h-5 text-gray-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-all" 
           />

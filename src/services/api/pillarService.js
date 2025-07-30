@@ -9,13 +9,21 @@ export const pillarService = {
   async getAllPillars() {
     try {
       const params = {
-        fields: [
+fields: [
           { field: { Name: "Name" } },
           { field: { Name: "description" } },
           { field: { Name: "Tags" } },
           { field: { Name: "Owner" } },
           { field: { Name: "CreatedOn" } },
-          { field: { Name: "ModifiedOn" } }
+          { field: { Name: "ModifiedOn" } },
+          { field: { Name: "isVisible" } }
+        ],
+        where: [
+          {
+            FieldName: "isVisible",
+            Operator: "EqualTo",
+            Values: [true]
+          }
         ],
         orderBy: [
           {

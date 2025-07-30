@@ -10,7 +10,7 @@ import { toast } from "react-toastify"
 
 const Login = () => {
   const dispatch = useDispatch()
-  const { isLoading, error } = useSelector((state) => state.auth)
+const { isLoading, error, forgotPasswordLoading } = useSelector((state) => state.auth)
 const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -153,11 +153,11 @@ const handleChange = (e) => {
               />
 
               <div className="space-y-3">
-                <Button
+<Button
                   type="submit"
                   variant="primary"
-loading={useSelector((state) => state.auth.forgotPasswordLoading)}
-                  disabled={useSelector((state) => state.auth.forgotPasswordLoading)}
+                  loading={forgotPasswordLoading}
+                  disabled={forgotPasswordLoading}
                   className="w-full"
                 >
                   Send Reset Instructions

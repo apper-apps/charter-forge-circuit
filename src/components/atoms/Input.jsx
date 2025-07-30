@@ -5,10 +5,10 @@ const Input = forwardRef(({
   className, 
   type = "text",
   error = false,
-  value,
+  value = "",
   ...props 
 }, ref) => {
-  return (
+return (
     <input
       type={type}
       dir="ltr"
@@ -18,7 +18,7 @@ const Input = forwardRef(({
         className
       )}
       ref={ref}
-      value={value ?? ""}
+      value={value || ""}
       {...props}
     />
   )

@@ -81,13 +81,8 @@ useEffect(() => {
   }, 0)
   const overallProgress = totalQuestions > 0 ? (completedQuestions / totalQuestions) * 100 : 0
 
-if (responsesLoading || profileLoading || pillarsLoading) {
-    return <Loading type="dashboard" />
-  }
-
-if (responsesError || pillarsError) {
-return <Error message={responsesError || pillarsError} onRetry={handleRetry} />
-  }
+// Individual sections will handle their own loading and error states
+  // This ensures users can always access available dashboard information
 
   return (
     <div className="p-8">

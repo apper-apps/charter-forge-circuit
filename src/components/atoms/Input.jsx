@@ -18,7 +18,7 @@ return (
         className
       )}
       ref={ref}
-      value={value || ""}
+      value={value}
       {...props}
     />
   )

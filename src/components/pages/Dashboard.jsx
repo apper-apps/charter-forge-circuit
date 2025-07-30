@@ -166,13 +166,17 @@ className="mb-8"
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <PillarCard 
+<PillarCard 
               pillar={{
                 id: pillar.Id,
                 title: pillar.Name,
-                description: pillar.description,
-                icon: "FileText", // Default icon since not in database
-                questions: [] // Questions would need to be loaded separately
+                subtitle: `Pillar ${index + 1}`,
+                description: pillar.description || `Explore the ${pillar.Name} pillar of your family business charter`,
+                gradient: index === 0 ? "from-blue-500 to-blue-600" : 
+                         index === 1 ? "from-green-500 to-green-600" :
+                         index === 2 ? "from-purple-500 to-purple-600" :
+                         "from-orange-500 to-orange-600",
+                questions: Array(estimatedQuestionsPerPillar).fill(null).map((_, i) => ({ id: i + 1 }))
               }} 
               onClick={handlePillarClick} 
             />

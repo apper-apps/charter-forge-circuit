@@ -14,9 +14,9 @@ const authSlice = createSlice({
       state.isLoading = true
       state.error = null
     },
-loginSuccess: (state, action) => {
+    loginSuccess: (state, action) => {
       state.isLoading = false
-      state.user = JSON.parse(JSON.stringify(action.payload))
+      state.user = action.payload
       state.error = null
     },
     loginFailure: (state, action) => {

@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { motion } from "framer-motion";
-import { pillarService } from "@/services/api/pillarService";
-import { profileService } from "@/services/api/profileService";
-import { responsesService } from "@/services/api/responsesService";
-import ApperIcon from "@/components/ApperIcon";
-import PillarCard from "@/components/organisms/PillarCard";
-import Loading from "@/components/ui/Loading";
-import Error from "@/components/ui/Error";
-import Profile from "@/components/pages/Profile";
-import { fetchProfileFailure, fetchProfileStart, fetchProfileSuccess } from "@/store/slices/profileSlice";
-import { fetchResponsesFailure, fetchResponsesStart, fetchResponsesSuccess } from "@/store/slices/responsesSlice";
+import { useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
+import { motion } from "framer-motion"
+import { fetchResponsesStart, fetchResponsesSuccess, fetchResponsesFailure } from "@/store/slices/responsesSlice"
+import { fetchProfileStart, fetchProfileSuccess, fetchProfileFailure } from "@/store/slices/profileSlice"
+import { responsesService } from "@/services/api/responsesService"
+import { profileService } from "@/services/api/profileService"
+import { PILLARS } from "@/services/mockData/pillars"
+import PillarCard from "@/components/organisms/PillarCard"
+import Loading from "@/components/ui/Loading"
+import Error from "@/components/ui/Error"
+import ApperIcon from "@/components/ApperIcon"
 
 const Dashboard = () => {
   const navigate = useNavigate()
@@ -19,11 +18,8 @@ const Dashboard = () => {
   const { user } = useSelector((state) => state.auth)
   const { responses, isLoading: responsesLoading, error: responsesError } = useSelector((state) => state.responses)
   const { profile, isLoading: profileLoading } = useSelector((state) => state.profile)
-  
-  const [pillars, setPillars] = useState([])
-  const [pillarsLoading, setPillarsLoading] = useState(true)
-  const [pillarsError, setPillarsError] = useState(null)
-useEffect(() => {
+
+  useEffect(() => {
     if (!user?.id) return
 
     const loadData = async () => {
@@ -44,17 +40,6 @@ useEffect(() => {
       } catch (error) {
         dispatch(fetchResponsesFailure(error.message))
       }
-
-      // Load pillars
-      setPillarsLoading(true)
-      try {
-        const pillarsData = await pillarService.getAllPillars()
-        setPillars(pillarsData)
-      } catch (error) {
-        setPillarsError(error.message)
-      } finally {
-        setPillarsLoading(false)
-      }
     }
 
     loadData()
@@ -71,9 +56,8 @@ useEffect(() => {
   // Check if profile is complete
   const isProfileComplete = profile && profile.fullName && profile.businessName
 
-// Calculate overall progress (using estimated questions per pillar since questions aren't in database)
-  const estimatedQuestionsPerPillar = 5 // Average questions per pillar
-  const totalQuestions = pillars.length * estimatedQuestionsPerPillar
+  // Calculate overall progress
+  const totalQuestions = PILLARS.reduce((sum, pillar) => sum + pillar.questions.length, 0)
   const completedQuestions = Object.values(responses).reduce((sum, pillarResponses) => {
     return sum + Object.values(pillarResponses).filter(response => 
       response && response.trim().length > 0
@@ -81,8 +65,13 @@ useEffect(() => {
   }, 0)
   const overallProgress = totalQuestions > 0 ? (completedQuestions / totalQuestions) * 100 : 0
 
-// Individual sections will handle their own loading and error states
-  // This ensures users can always access available dashboard information
+  if (responsesLoading || profileLoading) {
+    return <Loading type="dashboard" />
+  }
+
+  if (responsesError) {
+    return <Error message={responsesError} onRetry={handleRetry} />
+  }
 
   return (
     <div className="p-8">
@@ -152,33 +141,15 @@ className="mb-8"
       )}
 
       {/* Four Pillars */}
-{/* Four Pillars */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {pillars.map((pillar, index) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {PILLARS.map((pillar, index) => (
           <motion.div
-            key={pillar.Id}
+            key={pillar.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <PillarCard 
-              pillar={{
-                id: String(pillar.Id), // Convert to string for consistent navigation
-                title: pillar.Name,
-                subtitle: `Pillar ${index + 1}`,
-                description: pillar.description || `Explore the ${pillar.Name} pillar of your family business charter`,
-                gradient: index === 0 ? "from-blue-500 to-blue-600" : 
-                         index === 1 ? "from-green-500 to-green-600" :
-                         index === 2 ? "from-purple-500 to-purple-600" :
-                         "from-orange-500 to-orange-600",
-                questions: Array(estimatedQuestionsPerPillar).fill(null).map((_, i) => ({ 
-                  id: `${pillar.Id}-${i + 1}`,
-                  pillarId: pillar.Id,
-                  questionNumber: i + 1
-                }))
-              }} 
-              onClick={handlePillarClick} 
-            />
+            <PillarCard pillar={pillar} onClick={handlePillarClick} />
           </motion.div>
         ))}
       </div>

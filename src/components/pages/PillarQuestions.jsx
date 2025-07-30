@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux"
 import { motion } from "framer-motion"
 import { fetchResponsesStart, fetchResponsesSuccess, fetchResponsesFailure } from "@/store/slices/responsesSlice"
 import { responsesService } from "@/services/api/responsesService"
-import { pillarService } from "@/services/api/pillarService"
 import { PILLARS } from "@/services/mockData/pillars"
 import QuestionCard from "@/components/organisms/QuestionCard"
 import Button from "@/components/atoms/Button"
@@ -16,42 +15,15 @@ const PillarQuestions = () => {
   const { pillarId } = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
-const { user } = useSelector((state) => state.auth)
+  const { user } = useSelector((state) => state.auth)
   const { responses, isLoading, error } = useSelector((state) => state.responses)
-  
-  const [pillar, setPillar] = useState(null)
-  const [pillarLoading, setPillarLoading] = useState(true)
-  const [pillarError, setPillarError] = useState(null)
 
-useEffect(() => {
+  const pillar = PILLARS.find(p => p.id === pillarId)
+
+  useEffect(() => {
     if (!user?.id) return
 
-    const loadData = async () => {
-      // Load pillar data from database
-      setPillarLoading(true)
-      try {
-        const pillarData = await pillarService.getPillarById(pillarId)
-        if (pillarData) {
-          // Map database pillar to expected format with mock questions
-          const mockPillar = PILLARS.find(p => p.id === pillarId)
-          setPillar({
-            id: pillarData.Id,
-            title: pillarData.Name,
-            subtitle: mockPillar?.subtitle || `Pillar ${pillarData.Id}`,
-            description: pillarData.description || mockPillar?.description || '',
-            gradient: mockPillar?.gradient || "from-primary-600 to-primary-700",
-            questions: mockPillar?.questions || []
-          })
-        } else {
-          setPillarError("Pillar not found")
-        }
-      } catch (error) {
-        setPillarError(error.message)
-      } finally {
-        setPillarLoading(false)
-      }
-
-      // Load responses
+    const loadResponses = async () => {
       dispatch(fetchResponsesStart())
       try {
         const responsesData = await responsesService.getUserResponses(user.id)
@@ -61,8 +33,8 @@ useEffect(() => {
       }
     }
 
-    loadData()
-  }, [dispatch, user?.id, pillarId])
+    loadResponses()
+  }, [dispatch, user?.id])
 
   const handleRetry = () => {
     window.location.reload()
@@ -72,7 +44,7 @@ useEffect(() => {
     navigate("/dashboard")
   }
 
-const getNextPillar = () => {
+  const getNextPillar = () => {
     const currentIndex = PILLARS.findIndex(p => p.id === pillarId)
     return currentIndex < PILLARS.length - 1 ? PILLARS[currentIndex + 1] : null
   }
@@ -86,24 +58,16 @@ const getNextPillar = () => {
     }
   }
 
-if (pillarLoading || isLoading) {
-    return <Loading type="questions" />
-  }
-
-  if (pillarError) {
-    return (
-      <div className="max-w-4xl mx-auto p-8">
-        <Error message={pillarError} onRetry={handleBack} />
-      </div>
-    )
-  }
-
   if (!pillar) {
     return (
       <div className="max-w-4xl mx-auto p-8">
         <Error message="Pillar not found" onRetry={handleBack} />
       </div>
     )
+  }
+
+  if (isLoading) {
+    return <Loading type="questions" />
   }
 
   if (error) {
@@ -114,11 +78,11 @@ if (pillarLoading || isLoading) {
     )
   }
 
-const pillarResponses = responses[pillar.id] || {}
+  const pillarResponses = responses[pillarId] || {}
   const completedQuestions = Object.values(pillarResponses).filter(response => 
     response && response.trim().length > 0
   ).length
-  const progress = pillar.questions ? (completedQuestions / pillar.questions.length) * 100 : 0
+  const progress = (completedQuestions / pillar.questions.length) * 100
   const nextPillar = getNextPillar()
 
   return (
@@ -175,11 +139,11 @@ const pillarResponses = responses[pillar.id] || {}
 
       {/* Questions */}
       <div className="space-y-8 mb-12">
-{pillar.questions && pillar.questions.map((question, index) => (
+        {pillar.questions.map((question, index) => (
           <QuestionCard
             key={index}
             question={question}
-            pillarId={pillar.id}
+            pillarId={pillarId}
             questionIndex={index}
           />
         ))}
@@ -193,10 +157,10 @@ const pillarResponses = responses[pillar.id] || {}
       >
         <div>
 <h3 className="font-semibold text-gray-900 mb-1 text-left">
-            {pillar.questions && completedQuestions === pillar.questions.length ? "Pillar Complete!" : "Keep Going"}
+            {completedQuestions === pillar.questions.length ? "Pillar Complete!" : "Keep Going"}
           </h3>
           <p className="text-gray-600 text-sm text-left">
-            {pillar.questions && completedQuestions === pillar.questions.length
+            {completedQuestions === pillar.questions.length
               ? "You've completed all questions in this pillar."
               : "Take your time to thoughtfully answer each question."
             }

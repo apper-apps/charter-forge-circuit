@@ -1,178 +1,70 @@
-import "@/index.css";
-import React, { createContext, useEffect, useState } from "react";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { ToastContainer } from "react-toastify";
-import Layout from "@/components/organisms/Layout";
-import Onboarding from "@/components/pages/Onboarding";
-import Login from "@/components/pages/Login";
-import Profile from "@/components/pages/Profile";
-import PromptPassword from "@/components/pages/PromptPassword";
-import ResetPassword from "@/components/pages/ResetPassword";
-import Export from "@/components/pages/Export";
-import PillarQuestions from "@/components/pages/PillarQuestions";
-import AdminParticipant from "@/components/pages/AdminParticipant";
-import Callback from "@/components/pages/Callback";
-import Dashboard from "@/components/pages/Dashboard";
-import ErrorPage from "@/components/pages/ErrorPage";
-import Signup from "@/components/pages/Signup";
-import AdminDashboard from "@/components/pages/AdminDashboard";
-import { loginSuccess, logout } from "@/store/slices/authSlice";
-
-// Create auth context
-export const AuthContext = createContext(null);
+import { Routes, Route, Navigate } from "react-router-dom"
+import { ToastContainer } from "react-toastify"
+import { useSelector } from "react-redux"
+import Layout from "@/components/organisms/Layout"
+import Login from "@/components/pages/Login"
+import Dashboard from "@/components/pages/Dashboard"
+import Onboarding from "@/components/pages/Onboarding"
+import PillarQuestions from "@/components/pages/PillarQuestions"
+import Export from "@/components/pages/Export"
+import Profile from "@/components/pages/Profile"
+import AdminDashboard from "@/components/pages/AdminDashboard"
+import AdminParticipant from "@/components/pages/AdminParticipant"
 
 function App() {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [isInitialized, setIsInitialized] = useState(false);
-  
-  // Get authentication status with proper error handling
-  const { user } = useSelector((state) => state.auth);
-  const isAuthenticated = !!user;
-  const isAdmin = user?.role === "admin";
-  
-  // Initialize ApperUI once when the app loads
-  useEffect(() => {
-    const { ApperClient, ApperUI } = window.ApperSDK;
-    
-    const client = new ApperClient({
-      apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
-      apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
-    });
-    
-    // Initialize ApperUI with authentication handling
-    ApperUI.setup(client, {
-      target: '#authentication',
-      clientId: import.meta.env.VITE_APPER_PROJECT_ID,
-      view: 'both',
-      onSuccess: function (user) {
-        setIsInitialized(true);
-        // CRITICAL: This exact currentPath logic must be preserved
-        let currentPath = window.location.pathname + window.location.search;
-        let redirectPath = new URLSearchParams(window.location.search).get('redirect');
-        const isAuthPage = currentPath.includes('/login') || currentPath.includes('/signup') || 
-                           currentPath.includes('/callback') || currentPath.includes('/error') || 
-                           currentPath.includes('/prompt-password') || currentPath.includes('/reset-password');
-        
-        if (user) {
-          // User is authenticated
-          if (redirectPath) {
-            navigate(redirectPath);
-          } else if (!isAuthPage) {
-            if (!currentPath.includes('/login') && !currentPath.includes('/signup')) {
-              navigate(currentPath);
-            } else {
-              navigate('/dashboard');
-            }
-          } else {
-            navigate('/dashboard');
-          }
-          // Store user information in Redux
-          dispatch(loginSuccess(JSON.parse(JSON.stringify(user))));
-        } else {
-          // User is not authenticated
-          if (!isAuthPage) {
-            navigate(
-              currentPath.includes('/signup')
-                ? `/signup?redirect=${currentPath}`
-                : currentPath.includes('/login')
-                ? `/login?redirect=${currentPath}`
-                : '/login'
-            );
-          } else if (redirectPath) {
-            if (
-              !['error', 'signup', 'login', 'callback', 'prompt-password', 'reset-password'].some((path) => currentPath.includes(path))
-            ) {
-              navigate(`/login?redirect=${redirectPath}`);
-            } else {
-              navigate(currentPath);
-            }
-          } else if (isAuthPage) {
-            navigate(currentPath);
-          } else {
-            navigate('/login');
-          }
-          dispatch(logout());
-        }
-      },
-      onError: function(error) {
-        console.error("Authentication failed:", error);
-        setIsInitialized(true);
-      }
-    });
-  }, [navigate, dispatch]);
-  
-  // Authentication methods to share via context
-  const authMethods = {
-    isInitialized,
-logout: async () => {
-      try {
-        const { ApperUI } = window.ApperSDK;
-        await ApperUI.logout();
-        dispatch(logout());
-        navigate('/login');
-      } catch (error) {
-        console.error("Logout failed:", error);
-      }
-    }
-  };
-  
-  // Don't render routes until initialization is complete
-  if (!isInitialized) {
-    return (
-      <div className="loading flex items-center justify-center p-6 h-screen w-full">
-        <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 2v4"></path>
-          <path d="m16.2 7.8 2.9-2.9"></path>
-          <path d="M18 12h4"></path>
-          <path d="m16.2 16.2 2.9 2.9"></path>
-          <path d="M12 18v4"></path>
-          <path d="m4.9 19.1 2.9-2.9"></path>
-          <path d="M2 12h4"></path>
-          <path d="m4.9 4.9 2.9 2.9"></path>
-        </svg>
-      </div>
-    );
-  }
+  const { user } = useSelector((state) => state.auth)
 
-  return (
-    <AuthContext.Provider value={authMethods}>
-      {!isAuthenticated ? (
+  if (!user) {
+    return (
+      <>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/callback" element={<Callback />} />
-          <Route path="/error" element={<ErrorPage />} />
-          <Route path="/prompt-password/:appId/:emailAddress/:provider" element={<PromptPassword />} />
-          <Route path="/reset-password/:appId/:fields" element={<ResetPassword />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-      ) : (
-        <Layout>
-          <Routes>
-            {isAdmin ? (
-              <>
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/participant/:userId" element={<AdminParticipant />} />
-                <Route path="*" element={<Navigate to="/admin" replace />} />
-              </>
-            ) : (
-              <>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/pillar/:pillarId" element={<PillarQuestions />} />
-                <Route path="/export" element={<Export />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
-              </>
-            )}
-          </Routes>
-        </Layout>
-      )}
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          className="toast-container"
+        />
+      </>
+    )
+  }
+
+  const isAdmin = user.role === "admin"
+
+  return (
+    <>
+      <Layout>
+        <Routes>
+          {isAdmin ? (
+            <>
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/participant/:userId" element={<AdminParticipant />} />
+              <Route path="*" element={<Navigate to="/admin" replace />} />
+            </>
+          ) : (
+            <>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/pillar/:pillarId" element={<PillarQuestions />} />
+              <Route path="/export" element={<Export />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </>
+          )}
+        </Routes>
+      </Layout>
       <ToastContainer
         position="top-right"
-        autoClose={5000}
+        autoClose={3000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
@@ -180,9 +72,11 @@ logout: async () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
+        theme="light"
+        className="toast-container"
       />
-    </AuthContext.Provider>
-  );
+    </>
+  )
 }
 
-export default App;
+export default App

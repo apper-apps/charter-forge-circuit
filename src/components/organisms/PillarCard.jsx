@@ -1,9 +1,8 @@
-import { motion } from "framer-motion";
-import { useSelector } from "react-redux";
-import React from "react";
-import ApperIcon from "@/components/ApperIcon";
-import ProgressRing from "@/components/molecules/ProgressRing";
-import Card from "@/components/atoms/Card";
+import { motion } from "framer-motion"
+import { useSelector } from "react-redux"
+import ApperIcon from "@/components/ApperIcon"
+import ProgressRing from "@/components/molecules/ProgressRing"
+import Card from "@/components/atoms/Card"
 
 const PillarCard = ({ pillar, onClick }) => {
   const { responses } = useSelector((state) => state.responses)
@@ -14,21 +13,13 @@ const PillarCard = ({ pillar, onClick }) => {
   ).length
   const progress = (completedQuestions / pillar.questions.length) * 100
 
-const getIconForPillar = (pillarId) => {
-    // Convert to string and normalize for consistent matching
-    const normalizedId = String(pillarId).toLowerCase()
-    
-    // Try to match by name patterns or specific IDs
-    if (normalizedId.includes('raison') || normalizedId.includes('purpose') || normalizedId === '1') {
-      return "Heart"
-    } else if (normalizedId.includes('business') || normalizedId.includes('type') || normalizedId === '2') {
-      return "Target"
-    } else if (normalizedId.includes('expectation') || normalizedId.includes('family') || normalizedId === '3') {
-      return "Users"
-    } else if (normalizedId.includes('extinction') || normalizedId.includes('legacy') || normalizedId === '4') {
-      return "Shield"
-    } else {
-      return "FileText"
+  const getIconForPillar = (pillarId) => {
+    switch (pillarId) {
+      case "raison-detre": return "Heart"
+      case "type-of-business": return "Target"
+      case "expectations": return "Users"
+      case "extinction": return "Shield"
+      default: return "FileText"
     }
   }
 
@@ -63,11 +54,11 @@ const getIconForPillar = (pillarId) => {
           {pillar.description}
         </p>
 
-<div className="flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <span className="text-sm text-gray-500">
             {completedQuestions} of {pillar.questions.length} questions completed
           </span>
-          <ApperIcon
+          <ApperIcon 
             name="ArrowRight" 
             className="w-5 h-5 text-gray-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-all" 
           />

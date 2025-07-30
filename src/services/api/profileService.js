@@ -1,4 +1,4 @@
-const { ApperClient } = window.ApperSDK;
+const { ApperClient } = = window.ApperSDK;
 
 const apperClient = new ApperClient({
   apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
@@ -36,9 +36,10 @@ export const profileService = {
 
       const response = await apperClient.fetchRecords("profile", params);
       
-      if (!response.success) {
-        console.error(response.message);
-        throw new Error(response.message);
+if (!response.success) {
+        const errorMessage = response.message || "Failed to fetch profile data";
+        console.error("Profile service error:", errorMessage);
+        throw new Error(errorMessage);
       }
 
       return response.data && response.data.length > 0 ? response.data[0] : null;
@@ -86,9 +87,10 @@ const updateableData = {
 
         const response = await apperClient.updateRecord("profile", params);
         
-        if (!response.success) {
-          console.error(response.message);
-          throw new Error(response.message);
+if (!response.success) {
+          const errorMessage = response.message || "Failed to update profile";
+          console.error("Profile service update error:", errorMessage);
+          throw new Error(errorMessage);
         }
 
         if (response.results) {
@@ -113,12 +115,12 @@ const updateableData = {
         const params = {
           records: [updateableData]
         };
-
-        const response = await apperClient.createRecord("profile", params);
+const response = await apperClient.createRecord("profile", params);
         
         if (!response.success) {
-          console.error(response.message);
-          throw new Error(response.message);
+          const errorMessage = response.message || "Failed to create profile";
+          console.error("Profile service create error:", errorMessage);
+          throw new Error(errorMessage);
         }
 
         if (response.results) {

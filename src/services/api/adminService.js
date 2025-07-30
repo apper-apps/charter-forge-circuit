@@ -1,5 +1,3 @@
-import React from "react";
-import Error from "@/components/ui/Error";
 const { ApperClient } = window.ApperSDK;
 
 const apperClient = new ApperClient({
@@ -32,9 +30,10 @@ export const adminService = {
 
       const profilesResponse = await apperClient.fetchRecords("profile", profileParams);
       
-      if (!profilesResponse.success) {
-        console.error(profilesResponse.message);
-        throw new Error(profilesResponse.message);
+if (!profilesResponse.success) {
+        const errorMessage = profilesResponse.message || "Failed to fetch profiles data";
+        console.error("Admin service profiles error:", errorMessage);
+        throw new Error(errorMessage);
       }
 
       const profiles = profilesResponse.data || [];
@@ -53,11 +52,12 @@ export const adminService = {
         ]
       };
 
-      const responsesResponse = await apperClient.fetchRecords("response", responseParams);
+const responsesResponse = await apperClient.fetchRecords("response", responseParams);
       
       if (!responsesResponse.success) {
-        console.error(responsesResponse.message);
-        throw new Error(responsesResponse.message);
+        const errorMessage = responsesResponse.message || "Failed to fetch responses data";
+        console.error("Admin service responses error:", errorMessage);
+        throw new Error(errorMessage);
       }
 
       const responses = responsesResponse.data || [];
@@ -171,9 +171,10 @@ export const adminService = {
 
       const profileResponse = await apperClient.fetchRecords("profile", profileParams);
       
-      if (!profileResponse.success) {
-        console.error(profileResponse.message);
-        throw new Error(profileResponse.message);
+if (!profileResponse.success) {
+        const errorMessage = profileResponse.message || "Failed to fetch participant profile";
+        console.error("Admin service participant profile error:", errorMessage);
+        throw new Error(errorMessage);
       }
 
       const profile = profileResponse.data && profileResponse.data.length > 0 ? profileResponse.data[0] : null;
@@ -199,11 +200,12 @@ export const adminService = {
         ]
       };
 
-      const responsesResponse = await apperClient.fetchRecords("response", responseParams);
+const responsesResponse = await apperClient.fetchRecords("response", responseParams);
       
       if (!responsesResponse.success) {
-        console.error(responsesResponse.message);
-        throw new Error(responsesResponse.message);
+        const errorMessage = responsesResponse.message || "Failed to fetch participant responses";
+        console.error("Admin service participant responses error:", errorMessage);
+        throw new Error(errorMessage);
       }
 
       const userResponses = responsesResponse.data || [];
@@ -235,12 +237,12 @@ export const adminService = {
       };
     } catch (error) {
       if (error?.response?.data?.message) {
+if (error?.response?.data?.message) {
         console.error("Error fetching participant responses:", error?.response?.data?.message);
       } else {
-console.error("Error fetching participant responses:", error.message);
+        console.error("Error fetching participant responses:", error.message);
       }
-throw error;
-    }
+      throw error;
   },
 
   async createParticipant(participantData) {
@@ -250,15 +252,16 @@ throw error;
           // Use Name field for email as per requirement
           Name: participantData.email,
           fullName: participantData.name,
-          password: participantData.password
+password: participantData.password
         }]
-};
+      };
 
-      const response = await apperClient.createRecord('profile', params);
+const response = await apperClient.createRecord('profile', params);
       
       if (!response.success) {
-        console.error(response.message);
-        throw new Error(response.message);
+        const errorMessage = response.message || "Failed to create participant";
+        console.error("Admin service create participant error:", errorMessage);
+        throw new Error(errorMessage);
       }
 
       if (response.results) {

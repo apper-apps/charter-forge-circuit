@@ -1,3 +1,5 @@
+import React from "react";
+import Error from "@/components/ui/Error";
 const { ApperClient } = window.ApperSDK;
 
 const apperClient = new ApperClient({
@@ -235,7 +237,56 @@ export const adminService = {
       if (error?.response?.data?.message) {
         console.error("Error fetching participant responses:", error?.response?.data?.message);
       } else {
-        console.error("Error fetching participant responses:", error.message);
+console.error("Error fetching participant responses:", error.message);
+      }
+throw error;
+    }
+  },
+
+  async createParticipant(participantData) {
+    try {
+      const params = {
+        records: [{
+          // Use Name field for email as per requirement
+          Name: participantData.email,
+          fullName: participantData.name,
+          password: participantData.password
+        }]
+};
+
+      const response = await apperClient.createRecord('profile', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to create participant records:${JSON.stringify(failedRecords)}`);
+          
+          // Return first error for user feedback
+          const firstError = failedRecords[0];
+          if (firstError.errors && firstError.errors.length > 0) {
+            throw new Error(`${firstError.errors[0].fieldLabel}: ${firstError.errors[0].message}`);
+          }
+          if (firstError.message) {
+            throw new Error(firstError.message);
+          }
+        }
+
+        const successfulRecords = response.results.filter(result => result.success);
+        return successfulRecords.map(result => result.data);
+      }
+
+      return [];
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        console.error("Error creating participant:", error?.response?.data?.message);
+      } else {
+        console.error("Error creating participant:", error.message);
       }
       throw error;
     }

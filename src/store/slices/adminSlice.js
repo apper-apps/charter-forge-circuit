@@ -42,7 +42,7 @@ const adminSlice = createSlice({
     fetchParticipantResponsesFailure: (state, action) => {
       state.isLoading = false
       state.error = action.payload
-    },
+},
     updateFilters: (state, action) => {
       state.filters = { ...state.filters, ...action.payload }
     },
@@ -52,6 +52,21 @@ const adminSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null
+    },
+    createParticipantStart: (state) => {
+      state.isCreating = true
+      state.error = null
+    },
+    createParticipantSuccess: (state, action) => {
+      state.isCreating = false
+      // Add new participant to the list
+      if (action.payload && action.payload.length > 0) {
+        state.participants.push(action.payload[0])
+      }
+    },
+    createParticipantFailure: (state, action) => {
+      state.isCreating = false
+      state.error = action.payload
     }
   }
 })
@@ -62,10 +77,13 @@ export const {
   fetchParticipantsFailure,
   fetchParticipantResponsesStart,
   fetchParticipantResponsesSuccess,
-  fetchParticipantResponsesFailure,
+fetchParticipantResponsesFailure,
   updateFilters,
   clearSelectedParticipant,
-  clearError
+  clearError,
+  createParticipantStart,
+  createParticipantSuccess,
+  createParticipantFailure
 } = adminSlice.actions
 
 export default adminSlice.reducer

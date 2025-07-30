@@ -1,24 +1,33 @@
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { useDispatch, useSelector } from "react-redux"
-import { motion } from "framer-motion"
-import { fetchParticipantsStart, fetchParticipantsSuccess, fetchParticipantsFailure, updateFilters } from "@/store/slices/adminSlice"
-import { adminService } from "@/services/api/adminService"
-import { PILLARS } from "@/services/mockData/pillars"
-import Button from "@/components/atoms/Button"
-import Card from "@/components/atoms/Card"
-import SearchBar from "@/components/molecules/SearchBar"
-import Loading from "@/components/ui/Loading"
-import Error from "@/components/ui/Error"
-import Empty from "@/components/ui/Empty"
-import ApperIcon from "@/components/ApperIcon"
-import { cn } from "@/utils/cn"
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import { PILLARS } from "@/services/mockData/pillars";
+import { adminService } from "@/services/api/adminService";
+import ApperIcon from "@/components/ApperIcon";
+import SearchBar from "@/components/molecules/SearchBar";
+import FormField from "@/components/molecules/FormField";
+import Loading from "@/components/ui/Loading";
+import Error from "@/components/ui/Error";
+import Empty from "@/components/ui/Empty";
+import Dashboard from "@/components/pages/Dashboard";
+import Button from "@/components/atoms/Button";
+import Card from "@/components/atoms/Card";
+import { createParticipantFailure, createParticipantStart, createParticipantSuccess, fetchParticipantsFailure, fetchParticipantsStart, fetchParticipantsSuccess, updateFilters } from "@/store/slices/adminSlice";
+import { cn } from "@/utils/cn";
 
 const AdminDashboard = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { participants, isLoading, error, filters } = useSelector((state) => state.admin)
-
+const [showCreateModal, setShowCreateModal] = useState(false)
+  const [createForm, setCreateForm] = useState({
+    name: '',
+    email: '',
+    password: ''
+  })
+  const [createErrors, setCreateErrors] = useState({})
   useEffect(() => {
     const loadParticipants = async () => {
       dispatch(fetchParticipantsStart())
@@ -47,6 +56,72 @@ const AdminDashboard = () => {
 
   const handleRetry = () => {
     window.location.reload()
+}
+
+  const handleCreateParticipant = () => {
+    setShowCreateModal(true)
+    setCreateForm({ name: '', email: '', password: '' })
+    setCreateErrors({})
+  }
+
+  const handleCloseCreateModal = () => {
+    setShowCreateModal(false)
+    setCreateForm({ name: '', email: '', password: '' })
+    setCreateErrors({})
+  }
+
+  const validateCreateForm = () => {
+    const errors = {}
+    
+    if (!createForm.name.trim()) {
+      errors.name = 'Name is required'
+    }
+    
+    if (!createForm.email.trim()) {
+      errors.email = 'Email is required'
+    } else if (!/\S+@\S+\.\S+/.test(createForm.email)) {
+      errors.email = 'Please enter a valid email address'
+    }
+    
+    if (!createForm.password.trim()) {
+      errors.password = 'Password is required'
+    } else if (createForm.password.length < 6) {
+      errors.password = 'Password must be at least 6 characters'
+    }
+    
+    setCreateErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
+  const handleCreateSubmit = async (e) => {
+    e.preventDefault()
+    
+    if (!validateCreateForm()) {
+      return
+    }
+
+    dispatch(createParticipantStart())
+    
+    try {
+      const result = await adminService.createParticipant(createForm)
+      dispatch(createParticipantSuccess(result))
+      toast.success('Participant created successfully! Login information has been sent via email.')
+handleCloseCreateModal()
+      // Refresh participants list
+      const participantsData = await adminService.getAllParticipants()
+      dispatch(fetchParticipantsSuccess(participantsData))
+    } catch (error) {
+      dispatch(createParticipantFailure(error.message))
+      toast.error(error.message || 'Failed to create participant')
+    }
+  }
+
+  const handleCreateFormChange = (field, value) => {
+    setCreateForm(prev => ({ ...prev, [field]: value }))
+    // Clear error when user starts typing
+    if (createErrors[field]) {
+      setCreateErrors(prev => ({ ...prev, [field]: '' }))
+    }
   }
 
   const getCompletionStatus = (participant) => {
@@ -164,8 +239,17 @@ const AdminDashboard = () => {
         </div>
 
         {/* Filters */}
-        <Card className="p-6 mb-8">
+<Card className="p-6 mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 md:space-x-4">
+            <div className="flex items-center space-x-4">
+              <Button
+                onClick={handleCreateParticipant}
+                className="flex items-center space-x-2"
+              >
+                <ApperIcon name="Plus" size={16} />
+                <span>Add Participant</span>
+              </Button>
+            </div>
             <SearchBar 
               onSearch={handleSearch}
               placeholder="Search by name, business, or email..."
@@ -284,8 +368,81 @@ const AdminDashboard = () => {
             <h3 className="text-lg font-medium text-gray-900 mb-2 text-left">No participants found</h3>
             <p className="text-gray-600 text-left">Try adjusting your search or filter criteria.</p>
           </div>
-        )}
+)}
       </motion.div>
+
+      {/* Create Participant Modal */}
+      {showCreateModal && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        >
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900">Add New Participant</h2>
+              <button
+                onClick={handleCloseCreateModal}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <ApperIcon name="X" size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateSubmit} className="space-y-4">
+              <FormField
+                label="Full Name"
+                type="text"
+                value={createForm.name}
+                onChange={(e) => handleCreateFormChange('name', e.target.value)}
+                error={createErrors.name}
+                required
+                placeholder="Enter participant's full name"
+              />
+
+              <FormField
+                label="Email Address"
+                type="email"
+                value={createForm.email}
+                onChange={(e) => handleCreateFormChange('email', e.target.value)}
+                error={createErrors.email}
+                required
+                placeholder="Enter participant's email"
+              />
+
+              <FormField
+                label="Password"
+                type="password"
+                value={createForm.password}
+                onChange={(e) => handleCreateFormChange('password', e.target.value)}
+                error={createErrors.password}
+                required
+                placeholder="Enter login password"
+              />
+
+              <div className="flex space-x-3 pt-4">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={handleCloseCreateModal}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+<Button
+                  type="submit"
+                  loading={isLoading}
+                  className="flex-1"
+                >
+                  Create Participant
+                </Button>
+              </div>
+            </form>
+          </div>
+        </motion.div>
+</div>
+      )}
     </div>
   )
 }

@@ -71,7 +71,7 @@ const [formData, setFormData] = useState({
         if (profileData) {
 setFormData({
             fullName: profileData.fullName || "",
-            email: profileData.email || "",
+            email: profileData.Name || profileData.email || "",
             phone: profileData.phone || "",
             businessName: profileData.businessName || "",
             position: profileData.position || "",
@@ -138,7 +138,7 @@ const validateForm = () => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (!validateForm()) {
@@ -146,7 +146,7 @@ const validateForm = () => {
       return
     }
 
-dispatch(saveProfileStart())
+    dispatch(saveProfileStart())
     
     try {
       const profileData = {
@@ -161,7 +161,7 @@ dispatch(saveProfileStart())
       toast.success("Profile updated successfully!")
     } catch (error) {
       dispatch(saveProfileFailure(error.message))
-      toast.error("Failed to update profile")
+      toast.error(`Failed to update profile: ${error.message}`)
     }
   }
 

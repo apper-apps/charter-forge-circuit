@@ -58,7 +58,8 @@ export const profileService = {
       const existingProfile = await this.getProfile(userId);
       
       // Prepare data with only Updateable fields
-      const updateableData = {
+const updateableData = {
+        Name: profileData.fullName || profileData.email || `User ${userId}`,
         fullName: profileData.fullName,
         phone: profileData.phone,
         businessName: profileData.businessName,

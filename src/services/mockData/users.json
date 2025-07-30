@@ -6,10 +6,10 @@
     "role": "participant",
     "createdAt": "2024-01-15T10:00:00Z"
   },
-  {
+{
     "Id": 2,
-    "email": "admin@demo.com",
-    "password": "admin123",
+    "email": "info@thecilc.com",
+    "password": "C1L3^@2017",
     "role": "admin",
     "createdAt": "2024-01-15T10:00:00Z"
   },

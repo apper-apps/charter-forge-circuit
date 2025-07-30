@@ -51,7 +51,6 @@ const [formData, setFormData] = useState({
     businessType: "",
     customBusinessType: "",
     yearsInBusiness: "",
-    numberOfEmployees: "",
     annualRevenue: "",
     country: "",
     city: ""
@@ -79,7 +78,6 @@ setFormData({
             businessType: BUSINESS_TYPES.includes(profileData.businessType) ? profileData.businessType : "Other",
             customBusinessType: !BUSINESS_TYPES.includes(profileData.businessType) ? profileData.businessType : "",
             yearsInBusiness: profileData.yearsInBusiness?.toString() || "",
-            numberOfEmployees: profileData.numberOfEmployees?.toString() || "",
             annualRevenue: profileData.annualRevenue || "",
             country: profileData.country || "",
             city: profileData.city || ""
@@ -149,11 +147,10 @@ const handleSubmit = async (e) => {
     dispatch(saveProfileStart())
     
     try {
-      const profileData = {
+const profileData = {
         ...formData,
         businessType: formData.businessType === "Other" ? formData.customBusinessType : formData.businessType,
-        yearsInBusiness: parseInt(formData.yearsInBusiness),
-        numberOfEmployees: parseInt(formData.numberOfEmployees)
+        yearsInBusiness: parseInt(formData.yearsInBusiness)
       }
       
       const savedProfile = await profileService.saveProfile(user.id, profileData)

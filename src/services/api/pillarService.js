@@ -18,11 +18,11 @@ fields: [
           { field: { Name: "ModifiedOn" } },
           { field: { Name: "isVisible" } }
         ],
-        where: [
+where: [
           {
             FieldName: "isVisible",
             Operator: "EqualTo",
-            Values: [true]
+            Values: ["1"]
           }
         ],
         orderBy: [

@@ -30,9 +30,9 @@ export const adminService = {
 
       const profilesResponse = await apperClient.fetchRecords("profile", profileParams);
       
-if (!profilesResponse.success) {
-        console.error("Error fetching profiles:", profilesResponse.message);
-        return [];
+      if (!profilesResponse.success) {
+        console.error(profilesResponse.message);
+        throw new Error(profilesResponse.message);
       }
 
       const profiles = profilesResponse.data || [];
@@ -54,8 +54,8 @@ if (!profilesResponse.success) {
       const responsesResponse = await apperClient.fetchRecords("response", responseParams);
       
       if (!responsesResponse.success) {
-console.error("Error fetching responses:", responsesResponse.message);
-        return [];
+        console.error(responsesResponse.message);
+        throw new Error(responsesResponse.message);
       }
 
       const responses = responsesResponse.data || [];
@@ -127,12 +127,12 @@ console.error("Error fetching responses:", responsesResponse.message);
 
       return Array.from(participantsMap.values());
     } catch (error) {
-if (error?.response?.data?.message) {
+      if (error?.response?.data?.message) {
         console.error("Error fetching participants:", error?.response?.data?.message);
       } else {
         console.error("Error fetching participants:", error.message);
       }
-      return [];
+      throw error;
     }
   },
 
@@ -169,9 +169,9 @@ if (error?.response?.data?.message) {
 
       const profileResponse = await apperClient.fetchRecords("profile", profileParams);
       
-if (!profileResponse.success) {
-        console.error("Error fetching participant profile:", profileResponse.message);
-        return { participant: null, responses: {} };
+      if (!profileResponse.success) {
+        console.error(profileResponse.message);
+        throw new Error(profileResponse.message);
       }
 
       const profile = profileResponse.data && profileResponse.data.length > 0 ? profileResponse.data[0] : null;
@@ -199,9 +199,9 @@ if (!profileResponse.success) {
 
       const responsesResponse = await apperClient.fetchRecords("response", responseParams);
       
-if (!responsesResponse.success) {
-        console.error("Error fetching participant responses:", responsesResponse.message);
-        return { participant: null, responses: {} };
+      if (!responsesResponse.success) {
+        console.error(responsesResponse.message);
+        throw new Error(responsesResponse.message);
       }
 
       const userResponses = responsesResponse.data || [];
@@ -232,12 +232,12 @@ if (!responsesResponse.success) {
         responses: groupedResponses
       };
     } catch (error) {
-if (error?.response?.data?.message) {
+      if (error?.response?.data?.message) {
         console.error("Error fetching participant responses:", error?.response?.data?.message);
       } else {
         console.error("Error fetching participant responses:", error.message);
       }
-      return { participant: null, responses: {} };
+      throw error;
     }
   }
 }

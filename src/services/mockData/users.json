@@ -31,7 +31,14 @@
     "Id": 5,
     "email": "mike.williams@legacy.net",
     "password": "demo123",
-    "role": "participant",
+"role": "participant",
     "createdAt": "2024-01-25T16:45:00Z"
+  },
+  {
+    "Id": 6,
+    "email": "ianb@miambs.com",
+    "password": "demo123",
+    "role": "participant",
+    "createdAt": "2024-01-28T08:30:00Z"
   }
 ]

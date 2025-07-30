@@ -156,8 +156,8 @@ const handleChange = (e) => {
                 <Button
                   type="submit"
                   variant="primary"
-                  loading={isLoading}
-                  disabled={isLoading}
+loading={useSelector((state) => state.auth.forgotPasswordLoading)}
+                  disabled={useSelector((state) => state.auth.forgotPasswordLoading)}
                   className="w-full"
                 >
                   Send Reset Instructions

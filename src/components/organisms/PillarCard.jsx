@@ -13,13 +13,21 @@ const PillarCard = ({ pillar, onClick }) => {
   ).length
   const progress = (completedQuestions / pillar.questions.length) * 100
 
-  const getIconForPillar = (pillarId) => {
-    switch (pillarId) {
-      case "raison-detre": return "Heart"
-      case "type-of-business": return "Target"
-      case "expectations": return "Users"
-      case "extinction": return "Shield"
-      default: return "FileText"
+const getIconForPillar = (pillarId) => {
+    // Convert to string and normalize for consistent matching
+    const normalizedId = String(pillarId).toLowerCase()
+    
+    // Try to match by name patterns or specific IDs
+    if (normalizedId.includes('raison') || normalizedId.includes('purpose') || normalizedId === '1') {
+      return "Heart"
+    } else if (normalizedId.includes('business') || normalizedId.includes('type') || normalizedId === '2') {
+      return "Target"
+    } else if (normalizedId.includes('expectation') || normalizedId.includes('family') || normalizedId === '3') {
+      return "Users"
+    } else if (normalizedId.includes('extinction') || normalizedId.includes('legacy') || normalizedId === '4') {
+      return "Shield"
+    } else {
+      return "FileText"
     }
   }
 

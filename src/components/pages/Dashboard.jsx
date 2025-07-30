@@ -158,7 +158,7 @@ className="mb-8"
 
       {/* Four Pillars */}
 {/* Four Pillars */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {pillars.map((pillar, index) => (
           <motion.div
             key={pillar.Id}
@@ -166,9 +166,9 @@ className="mb-8"
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-<PillarCard 
+            <PillarCard 
               pillar={{
-                id: pillar.Id,
+                id: String(pillar.Id), // Convert to string for consistent navigation
                 title: pillar.Name,
                 subtitle: `Pillar ${index + 1}`,
                 description: pillar.description || `Explore the ${pillar.Name} pillar of your family business charter`,
@@ -176,7 +176,11 @@ className="mb-8"
                          index === 1 ? "from-green-500 to-green-600" :
                          index === 2 ? "from-purple-500 to-purple-600" :
                          "from-orange-500 to-orange-600",
-                questions: Array(estimatedQuestionsPerPillar).fill(null).map((_, i) => ({ id: i + 1 }))
+                questions: Array(estimatedQuestionsPerPillar).fill(null).map((_, i) => ({ 
+                  id: `${pillar.Id}-${i + 1}`,
+                  pillarId: pillar.Id,
+                  questionNumber: i + 1
+                }))
               }} 
               onClick={handlePillarClick} 
             />

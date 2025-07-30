@@ -3,7 +3,10 @@ import { createSlice } from "@reduxjs/toolkit"
 const initialState = {
   user: null,
   isLoading: false,
-  error: null
+  error: null,
+  forgotPasswordLoading: false,
+  forgotPasswordError: null,
+  forgotPasswordSuccess: false
 }
 
 const authSlice = createSlice({
@@ -31,9 +34,39 @@ const authSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null
+    },
+    forgotPasswordStart: (state) => {
+      state.forgotPasswordLoading = true
+      state.forgotPasswordError = null
+      state.forgotPasswordSuccess = false
+    },
+    forgotPasswordSuccess: (state) => {
+      state.forgotPasswordLoading = false
+      state.forgotPasswordError = null
+      state.forgotPasswordSuccess = true
+    },
+    forgotPasswordFailure: (state, action) => {
+      state.forgotPasswordLoading = false
+      state.forgotPasswordError = action.payload
+      state.forgotPasswordSuccess = false
+    },
+    clearForgotPasswordState: (state) => {
+      state.forgotPasswordLoading = false
+      state.forgotPasswordError = null
+      state.forgotPasswordSuccess = false
     }
   }
 })
 
-export const { loginStart, loginSuccess, loginFailure, logout, clearError } = authSlice.actions
+export const { 
+  loginStart, 
+  loginSuccess, 
+  loginFailure, 
+  logout, 
+  clearError,
+  forgotPasswordStart,
+  forgotPasswordSuccess,
+  forgotPasswordFailure,
+  clearForgotPasswordState
+} = authSlice.actions
 export default authSlice.reducer

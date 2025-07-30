@@ -1,21 +1,21 @@
+import "@/index.css";
 import React, { createContext, useEffect, useState } from "react";
-import { Route, Routes, useNavigate, Navigate } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
-import Signup from "@/components/pages/Signup";
-import Callback from "@/components/pages/Callback";
-import ErrorPage from "@/components/pages/ErrorPage";
-import ResetPassword from "@/components/pages/ResetPassword";
-import PromptPassword from "@/components/pages/PromptPassword";
-import "@/index.css";
 import Layout from "@/components/organisms/Layout";
 import Onboarding from "@/components/pages/Onboarding";
 import Login from "@/components/pages/Login";
 import Profile from "@/components/pages/Profile";
+import PromptPassword from "@/components/pages/PromptPassword";
+import ResetPassword from "@/components/pages/ResetPassword";
 import Export from "@/components/pages/Export";
 import PillarQuestions from "@/components/pages/PillarQuestions";
 import AdminParticipant from "@/components/pages/AdminParticipant";
+import Callback from "@/components/pages/Callback";
 import Dashboard from "@/components/pages/Dashboard";
+import ErrorPage from "@/components/pages/ErrorPage";
+import Signup from "@/components/pages/Signup";
 import AdminDashboard from "@/components/pages/AdminDashboard";
 import { loginSuccess, logout } from "@/store/slices/authSlice";
 
@@ -106,7 +106,7 @@ function App() {
   // Authentication methods to share via context
   const authMethods = {
     isInitialized,
-    logout: async () => {
+logout: async () => {
       try {
         const { ApperUI } = window.ApperSDK;
         await ApperUI.logout();

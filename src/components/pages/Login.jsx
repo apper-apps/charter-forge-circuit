@@ -85,25 +85,11 @@ dispatch(loginSuccess(user))
               variant="primary"
               loading={isLoading}
               disabled={isLoading}
-              className="w-full"
+className="w-full"
             >
               Sign In
             </Button>
           </form>
-
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-medium text-gray-900 mb-2">Demo Accounts:</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Participant:</span>
-                <span className="font-mono text-gray-800">participant@demo.com / demo123</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Admin:</span>
-                <span className="font-mono text-gray-800">admin@demo.com / admin123</span>
-              </div>
-            </div>
-          </div>
         </div>
       </motion.div>
     </div>

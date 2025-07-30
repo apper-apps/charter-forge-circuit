@@ -30,9 +30,9 @@ export const responsesService = {
 
       const response = await apperClient.fetchRecords("response", params);
       
-      if (!response.success) {
-        console.error(response.message);
-        throw new Error(response.message);
+if (!response.success) {
+        console.error("Error fetching responses:", response.message);
+        return {};
       }
 
       const userResponses = response.data || [];
@@ -48,12 +48,12 @@ export const responsesService = {
       
       return groupedResponses;
     } catch (error) {
-      if (error?.response?.data?.message) {
+if (error?.response?.data?.message) {
         console.error("Error fetching user responses:", error?.response?.data?.message);
       } else {
         console.error("Error fetching user responses:", error.message);
       }
-      throw error;
+      return {};
     }
   },
 
@@ -90,8 +90,8 @@ export const responsesService = {
       const existingResponse = await apperClient.fetchRecords("response", params);
       
       if (!existingResponse.success) {
-        console.error(existingResponse.message);
-        throw new Error(existingResponse.message);
+console.error("Error fetching existing response:", existingResponse.message);
+        return null;
       }
 
 // Prepare data with only Updateable fields
@@ -117,9 +117,9 @@ export const responsesService = {
 
         const response = await apperClient.updateRecord("response", updateParams);
         
-        if (!response.success) {
-          console.error(response.message);
-          throw new Error(response.message);
+if (!response.success) {
+          console.error("Error updating response:", response.message);
+          return null;
         }
 
         if (response.results) {
@@ -127,13 +127,13 @@ export const responsesService = {
           
           if (failedUpdates.length > 0) {
             console.error(`Failed to update response ${failedUpdates.length} records:${JSON.stringify(failedUpdates)}`);
-            
-            failedUpdates.forEach(record => {
+failedUpdates.forEach(record => {
               record.errors?.forEach(error => {
-                throw new Error(`${error.fieldLabel}: ${error.message}`);
+                console.error(`Response update error - ${error.fieldLabel}: ${error.message}`);
               });
-              if (record.message) throw new Error(record.message);
+              if (record.message) console.error("Response update error:", record.message);
             });
+            return null;
           }
           
           const successfulUpdates = response.results.filter(result => result.success);
@@ -147,9 +147,9 @@ export const responsesService = {
 
         const response = await apperClient.createRecord("response", createParams);
         
-        if (!response.success) {
-          console.error(response.message);
-          throw new Error(response.message);
+if (!response.success) {
+          console.error("Error creating response:", response.message);
+          return null;
         }
 
         if (response.results) {
@@ -157,13 +157,13 @@ export const responsesService = {
           
           if (failedCreates.length > 0) {
             console.error(`Failed to create response ${failedCreates.length} records:${JSON.stringify(failedCreates)}`);
-            
-            failedCreates.forEach(record => {
+failedCreates.forEach(record => {
               record.errors?.forEach(error => {
-                throw new Error(`${error.fieldLabel}: ${error.message}`);
+                console.error(`Response creation error - ${error.fieldLabel}: ${error.message}`);
               });
-              if (record.message) throw new Error(record.message);
+              if (record.message) console.error("Response creation error:", record.message);
             });
+            return null;
           }
           
           const successfulCreates = response.results.filter(result => result.success);
@@ -171,12 +171,12 @@ export const responsesService = {
         }
       }
     } catch (error) {
-      if (error?.response?.data?.message) {
+if (error?.response?.data?.message) {
         console.error("Error saving response:", error?.response?.data?.message);
       } else {
         console.error("Error saving response:", error.message);
       }
-      throw error;
+      return null;
     }
   }
 }

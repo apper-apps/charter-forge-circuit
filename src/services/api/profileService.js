@@ -36,19 +36,19 @@ export const profileService = {
 
       const response = await apperClient.fetchRecords("profile", params);
       
-      if (!response.success) {
-        console.error(response.message);
-        throw new Error(response.message);
+if (!response.success) {
+        console.error("Error fetching profile:", response.message);
+        return null;
       }
 
       return response.data && response.data.length > 0 ? response.data[0] : null;
     } catch (error) {
-      if (error?.response?.data?.message) {
+if (error?.response?.data?.message) {
         console.error("Error fetching profile:", error?.response?.data?.message);
       } else {
         console.error("Error fetching profile:", error.message);
       }
-      throw error;
+      return null;
     }
   },
 
@@ -85,9 +85,9 @@ export const profileService = {
 
         const response = await apperClient.updateRecord("profile", params);
         
-        if (!response.success) {
-          console.error(response.message);
-          throw new Error(response.message);
+if (!response.success) {
+          console.error("Error updating profile:", response.message);
+          return null;
         }
 
         if (response.results) {
@@ -95,13 +95,13 @@ export const profileService = {
           
           if (failedUpdates.length > 0) {
             console.error(`Failed to update profile ${failedUpdates.length} records:${JSON.stringify(failedUpdates)}`);
-            
-            failedUpdates.forEach(record => {
+failedUpdates.forEach(record => {
               record.errors?.forEach(error => {
-                throw new Error(`${error.fieldLabel}: ${error.message}`);
+                console.error(`Profile update error - ${error.fieldLabel}: ${error.message}`);
               });
-              if (record.message) throw new Error(record.message);
+              if (record.message) console.error("Profile update error:", record.message);
             });
+            return null;
           }
           
           const successfulUpdates = response.results.filter(result => result.success);
@@ -115,9 +115,9 @@ export const profileService = {
 
         const response = await apperClient.createRecord("profile", params);
         
-        if (!response.success) {
-          console.error(response.message);
-          throw new Error(response.message);
+if (!response.success) {
+          console.error("Error creating profile:", response.message);
+          return null;
         }
 
         if (response.results) {
@@ -125,26 +125,25 @@ export const profileService = {
           
           if (failedCreates.length > 0) {
             console.error(`Failed to create profile ${failedCreates.length} records:${JSON.stringify(failedCreates)}`);
-            
-            failedCreates.forEach(record => {
+failedCreates.forEach(record => {
               record.errors?.forEach(error => {
-                throw new Error(`${error.fieldLabel}: ${error.message}`);
+                console.error(`Profile creation error - ${error.fieldLabel}: ${error.message}`);
               });
-              if (record.message) throw new Error(record.message);
+              if (record.message) console.error("Profile creation error:", record.message);
             });
+            return null;
           }
-          
           const successfulCreates = response.results.filter(result => result.success);
           return successfulCreates.length > 0 ? successfulCreates[0].data : null;
         }
       }
-    } catch (error) {
+} catch (error) {
       if (error?.response?.data?.message) {
         console.error("Error saving profile:", error?.response?.data?.message);
       } else {
         console.error("Error saving profile:", error.message);
       }
-      throw error;
+      return null;
     }
   }
 }

@@ -284,12 +284,12 @@ handleCloseCreateModal()
                   <th className="text-left">Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                {filteredParticipants.map((participant) => {
+<tbody>
+                {filteredParticipants.map((participant, index) => {
                   const status = getCompletionStatus(participant)
                   
                   return (
-                    <tr key={participant.id}>
+                    <tr key={participant.id || participant.email || `participant-${index}`}>
                       <td>
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-heritage-200 to-heritage-300 rounded-full flex items-center justify-center">

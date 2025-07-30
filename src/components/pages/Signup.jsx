@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '@/App';
 import ApperIcon from '@/components/ApperIcon';
 
-function Login() {
+function Signup() {
   const { isInitialized } = useContext(AuthContext);
   
   useEffect(() => {
     if (isInitialized && typeof window !== 'undefined' && window.ApperSDK) {
-      // Show login UI in this component
+      // Show signup UI in this component
       const { ApperUI } = window.ApperSDK;
-      ApperUI.showLogin("#authentication");
+      ApperUI.showSignup("#authentication");
     }
   }, [isInitialized]);
   
@@ -21,17 +21,17 @@ function Login() {
           <div className="w-16 h-16 bg-gradient-to-br from-primary-600 to-accent-600 rounded-xl flex items-center justify-center mx-auto mb-4">
             <ApperIcon name="FileText" className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to Family Business Charter Builder</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Create Account</h1>
+          <p className="text-gray-600">Join Family Business Charter Builder</p>
         </div>
         
         <div id="authentication" />
         
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
-            <Link to="/signup" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
-              Sign up
+            Already have an account?{' '}
+            <Link to="/login" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
+              Sign in
             </Link>
           </p>
         </div>
@@ -40,4 +40,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Signup;

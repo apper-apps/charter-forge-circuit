@@ -10,9 +10,15 @@ const Header = () => {
   const { user } = useSelector((state) => state.auth)
   const [showDropdown, setShowDropdown] = useState(false)
 
-  const handleLogout = () => {
-    dispatch(logout())
-    setShowDropdown(false)
+const handleLogout = async () => {
+    try {
+      const { ApperUI } = window.ApperSDK;
+      await ApperUI.logout();
+      dispatch(logout());
+      setShowDropdown(false);
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   }
 
   const isAdmin = user?.role === "admin"

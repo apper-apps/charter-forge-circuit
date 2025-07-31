@@ -1,3 +1,5 @@
+import React from "react";
+import Error from "@/components/ui/Error";
 // Initialize ApperClient for database operations
 const { ApperClient } = window.ApperSDK;
 const apperClient = new ApperClient({
@@ -196,13 +198,13 @@ async resetPassword(token, newPassword) {
 
         const directResponse = await apperClient.fetchRecords("profile", directParams);
         
-        if (!directResponse.success || !directResponse.data || directResponse.data.length === 0) {
+if (!directResponse.success || !directResponse.data || directResponse.data.length === 0) {
           throw new Error("User profile not found. Unable to reset password.");
         }
         
-        var userProfile = directResponse.data[0];
+        userProfile = directResponse.data[0];
       } else {
-        var userProfile = userResponse.data[0];
+        userProfile = userResponse.data[0];
       }
 
       // Update the user's password in the profile table

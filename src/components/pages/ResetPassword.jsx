@@ -48,7 +48,7 @@ useEffect(() => {
     } catch (error) {
       setTokenValid(false);
       setError(error.message);
-    } finally {
+} finally {
       setValidating(false);
     }
   };
@@ -70,14 +70,17 @@ useEffect(() => {
       dispatch(forgotPasswordStart());
       setError('');
       
-      await authService.resetPassword(token, newPassword);
+      const result = await authService.resetPassword(token, newPassword);
       
       dispatch(forgotPasswordSuccess());
-      toast.success('Password has been reset successfully!');
+      toast.success('Password reset successfully! You can now log in with your new password.');
       
-      // Redirect to login page after success
+      // Redirect to login page after success with clear indication
       setTimeout(() => {
-        navigate('/login');
+        navigate('/login', { 
+          replace: true,
+          state: { message: 'Password reset successful. Please log in with your new password.' }
+        });
       }, 2000);
       
     } catch (error) {

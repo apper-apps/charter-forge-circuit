@@ -30,7 +30,14 @@ const authSlice = createSlice({
       state.forgotPasswordError = action.payload
       state.forgotPasswordSuccess = false
     },
-    clearForgotPasswordState: (state) => {
+clearForgotPasswordState: (state) => {
+      state.forgotPasswordLoading = false
+      state.forgotPasswordError = null
+      state.forgotPasswordSuccess = false
+    },
+    logout: (state) => {
+      state.isLoading = false
+      state.error = null
       state.forgotPasswordLoading = false
       state.forgotPasswordError = null
       state.forgotPasswordSuccess = false
@@ -43,6 +50,7 @@ export const {
   forgotPasswordStart,
   forgotPasswordSuccess,
   forgotPasswordFailure,
-  clearForgotPasswordState
+  clearForgotPasswordState,
+  logout
 } = authSlice.actions
 export default authSlice.reducer

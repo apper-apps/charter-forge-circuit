@@ -155,11 +155,14 @@ async resetPassword(token, newPassword) {
         throw new Error("Invalid or expired reset token");
       }
 
-      // Find the user profile by user_id - handle both direct ID and lookup object
+// Find the user profile by user_id - handle both direct ID and lookup object
       let actualUserId = tokenValidation.userId;
       if (typeof tokenValidation.userId === 'object' && tokenValidation.userId?.Id) {
         actualUserId = tokenValidation.userId.Id;
       }
+
+      // Declare userProfile variable for use throughout the function
+      let userProfile;
 
       const userParams = {
         fields: [

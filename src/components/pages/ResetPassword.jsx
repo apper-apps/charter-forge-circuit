@@ -23,19 +23,14 @@ const ResetPassword = () => {
   const [validating, setValidating] = useState(true);
   const [error, setError] = useState('');
 
-useEffect(() => {
+  useEffect(() => {
     const resetToken = searchParams.get('token');
     if (resetToken) {
       setToken(resetToken);
       validateToken(resetToken);
     } else {
-      // If no token provided, show ApperUI reset password
+      setError('No reset token provided');
       setValidating(false);
-      setTokenValid(null);
-      const { ApperUI } = window.ApperSDK;
-      setTimeout(() => {
-        ApperUI.showResetPassword('#apper-reset-password');
-      }, 100);
     }
   }, [searchParams]);
 
@@ -48,7 +43,7 @@ useEffect(() => {
     } catch (error) {
       setTokenValid(false);
       setError(error.message);
-} finally {
+    } finally {
       setValidating(false);
     }
   };
@@ -70,17 +65,14 @@ useEffect(() => {
       dispatch(forgotPasswordStart());
       setError('');
       
-      const result = await authService.resetPassword(token, newPassword);
+      await authService.resetPassword(token, newPassword);
       
       dispatch(forgotPasswordSuccess());
-      toast.success('Password reset successfully! You can now log in with your new password.');
+      toast.success('Password has been reset successfully!');
       
-      // Redirect to login page after success with clear indication
+      // Redirect to login page after success
       setTimeout(() => {
-        navigate('/login', { 
-          replace: true,
-          state: { message: 'Password reset successful. Please log in with your new password.' }
-        });
+        navigate('/login');
       }, 2000);
       
     } catch (error) {
@@ -90,58 +82,13 @@ useEffect(() => {
     }
   };
 
-if (validating) {
+  if (validating) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 w-full max-w-md text-center">
           <div className="animate-spin w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">
-            {token ? 'Validating reset token...' : 'Loading reset password form...'}
-          </p>
+          <p className="text-gray-600">Validating reset token...</p>
         </div>
-      </div>
-    );
-  }
-
-  // Show ApperUI reset password when no token is provided
-  if (tokenValid === null && !token) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md"
-        >
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-            <div className="flex flex-col gap-6 items-center justify-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary-600 to-accent-600 rounded-xl flex items-center justify-center">
-                <ApperIcon name="Lock" className="w-8 h-8 text-white" />
-              </div>
-              <div className="flex flex-col gap-1 items-center justify-center">
-                <div className="text-center text-2xl font-bold text-gray-900">
-                  Reset Your Password
-                </div>
-                <div className="text-center text-sm text-gray-600">
-                  Enter your email and new password details
-                </div>
-              </div>
-            </div>
-
-            <div id="apper-reset-password" className="mb-6"></div>
-
-            <div className="text-center">
-              <p className="text-sm text-gray-600">
-                Remember your password?{' '}
-                <button
-                  onClick={() => navigate('/login')}
-                  className="font-medium text-primary-600 hover:text-primary-700"
-                >
-                  Sign in
-                </button>
-              </p>
-            </div>
-          </div>
-        </motion.div>
       </div>
     );
   }

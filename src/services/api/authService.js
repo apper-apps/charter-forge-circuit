@@ -1,5 +1,3 @@
-import React from "react";
-import Error from "@/components/ui/Error";
 // Initialize ApperClient for database operations
 const { ApperClient } = window.ApperSDK;
 const apperClient = new ApperClient({
@@ -138,7 +136,7 @@ export const authService = {
     }
   },
 
-async resetPassword(token, newPassword) {
+  async resetPassword(token, newPassword) {
     if (!token || !newPassword) {
       throw new Error("Reset token and new password are required");
     }
@@ -155,27 +153,18 @@ async resetPassword(token, newPassword) {
         throw new Error("Invalid or expired reset token");
       }
 
-// Find the user profile by user_id - handle both direct ID and lookup object
-      let actualUserId = tokenValidation.userId;
-      if (typeof tokenValidation.userId === 'object' && tokenValidation.userId?.Id) {
-        actualUserId = tokenValidation.userId.Id;
-      }
-
-      // Declare userProfile variable for use throughout the function
-      let userProfile;
-
+      // Find the user profile by user_id
       const userParams = {
         fields: [
           { field: { Name: "Id" } },
           { field: { Name: "email" } },
-          { field: { Name: "Name" } },
-          { field: { Name: "userId" } }
+          { field: { Name: "Name" } }
         ],
         where: [
           {
             FieldName: "userId",
             Operator: "EqualTo", 
-            Values: [parseInt(actualUserId)]
+            Values: [parseInt(tokenValidation.userId)]
           }
         ]
       };
@@ -183,34 +172,12 @@ async resetPassword(token, newPassword) {
       const userResponse = await apperClient.fetchRecords("profile", userParams);
       
       if (!userResponse.success || !userResponse.data || userResponse.data.length === 0) {
-        // If userId lookup fails, try finding by Id directly
-        const directParams = {
-          fields: [
-            { field: { Name: "Id" } },
-            { field: { Name: "email" } },
-            { field: { Name: "Name" } }
-          ],
-          where: [
-            {
-              FieldName: "Id",
-              Operator: "EqualTo", 
-              Values: [parseInt(actualUserId)]
-            }
-          ]
-        };
-
-        const directResponse = await apperClient.fetchRecords("profile", directParams);
-        
-if (!directResponse.success || !directResponse.data || directResponse.data.length === 0) {
-          throw new Error("User profile not found. Unable to reset password.");
-        }
-        
-        userProfile = directResponse.data[0];
-      } else {
-        userProfile = userResponse.data[0];
+        throw new Error("User profile not found");
       }
 
-      // Update the user's password in the profile table
+      const userProfile = userResponse.data[0];
+
+      // Update the user's password
       const updateParams = {
         records: [
           {
@@ -224,19 +191,10 @@ if (!directResponse.success || !directResponse.data || directResponse.data.lengt
       
       if (!updateResponse.success) {
         console.error("Failed to update password:", updateResponse.message);
-        throw new Error("Failed to update password. Please try again.");
+        throw new Error("Failed to update password");
       }
 
-      // Verify the update was successful
-      if (updateResponse.results) {
-        const failedUpdates = updateResponse.results.filter(result => !result.success);
-        if (failedUpdates.length > 0) {
-          console.error("Password update failed:", failedUpdates);
-          throw new Error("Failed to update password. Please try again.");
-        }
-      }
-
-      // Delete the reset token to prevent reuse
+      // Optionally delete or mark the reset token as used
       try {
         const deleteParams = {
           RecordIds: [tokenValidation.resetRequestId]
@@ -248,9 +206,8 @@ if (!directResponse.success || !directResponse.data || directResponse.data.lengt
       }
 
       return {
-        message: "Password has been reset successfully. You can now log in with your new password.",
-        success: true,
-        userEmail: userProfile.email
+        message: "Password has been reset successfully",
+        success: true
       };
 
     } catch (error) {

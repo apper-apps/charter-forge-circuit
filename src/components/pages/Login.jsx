@@ -34,13 +34,25 @@ useEffect(() => {
               </div>
             </div>
           </div>
-          <div id="authentication" className="mt-8" />
+<div id="authentication" className="mt-8" />
           <div className="text-center mt-4">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
               <a href="/signup" className="font-medium text-primary-600 hover:text-primary-700">
                 Sign up
               </a>
+            </p>
+            <p className="text-sm text-gray-600 mt-2">
+              Forgot your password?{' '}
+              <button
+                onClick={() => {
+                  const { ApperUI } = window.ApperSDK;
+                  ApperUI.showForgotPassword("#authentication");
+                }}
+                className="font-medium text-primary-600 hover:text-primary-700"
+              >
+                Reset it here
+              </button>
             </p>
           </div>
         </div>

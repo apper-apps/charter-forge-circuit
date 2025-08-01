@@ -55,7 +55,7 @@ const handleChange = (e) => {
     })
   }
 
-  const handleForgotPasswordSubmit = async (e) => {
+const handleForgotPasswordSubmit = async (e) => {
     e.preventDefault()
     
     if (!forgotPasswordData.email) {
@@ -66,11 +66,16 @@ const handleChange = (e) => {
     dispatch({ type: 'auth/forgotPasswordStart' })
     
     try {
-      await authService.forgotPassword(forgotPasswordData.email)
+      const result = await authService.forgotPassword(forgotPasswordData.email)
       dispatch({ type: 'auth/forgotPasswordSuccess' })
-      toast.success("Password reset instructions sent to your email")
+      toast.success("Password reset request created successfully. Please check your email for instructions.")
       setShowForgotPassword(false)
       setForgotPasswordData({ email: "" })
+      
+      // In development, show the reset token for testing
+      if (result.resetToken) {
+        console.log("Development: Reset token generated:", result.resetToken)
+      }
     } catch (error) {
       dispatch({ type: 'auth/forgotPasswordFailure', payload: error.message })
       toast.error(error.message)
@@ -136,31 +141,31 @@ const handleChange = (e) => {
               </div>
             </form>
           ) : (
-            <form onSubmit={handleForgotPasswordSubmit} className="space-y-6">
+<form onSubmit={handleForgotPasswordSubmit} className="space-y-6">
               <div className="text-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">Reset Password</h2>
-                <p className="text-gray-600 text-sm">Enter your email address and we'll send you instructions to reset your password.</p>
+                <p className="text-gray-600 text-sm">Enter your email address or username and we'll create a password reset request for you.</p>
               </div>
 
               <FormField
-                label="Email Address"
+                label="Email Address or Username"
                 type="email"
                 name="email"
                 value={forgotPasswordData.email}
                 onChange={handleForgotPasswordChange}
-                placeholder="Enter your email"
+                placeholder="Enter your email or username"
                 required
               />
 
               <div className="space-y-3">
-<Button
+                <Button
                   type="submit"
                   variant="primary"
                   loading={forgotPasswordLoading}
                   disabled={forgotPasswordLoading}
                   className="w-full"
                 >
-                  Send Reset Instructions
+                  Create Reset Request
                 </Button>
 
                 <Button

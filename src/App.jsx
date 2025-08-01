@@ -10,6 +10,7 @@ import Export from "@/components/pages/Export"
 import Profile from "@/components/pages/Profile"
 import AdminDashboard from "@/components/pages/AdminDashboard"
 import AdminParticipant from "@/components/pages/AdminParticipant"
+import ResetPassword from "@/components/pages/ResetPassword"
 
 function App() {
   const { user } = useSelector((state) => state.auth)
@@ -17,8 +18,9 @@ function App() {
   if (!user) {
     return (
       <>
-        <Routes>
+<Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
         <ToastContainer

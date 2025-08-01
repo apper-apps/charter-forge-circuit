@@ -6,7 +6,10 @@ const initialState = {
   error: null,
   forgotPasswordLoading: false,
   forgotPasswordError: null,
-  forgotPasswordSuccess: false
+  forgotPasswordSuccess: false,
+  resetPasswordLoading: false,
+  resetPasswordError: null,
+  resetPasswordSuccess: false
 }
 
 const authSlice = createSlice({
@@ -54,6 +57,26 @@ const authSlice = createSlice({
       state.forgotPasswordLoading = false
       state.forgotPasswordError = null
       state.forgotPasswordSuccess = false
+    },
+    resetPasswordStart: (state) => {
+      state.resetPasswordLoading = true
+      state.resetPasswordError = null
+      state.resetPasswordSuccess = false
+    },
+    resetPasswordSuccess: (state) => {
+      state.resetPasswordLoading = false
+      state.resetPasswordError = null
+      state.resetPasswordSuccess = true
+    },
+    resetPasswordFailure: (state, action) => {
+      state.resetPasswordLoading = false
+      state.resetPasswordError = action.payload
+      state.resetPasswordSuccess = false
+    },
+    clearResetPasswordState: (state) => {
+      state.resetPasswordLoading = false
+      state.resetPasswordError = null
+      state.resetPasswordSuccess = false
     }
   }
 })
@@ -67,6 +90,10 @@ export const {
   forgotPasswordStart,
   forgotPasswordSuccess,
   forgotPasswordFailure,
-  clearForgotPasswordState
+  clearForgotPasswordState,
+  resetPasswordStart,
+  resetPasswordSuccess,
+  resetPasswordFailure,
+  clearResetPasswordState
 } = authSlice.actions
 export default authSlice.reducer

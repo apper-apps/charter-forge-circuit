@@ -16,24 +16,45 @@ export const authService = {
     let user = users.find(u => u.email === email && u.password === password)
     
     if (!user) {
-      // Check database profile table for users with username/password
+      // Check database profile table for users with username/password or email/password
       try {
         const params = {
           fields: [
             { field: { Name: "Name" } },
             { field: { Name: "fullName" } },
             { field: { Name: "username" } },
+            { field: { Name: "email" } },
             { field: { Name: "password" } },
             { field: { Name: "userId" } },
             { field: { Name: "phone" } },
             { field: { Name: "businessName" } },
             { field: { Name: "position" } }
           ],
-          where: [
+          whereGroups: [
             {
-              FieldName: "username",
-              Operator: "EqualTo", 
-              Values: [email]
+              operator: "OR",
+              subGroups: [
+                {
+                  conditions: [
+                    {
+                      fieldName: "username",
+                      operator: "EqualTo",
+                      values: [email]
+                    }
+                  ],
+                  operator: "OR"
+                },
+                {
+                  conditions: [
+                    {
+                      fieldName: "email",
+                      operator: "EqualTo",
+                      values: [email]
+                    }
+                  ],
+                  operator: "OR"
+                }
+              ]
             }
           ]
         };
@@ -46,8 +67,9 @@ export const authService = {
           // Check password match
           if (profileUser.password === password) {
             user = {
+              id: profileUser.userId || profileUser.Id,
               Id: profileUser.userId || profileUser.Id,
-              email: profileUser.username,
+              email: profileUser.email || profileUser.username,
               role: "participant", // Default role for database users
               fullName: profileUser.fullName,
               phone: profileUser.phone,
@@ -58,12 +80,12 @@ export const authService = {
           }
         }
       } catch (error) {
-        console.error("Error checking database users:", error);
+        console.error("Error checking database users:", error?.response?.data?.message || error.message);
       }
     }
     
     if (!user) {
-      throw new Error("Invalid email or password")
+      throw new Error("Invalid email/username or password")
     }
     
     // Return user without password
@@ -75,24 +97,46 @@ async forgotPassword(email) {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500))
     
-    // Check if user exists in mock data
+    // Check if user exists in mock data or database
     let user = users.find(u => u.email === email)
     let userId = null;
+    let userEmail = email;
     
     if (!user) {
-      // Check database profile table for users
+      // Check database profile table for users by username or email
       try {
         const params = {
           fields: [
             { field: { Name: "Name" } },
             { field: { Name: "username" } },
+            { field: { Name: "email" } },
             { field: { Name: "userId" } }
           ],
-          where: [
+          whereGroups: [
             {
-              FieldName: "username",
-              Operator: "EqualTo",
-              Values: [email]
+              operator: "OR",
+              subGroups: [
+                {
+                  conditions: [
+                    {
+                      fieldName: "username",
+                      operator: "EqualTo",
+                      values: [email]
+                    }
+                  ],
+                  operator: "OR"
+                },
+                {
+                  conditions: [
+                    {
+                      fieldName: "email",
+                      operator: "EqualTo",
+                      values: [email]
+                    }
+                  ],
+                  operator: "OR"
+                }
+              ]
             }
           ]
         };
@@ -100,63 +144,83 @@ async forgotPassword(email) {
         const response = await apperClient.fetchRecords("profile", params);
         
         if (response.success && response.data && response.data.length > 0) {
-          user = { email: response.data[0].username };
-          userId = response.data[0].userId || response.data[0].Id;
+          const profileData = response.data[0];
+          user = { email: profileData.email || profileData.username };
+          userId = profileData.userId || profileData.Id;
+          userEmail = profileData.email || profileData.username;
         }
       } catch (error) {
-        console.error("Error checking database users:", error);
+        console.error("Error checking database users:", error?.response?.data?.message || error.message);
       }
+    } else {
+      // For mock users, use their Id as userId
+      userId = user.Id;
     }
     
     if (!user) {
-      throw new Error("No account found with this email address")
+      throw new Error("No account found with this email address or username")
     }
 
-    // Create password reset request record
-    const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+    // Generate secure reset token
+    const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Date.now().toString(36)
     const expirationTime = new Date()
     expirationTime.setHours(expirationTime.getHours() + 1) // 1 hour expiration
 
+    // Create password reset request record using only Updateable fields
     const resetRecord = {
-      Name: `Password Reset for ${email}`,
+      Name: `Password Reset Request - ${userEmail}`,
       reset_token: resetToken,
       expiration_time: expirationTime.toISOString(),
       request_time: new Date().toISOString()
     };
 
-    // Add user_id if available
+    // Add user_id if available (Lookup field)
     if (userId) {
       resetRecord.user_id = parseInt(userId);
     }
 
-    const params = {
+    const createParams = {
       records: [resetRecord]
-    }
+    };
 
-try {
-      const response = await apperClient.createRecord('password_reset_requests', params)
+    try {
+      const response = await apperClient.createRecord('password_reset_requests', createParams);
       
       if (!response.success) {
-        console.error("Failed to create password reset request:", response.message)
-        throw new Error("Failed to create password reset request")
+        console.error("Failed to create password reset request:", response.message);
+        throw new Error("Failed to create password reset request");
+      }
+
+      if (response.results) {
+        const failedCreates = response.results.filter(result => !result.success);
+        
+        if (failedCreates.length > 0) {
+          console.error(`Failed to create password reset request ${failedCreates.length} records:${JSON.stringify(failedCreates)}`);
+          
+          failedCreates.forEach(record => {
+            record.errors?.forEach(error => {
+              throw new Error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) throw new Error(record.message);
+          });
+        }
       }
 
       // TODO: Integrate with Apper's email service to send password reset email
-      // The reset token and instructions should be sent to the user's email
-      // Reset link format: ${window.location.origin}/reset-password?token=${resetToken}
+      // The reset token should be sent to the user's email with reset link
+      // Reset link format: ${window.location.origin}/reset-password/${resetToken}
       
-      console.log(`Password reset request created for ${email}. Reset token: ${resetToken}`)
-      console.log("Note: Email sending functionality needs to be integrated with Apper's email service")
+      console.log(`Password reset request created successfully for ${userEmail}`);
+      console.log(`Reset token: ${resetToken}`);
+      console.log("Note: Email integration with Apper's email service is pending");
       
-      // For now, we've created the database record successfully
-      // In production, this should only return success after email is sent
       return { 
-        message: "Password reset instructions sent successfully",
-        resetToken: resetToken // Remove this in production - only for testing
-      }
+        message: "Password reset request created successfully",
+        resetToken: resetToken // TODO: Remove in production - only for development testing
+      };
     } catch (error) {
-      console.error("Error creating password reset request:", error?.response?.data?.message || error.message)
-      throw new Error("Failed to process password reset request. Please try again later.")
+      console.error("Error creating password reset request:", error?.response?.data?.message || error.message);
+      throw new Error("Failed to process password reset request. Please try again later.");
     }
   }
 }

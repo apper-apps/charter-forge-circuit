@@ -3,15 +3,15 @@ import { createSlice } from "@reduxjs/toolkit"
 const initialState = {
   participants: [],
   selectedParticipant: null,
-  participantResponses: {},
+participantResponses: {},
   isLoading: false,
   error: null,
   filters: {
     search: "",
     completionStatus: "all"
-  }
+  },
+  permissionUpdateLoading: false
 }
-
 const adminSlice = createSlice({
   name: "admin",
   initialState,
@@ -42,7 +42,7 @@ const adminSlice = createSlice({
     fetchParticipantResponsesFailure: (state, action) => {
       state.isLoading = false
       state.error = action.payload
-    },
+},
     updateFilters: (state, action) => {
       state.filters = { ...state.filters, ...action.payload }
     },
@@ -52,6 +52,26 @@ const adminSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null
+    },
+    updatePermissionsStart: (state) => {
+      state.permissionUpdateLoading = true
+      state.error = null
+    },
+    updatePermissionsSuccess: (state, action) => {
+      state.permissionUpdateLoading = false
+      // Update the participant in the list
+      const participantIndex = state.participants.findIndex(p => p.id === action.payload.userId)
+      if (participantIndex !== -1) {
+        state.participants[participantIndex].permissions = action.payload.permissions
+      }
+      // Update selected participant if it matches
+      if (state.selectedParticipant && state.selectedParticipant.id === action.payload.userId) {
+        state.selectedParticipant.permissions = action.payload.permissions
+      }
+    },
+    updatePermissionsFailure: (state, action) => {
+      state.permissionUpdateLoading = false
+      state.error = action.payload
     }
   }
 })
@@ -65,7 +85,10 @@ export const {
   fetchParticipantResponsesFailure,
   updateFilters,
   clearSelectedParticipant,
-  clearError
+clearError,
+  updatePermissionsStart,
+  updatePermissionsSuccess,
+  updatePermissionsFailure
 } = adminSlice.actions
 
 export default adminSlice.reducer

@@ -2,8 +2,9 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { motion } from "framer-motion"
-import { fetchParticipantsStart, fetchParticipantsSuccess, fetchParticipantsFailure, updateFilters } from "@/store/slices/adminSlice"
+import { fetchParticipantsStart, fetchParticipantsSuccess, fetchParticipantsFailure, updateFilters, updatePermissionsStart, updatePermissionsSuccess, updatePermissionsFailure } from "@/store/slices/adminSlice"
 import { adminService } from "@/services/api/adminService"
+import { toast } from "react-toastify"
 import { PILLARS } from "@/services/mockData/pillars"
 import Button from "@/components/atoms/Button"
 import Card from "@/components/atoms/Card"
@@ -17,8 +18,7 @@ import { cn } from "@/utils/cn"
 const AdminDashboard = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { participants, isLoading, error, filters } = useSelector((state) => state.admin)
-
+const { participants, isLoading, error, filters, permissionUpdateLoading } = useSelector((state) => state.admin)
   useEffect(() => {
     const loadParticipants = async () => {
       dispatch(fetchParticipantsStart())
@@ -43,12 +43,23 @@ const AdminDashboard = () => {
 
   const handleViewParticipant = (userId) => {
     navigate(`/admin/participant/${userId}`)
+}
+
+  const handlePermissionChange = async (userId, newPermission) => {
+    dispatch(updatePermissionsStart())
+    try {
+      await adminService.updateParticipantPermissions(userId, newPermission)
+      dispatch(updatePermissionsSuccess({ userId, permissions: newPermission }))
+      toast.success("Permissions updated successfully")
+    } catch (error) {
+      dispatch(updatePermissionsFailure(error.message))
+      toast.error("Failed to update permissions")
+    }
   }
 
   const handleRetry = () => {
     window.location.reload()
   }
-
   const getCompletionStatus = (participant) => {
     if (!participant.responses) return { completed: 0, total: 0, percentage: 0 }
     
@@ -192,11 +203,12 @@ const AdminDashboard = () => {
           <div className="admin-table">
             <table className="w-full">
 <thead>
-                <tr>
+<tr>
                   <th className="text-left">Participant</th>
                   <th className="text-left">Business</th>
                   <th className="text-left">Progress</th>
                   <th className="text-left">Last Activity</th>
+                  <th className="text-left">Permissions</th>
                   <th className="text-left">Actions</th>
                 </tr>
               </thead>
@@ -259,6 +271,19 @@ const AdminDashboard = () => {
                           {participant.lastActivity ? new Date(participant.lastActivity).toLocaleDateString() : "Never"}
                         </p>
                       </td>
+<td>
+                        <select
+                          value={participant.permissions || "participant"}
+                          onChange={(e) => handlePermissionChange(participant.id, e.target.value)}
+                          disabled={permissionUpdateLoading}
+                          className="text-sm border border-gray-300 rounded px-2 py-1 bg-white"
+                        >
+                          <option value="participant">Participant</option>
+                          <option value="admin">Admin</option>
+                          <option value="moderator">Moderator</option>
+                          <option value="viewer">Viewer</option>
+                        </select>
+                      </td>
                       <td>
                         <Button
                           variant="ghost"
@@ -286,7 +311,7 @@ const AdminDashboard = () => {
           </div>
         )}
       </motion.div>
-    </div>
+</div>
   )
 }
 

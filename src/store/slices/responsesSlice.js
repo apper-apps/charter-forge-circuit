@@ -100,8 +100,17 @@ const responsesSlice = createSlice({
       state.isLoading = false
       state.error = action.payload
     },
-    saveResponseStart: (state, action) => {
+saveResponseStart: (state, action) => {
       const { pillarId, questionId, responseNumber = 1 } = action.payload
+      
+      // CRITICAL: Validate pillar ID to prevent cross-pillar contamination during save operations
+      const validPillarIds = ["raison-detre", "type-of-business", "expectations", "extinction"];
+      if (!validPillarIds.includes(pillarId)) {
+        console.error(`CRITICAL: Invalid pillar ID in saveResponseStart: ${pillarId}. Preventing save operation to avoid cross-pillar contamination.`);
+        state.error = `Invalid pillar ID: ${pillarId}`;
+        return; // Do not proceed with save operation
+      }
+      
       const key = `${pillarId}-${questionId}-${responseNumber}`
       state.savingQuestions[key] = true
       state.error = null

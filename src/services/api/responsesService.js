@@ -42,10 +42,17 @@ async getUserResponses(userId) {
       
       // Group responses by pillar, question, and response number with proper pillar ID validation
       const groupedResponses = {};
-      userResponses.forEach(response => {
+userResponses.forEach(response => {
         // Ensure pillarId is properly formatted and matches expected pillar identifiers
         const pillarId = String(response.pillarId).trim();
         const questionId = String(response.questionId).trim();
+        
+        // CRITICAL: Validate pillar ID against known valid pillars to prevent cross-pillar contamination
+        const validPillarIds = ["raison-detre", "type-of-business", "expectations", "extinction"];
+        if (!validPillarIds.includes(pillarId)) {
+          console.warn(`Invalid pillar ID found in response: ${pillarId}. Skipping to prevent cross-pillar contamination. Valid pillars: ${validPillarIds.join(', ')}`);
+          return;
+        }
         
         // Validate pillar ID format - ensure it matches the expected pillar identifiers
         if (!pillarId || !questionId) {

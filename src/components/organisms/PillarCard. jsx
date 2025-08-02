@@ -1,0 +1,26 @@
+import React from 'react';
+
+const PillarCard = ({ pillar, responses }) => {
+  const pillarResponses = responses?.[pillar?.id] || {};
+  const completedQuestions = Object.values(pillarResponses).filter(response => 
+    response && response.content && response.content.trim().length > 0
+  ).length;
+  const progress = pillar?.questions?.length > 0 
+    ? (completedQuestions / pillar.questions.length) * 100 
+    : 0;
+
+  return (
+    <div className="pillar-card">
+      <h3>{pillar?.title || 'Untitled Pillar'}</h3>
+      <div className="progress-bar">
+        <div 
+          className="progress-fill" 
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <p>{completedQuestions} of {pillar?.questions?.length || 0} questions completed</p>
+    </div>
+  );
+};
+
+export default PillarCard;

@@ -170,6 +170,3 @@ class ResponsesService {
 }
 
 export const responsesService = new ResponsesService();
-
-
-export const responsesService = new ResponsesService()

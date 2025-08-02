@@ -1,4 +1,4 @@
-import React from "react";
+// Response Service - Handles user responses to pillar questions
 import { individualResponseService } from "@/services/api/individualResponseService";
 import Error from "@/components/ui/Error";
 // Response Service - Handles user responses to pillar questions
@@ -171,15 +171,7 @@ class ResponsesService {
 
 export const responsesService = new ResponsesService();
 
-const { ApperClient } = window.ApperSDK
-
 class ResponsesService {
-  constructor() {
-    this.apperClient = new ApperClient({
-      apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
-      apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
-    })
-  }
 
   async getResponsesByUser(userId) {
     try {

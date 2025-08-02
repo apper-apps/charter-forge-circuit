@@ -14,27 +14,37 @@ const QuestionCard = ({ question, pillarId, questionIndex }) => {
   const { user } = useSelector((state) => state.auth)
   
   const questionId = `q${questionIndex + 1}`
-  const responseContent = responses[pillarId]?.[questionId] || ""
-  const isSaving = savingQuestions[`${pillarId}-${questionId}`]
-  const [lastSaved, setLastSaved] = useState(null)
+  const responseArray = responses[pillarId]?.[questionId] || []
+  const [lastSaved, setLastSaved] = useState({})
 
-  const saveResponse = useCallback(async (content) => {
+  const saveResponse = useCallback(async (content, responseNumber) => {
     if (!user?.id) return
 
-    dispatch(saveResponseStart({ pillarId, questionId }))
+    const saveKey = `${pillarId}-${questionId}-${responseNumber}`
+    dispatch(saveResponseStart({ pillarId, questionId, responseNumber }))
     
     try {
-      await responsesService.saveResponse(user.id, pillarId, questionId, content)
-      dispatch(saveResponseSuccess({ pillarId, questionId, content }))
-      setLastSaved(new Date())
+      await responsesService.saveResponse(user.id, pillarId, questionId, content, responseNumber)
+      dispatch(saveResponseSuccess({ pillarId, questionId, content, responseNumber }))
+      setLastSaved(prev => ({ ...prev, [responseNumber]: new Date() }))
     } catch (error) {
-      dispatch(saveResponseFailure({ pillarId, questionId, error: error.message }))
-      toast.error("Failed to save response")
+      dispatch(saveResponseFailure({ pillarId, questionId, responseNumber, error: error.message }))
+      toast.error(`Failed to save response ${responseNumber}`)
     }
   }, [dispatch, pillarId, questionId, user?.id])
 
-  const handleContentChange = (content) => {
-    dispatch(updateResponseLocal({ pillarId, questionId, content }))
+  const handleContentChange = (content, responseNumber) => {
+    dispatch(updateResponseLocal({ pillarId, questionId, content, responseNumber }))
+  }
+
+  const getResponseContent = (responseNumber) => {
+    const arrayIndex = responseNumber - 1
+    return responseArray[arrayIndex] || ""
+  }
+
+  const isSavingResponse = (responseNumber) => {
+    const saveKey = `${pillarId}-${questionId}-${responseNumber}`
+    return savingQuestions[saveKey]
   }
 
   return (
@@ -55,20 +65,39 @@ const QuestionCard = ({ question, pillarId, questionIndex }) => {
               </h3>
             </div>
             <p className="text-gray-700 text-base leading-relaxed">
-{question}
+              {question}
             </p>
           </div>
-          <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} />
         </div>
 
-        <RichTextEditor
-          value={responseContent}
-          onChange={handleContentChange}
-          onAutoSave={saveResponse}
-          autoSave={true}
-          placeholder="Share your thoughts here... Take your time to reflect on this important question."
-          className="mt-4"
-        />
+        <div className="space-y-6">
+          <p className="text-sm text-gray-600 mb-4">
+            You can provide up to 5 different responses to this question. Each response will be saved automatically.
+          </p>
+          
+          {[1, 2, 3, 4, 5].map((responseNumber) => (
+            <div key={responseNumber} className="border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-medium text-gray-700">
+                  Response {responseNumber}
+                </h4>
+                <AutoSaveIndicator 
+                  isSaving={isSavingResponse(responseNumber)} 
+                  lastSaved={lastSaved[responseNumber]} 
+                />
+              </div>
+              
+              <RichTextEditor
+                value={getResponseContent(responseNumber)}
+                onChange={(content) => handleContentChange(content, responseNumber)}
+                onAutoSave={(content) => saveResponse(content, responseNumber)}
+                autoSave={true}
+                placeholder={`Share your thoughts for response ${responseNumber}... Each response is saved independently.`}
+                className="min-h-[120px]"
+              />
+            </div>
+          ))}
+        </div>
       </Card>
     </motion.div>
   )

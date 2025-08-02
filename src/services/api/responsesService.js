@@ -1,3 +1,5 @@
+import React from "react";
+import Error from "@/components/ui/Error";
 const { ApperClient } = window.ApperSDK;
 
 const apperClient = new ApperClient({
@@ -6,7 +8,7 @@ const apperClient = new ApperClient({
 });
 
 export const responsesService = {
-  async getUserResponses(userId) {
+async getUserResponses(userId) {
     try {
       const params = {
         fields: [
@@ -15,6 +17,7 @@ export const responsesService = {
           { field: { Name: "pillarId" } },
           { field: { Name: "questionId" } },
           { field: { Name: "content" } },
+          { field: { Name: "responseNumber" } },
           { field: { Name: "lastUpdated" } },
           { field: { Name: "CreatedOn" } },
           { field: { Name: "ModifiedOn" } }
@@ -37,13 +40,26 @@ export const responsesService = {
 
       const userResponses = response.data || [];
       
-      // Group responses by pillar and question
+      // Group responses by pillar, question, and response number
       const groupedResponses = {};
       userResponses.forEach(response => {
         if (!groupedResponses[response.pillarId]) {
           groupedResponses[response.pillarId] = {};
         }
-        groupedResponses[response.pillarId][response.questionId] = response.content;
+        if (!groupedResponses[response.pillarId][response.questionId]) {
+          groupedResponses[response.pillarId][response.questionId] = [];
+        }
+        
+        // Handle responseNumber (default to 1 for backward compatibility)
+        const responseNumber = response.responseNumber || 1;
+        const arrayIndex = responseNumber - 1; // Convert to 0-based index
+        
+        // Ensure array has enough slots
+        while (groupedResponses[response.pillarId][response.questionId].length <= arrayIndex) {
+          groupedResponses[response.pillarId][response.questionId].push("");
+        }
+        
+        groupedResponses[response.pillarId][response.questionId][arrayIndex] = response.content || "";
       });
       
       return groupedResponses;
@@ -57,15 +73,17 @@ export const responsesService = {
     }
   },
 
-  async saveResponse(userId, pillarId, questionId, content) {
+async saveResponse(userId, pillarId, questionId, content, responseNumber = 1) {
     try {
       // First check if response exists
+// First check if response exists for this specific response number
       const params = {
         fields: [
           { field: { Name: "Name" } },
           { field: { Name: "userId" } },
           { field: { Name: "pillarId" } },
           { field: { Name: "questionId" } },
+          { field: { Name: "responseNumber" } },
           { field: { Name: "content" } }
         ],
         where: [
@@ -83,12 +101,16 @@ export const responsesService = {
             FieldName: "questionId",
             Operator: "EqualTo",
             Values: [questionId]
-          }
+          },
+          {
+            FieldName: "responseNumber",
+            Operator: "EqualTo",
+            Values: [responseNumber]
+}
         ]
       };
 
       const existingResponse = await apperClient.fetchRecords("response", params);
-      
       if (!existingResponse.success) {
         console.error(existingResponse.message);
         throw new Error(existingResponse.message);
@@ -96,10 +118,11 @@ export const responsesService = {
 
 // Prepare data with only Updateable fields
       const updateableData = {
-        Name: `Response - ${pillarId} - ${questionId} - User ${userId}`,
+        Name: `Response - ${pillarId} - ${questionId} - ${responseNumber} - User ${userId}`,
         userId: parseInt(userId),
         pillarId: pillarId,
         questionId: questionId,
+        responseNumber: responseNumber,
         content: content,
         lastUpdated: new Date().toISOString()
       };

@@ -9,9 +9,10 @@ export const profileService = {
   async getProfile(userId) {
     try {
       const params = {
-        fields: [
+fields: [
           { field: { Name: "Name" } },
           { field: { Name: "fullName" } },
+          { field: { Name: "email" } },
           { field: { Name: "phone" } },
           { field: { Name: "businessName" } },
           { field: { Name: "position" } },
@@ -58,8 +59,10 @@ export const profileService = {
       const existingProfile = await this.getProfile(userId);
       
       // Prepare data with only Updateable fields
+// Prepare data with only Updateable fields
       const updateableData = {
         fullName: profileData.fullName,
+        email: profileData.email,
         phone: profileData.phone,
         businessName: profileData.businessName,
         position: profileData.position,
@@ -67,12 +70,12 @@ export const profileService = {
         businessType: profileData.businessType,
         yearsInBusiness: parseInt(profileData.yearsInBusiness),
         annualRevenue: profileData.annualRevenue,
-        country: profileData.country,
-        city: profileData.city,
-        userId: parseInt(userId)
-      };
+country: profileData.country,
+city: profileData.city,
+userId: parseInt(userId)
+};
 
-      if (existingProfile) {
+if (existingProfile) {
         // Update existing profile
         const params = {
           records: [

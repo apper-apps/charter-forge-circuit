@@ -127,9 +127,6 @@ const validateForm = () => {
     if (!formData.yearsInBusiness || formData.yearsInBusiness < 0) {
       newErrors.yearsInBusiness = "Years in business is required"
     }
-    if (!formData.numberOfEmployees || formData.numberOfEmployees < 1) {
-      newErrors.numberOfEmployees = "Number of employees is required"
-    }
     if (!formData.annualRevenue) newErrors.annualRevenue = "Annual revenue range is required"
     if (!formData.country.trim()) newErrors.country = "Country is required"
     if (!formData.city.trim()) newErrors.city = "City is required"
@@ -152,8 +149,7 @@ dispatch(saveProfileStart())
       const profileData = {
         ...formData,
         businessType: formData.businessType === "Other" ? formData.customBusinessType : formData.businessType,
-        yearsInBusiness: parseInt(formData.yearsInBusiness),
-        numberOfEmployees: parseInt(formData.numberOfEmployees)
+yearsInBusiness: parseInt(formData.yearsInBusiness)
       }
       
       const savedProfile = await profileService.saveProfile(user.id, profileData)
@@ -304,21 +300,6 @@ dispatch(saveProfileStart())
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                label="Number of Employees"
-                name="numberOfEmployees"
-                type="number"
-                min="1"
-                value={formData.numberOfEmployees}
-                onChange={handleChange}
-                placeholder="Enter number of employees"
-                error={errors.numberOfEmployees}
-                required
-              />
-
-              <div></div>
-            </div>
 
             <FormField
               label="Annual Revenue Range"

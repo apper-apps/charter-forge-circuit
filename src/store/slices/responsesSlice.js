@@ -204,7 +204,7 @@ updateResponseLocal: (state, action) => {
         state.responses[pillarId][questionId][responseIndex][field] = value
       }
     },
-    saveIndividualResponseStart: (state, action) => {
+saveIndividualResponseStart: (state, action) => {
       const { pillarId, questionId, responseIndex } = action.payload
       const key = `${pillarId}-${questionId}-${responseIndex}`
       state.savingQuestions[key] = true
@@ -236,6 +236,18 @@ updateResponseLocal: (state, action) => {
       state.savingQuestions[key] = false
       state.error = error
     },
+    savePillarResponsesStart: (state) => {
+      state.savingPillar = true
+      state.error = null
+    },
+    savePillarResponsesSuccess: (state) => {
+      state.savingPillar = false
+      state.error = null
+    },
+    savePillarResponsesFailure: (state, action) => {
+      state.savingPillar = false
+      state.error = action.payload
+    },
     updateCompletionStats: (state, action) => {
       const { pillars } = action.payload
       state.completionStats = calculateCompletionStats(state.responses, pillars)
@@ -263,6 +275,9 @@ export const {
   saveIndividualResponseStart,
   saveIndividualResponseSuccess,
   saveIndividualResponseFailure,
+  savePillarResponsesStart,
+  savePillarResponsesSuccess,
+  savePillarResponsesFailure,
   updateCompletionStats,
   clearError
 } = responsesSlice.actions

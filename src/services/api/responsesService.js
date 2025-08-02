@@ -1,4 +1,6 @@
+import React from "react";
 import { individualResponseService } from "@/services/api/individualResponseService";
+import Error from "@/components/ui/Error";
 
 const { ApperClient } = window.ApperSDK
 
@@ -22,32 +24,45 @@ class ResponsesService {
           { field: { Name: "lastUpdated" } },
           { field: { Name: "responseNumber" } }
         ],
-        where: [
+where: [
           {
             FieldName: "userId",
             Operator: "EqualTo",
             Values: [userId.toString()]
           }
-        ],
-        orderBy: [
-          { fieldName: "pillarId", sorttype: "ASC" },
-          { fieldName: "questionId", sorttype: "ASC" },
-          { fieldName: "responseNumber", sorttype: "ASC" }
         ]
       }
 
       const response = await this.apperClient.fetchRecords('response', params)
       
       if (!response.success) {
-        console.error(response.message)
+        console.error("Error fetching responses:", response.message)
         throw new Error(response.message)
       }
 
-      return response.data || []
+      // Process and organize responses by pillar and question
+      const organizedResponses = {}
+      if (response.data && response.data.length > 0) {
+        response.data.forEach(responseItem => {
+          const pillarId = responseItem.pillarId
+          const questionId = responseItem.questionId
+          
+          if (!organizedResponses[pillarId]) {
+            organizedResponses[pillarId] = {}
+          }
+          if (!organizedResponses[questionId]) {
+            organizedResponses[pillarId][questionId] = []
+          }
+          
+          organizedResponses[pillarId][questionId].push(responseItem)
+        })
+      }
+
+      return organizedResponses
     } catch (error) {
       console.error("Error fetching responses:", error.message)
       throw error
-    }
+}
   }
 
   async getUserResponses(userId) {

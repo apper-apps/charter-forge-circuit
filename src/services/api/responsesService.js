@@ -89,6 +89,13 @@ async getMainResponse(userId, pillarId, questionId) {
       const cleanPillarId = String(pillarId).trim();
       const cleanQuestionId = String(questionId).trim();
       
+      // Validate pillar ID against known valid pillars to prevent misrouting
+      const validPillarIds = ["raison-detre", "type-of-business", "expectations", "extinction"];
+      if (!validPillarIds.includes(cleanPillarId)) {
+        console.error(`Invalid pillar ID in getMainResponse: ${cleanPillarId}. Valid pillars: ${validPillarIds.join(', ')}`);
+        throw new Error(`Invalid pillar ID: ${cleanPillarId}`);
+      }
+      
       const params = {
         fields: [
           { field: { Name: "Name" } },
@@ -121,7 +128,14 @@ async getMainResponse(userId, pillarId, questionId) {
         throw new Error(response.message);
       }
 
-      return response.data && response.data.length > 0 ? response.data[0] : null;
+      // Additional validation: ensure returned response matches requested pillar/question
+      const result = response.data && response.data.length > 0 ? response.data[0] : null;
+      if (result && (result.pillarId !== cleanPillarId || result.questionId !== cleanQuestionId)) {
+        console.error(`Response mismatch! Requested: ${cleanPillarId}/${cleanQuestionId}, Got: ${result.pillarId}/${result.questionId}`);
+        return null;
+      }
+
+      return result;
     } catch (error) {
       console.error("Error getting main response:", error.message);
       throw error;
@@ -134,11 +148,20 @@ async ensureMainResponse(userId, pillarId, questionId) {
       const cleanPillarId = String(pillarId).trim();
       const cleanQuestionId = String(questionId).trim();
       
+      // Validate pillar ID against known valid pillars to prevent misrouting
+      const validPillarIds = ["raison-detre", "type-of-business", "expectations", "extinction"];
+      if (!validPillarIds.includes(cleanPillarId)) {
+        console.error(`Invalid pillar ID in ensureMainResponse: ${cleanPillarId}. Valid pillars: ${validPillarIds.join(', ')}`);
+        throw new Error(`Invalid pillar ID: ${cleanPillarId}`);
+      }
+      
       // Check if main response exists
       let mainResponse = await this.getMainResponse(userId, cleanPillarId, cleanQuestionId);
       
       if (!mainResponse) {
         // Create main response if it doesn't exist with properly formatted IDs
+        console.log(`Creating new response for pillar: ${cleanPillarId}, question: ${cleanQuestionId}`);
+        
         const createParams = {
           records: [{
             Name: `Response - ${cleanPillarId} - ${cleanQuestionId} - User ${userId}`,
@@ -160,6 +183,11 @@ async ensureMainResponse(userId, pillarId, questionId) {
 
         if (response.results && response.results.length > 0 && response.results[0].success) {
           mainResponse = response.results[0].data;
+          // Verify the created response has correct pillar/question association
+          if (mainResponse.pillarId !== cleanPillarId || mainResponse.questionId !== cleanQuestionId) {
+            console.error(`Created response has incorrect association! Expected: ${cleanPillarId}/${cleanQuestionId}, Got: ${mainResponse.pillarId}/${mainResponse.questionId}`);
+            throw new Error("Response creation resulted in incorrect pillar/question association");
+          }
         } else {
           throw new Error("Failed to create main response");
         }
@@ -177,6 +205,15 @@ async saveResponse(userId, pillarId, questionId, content, responseNumber = 1) {
       // Ensure consistent string formatting for pillar and question IDs to prevent misalignment
       const cleanPillarId = String(pillarId).trim();
       const cleanQuestionId = String(questionId).trim();
+      
+      // CRITICAL: Validate pillar ID against known valid pillars to prevent misrouting
+      const validPillarIds = ["raison-detre", "type-of-business", "expectations", "extinction"];
+      if (!validPillarIds.includes(cleanPillarId)) {
+        console.error(`CRITICAL: Invalid pillar ID in saveResponse: ${cleanPillarId}. This could cause response misrouting!`);
+        throw new Error(`Invalid pillar ID: ${cleanPillarId}. Valid pillars: ${validPillarIds.join(', ')}`);
+      }
+      
+      console.log(`Saving response - Pillar: ${cleanPillarId}, Question: ${cleanQuestionId}, Response: ${responseNumber}`);
       
       // First check if response exists for this specific response number
       const params = {
@@ -230,11 +267,18 @@ async saveResponse(userId, pillarId, questionId, content, responseNumber = 1) {
       };
 
       if (existingResponse.data && existingResponse.data.length > 0) {
+        // Verify existing response has correct pillar/question before updating
+        const existing = existingResponse.data[0];
+        if (existing.pillarId !== cleanPillarId || existing.questionId !== cleanQuestionId) {
+          console.error(`CRITICAL: Existing response has wrong pillar/question! Expected: ${cleanPillarId}/${cleanQuestionId}, Found: ${existing.pillarId}/${existing.questionId}`);
+          throw new Error("Response pillar/question mismatch detected - preventing data corruption");
+        }
+        
         // Update existing response
         const updateParams = {
           records: [
             {
-              Id: existingResponse.data[0].Id,
+              Id: existing.Id,
               ...updateableData
             }
           ]
@@ -262,7 +306,15 @@ async saveResponse(userId, pillarId, questionId, content, responseNumber = 1) {
           }
           
           const successfulUpdates = response.results.filter(result => result.success);
-          return successfulUpdates.length > 0 ? successfulUpdates[0].data : null;
+          const result = successfulUpdates.length > 0 ? successfulUpdates[0].data : null;
+          
+          // Final verification of saved response
+          if (result && (result.pillarId !== cleanPillarId || result.questionId !== cleanQuestionId)) {
+            console.error(`CRITICAL: Saved response has incorrect association! Expected: ${cleanPillarId}/${cleanQuestionId}, Saved: ${result.pillarId}/${result.questionId}`);
+            throw new Error("Response save resulted in incorrect pillar/question association");
+          }
+          
+          return result;
         }
       } else {
         // Create new response with properly formatted identifiers
@@ -292,7 +344,15 @@ async saveResponse(userId, pillarId, questionId, content, responseNumber = 1) {
           }
           
           const successfulCreates = response.results.filter(result => result.success);
-          return successfulCreates.length > 0 ? successfulCreates[0].data : null;
+          const result = successfulCreates.length > 0 ? successfulCreates[0].data : null;
+          
+          // Final verification of created response
+          if (result && (result.pillarId !== cleanPillarId || result.questionId !== cleanQuestionId)) {
+            console.error(`CRITICAL: Created response has incorrect association! Expected: ${cleanPillarId}/${cleanQuestionId}, Created: ${result.pillarId}/${result.questionId}`);
+            throw new Error("Response creation resulted in incorrect pillar/question association");
+          }
+          
+          return result;
         }
       }
     } catch (error) {

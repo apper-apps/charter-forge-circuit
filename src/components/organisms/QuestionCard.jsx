@@ -14,29 +14,51 @@ const QuestionCard = ({ question, pillarId, questionIndex }) => {
   const { responses, savingQuestions } = useSelector((state) => state.responses)
   const { user } = useSelector((state) => state.auth)
   
+  // Validate pillar ID format to prevent misrouting
+  const validPillarIds = ["raison-detre", "type-of-business", "expectations", "extinction"]
+  const isValidPillar = validPillarIds.includes(pillarId)
+  
+  if (!isValidPillar) {
+    console.error(`Invalid pillar ID detected: ${pillarId}. Valid pillars: ${validPillarIds.join(', ')}`)
+  }
+  
   const questionId = `q${questionIndex + 1}`
-const individualResponses = responses[pillarId]?.[questionId] || []
+  const individualResponses = isValidPillar ? (responses[pillarId]?.[questionId] || []) : []
   const [lastSaved, setLastSaved] = useState({})
 
   // Load individual responses when component mounts
-  useEffect(() => {
+useEffect(() => {
     const loadIndividualResponses = async () => {
-      if (!user?.id) return
+      if (!user?.id || !isValidPillar) {
+        if (!isValidPillar) {
+          console.warn(`Skipping response loading for invalid pillar: ${pillarId}`)
+        }
+        return
+      }
       
       try {
+        // Validate pillar-question combination before loading responses
+        console.log(`Loading responses for pillar: ${pillarId}, question: ${questionId}`)
+        
         // First get the main response to get its ID
         const mainResponse = await responsesService.getMainResponse(user.id, pillarId, questionId)
         if (mainResponse) {
+          // Verify the returned response matches our pillar/question
+          if (mainResponse.pillarId !== pillarId || mainResponse.questionId !== questionId) {
+            console.error(`Response pillar/question mismatch! Expected: ${pillarId}/${questionId}, Got: ${mainResponse.pillarId}/${mainResponse.questionId}`)
+            return
+          }
+          
           const individualResponses = await individualResponseService.getIndividualResponsesForResponse(mainResponse.Id)
           dispatch(updateResponseLocal({ pillarId, questionId, individualResponses }))
         }
       } catch (error) {
-        console.error("Error loading individual responses:", error.message)
+        console.error(`Error loading individual responses for ${pillarId}/${questionId}:`, error.message)
       }
     }
 
     loadIndividualResponses()
-  }, [user?.id, pillarId, questionId, dispatch])
+  }, [user?.id, pillarId, questionId, dispatch, isValidPillar])
 
   const saveIndividualResponse = useCallback(async (responseIndex, name, content) => {
     if (!user?.id) return

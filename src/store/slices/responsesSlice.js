@@ -138,8 +138,17 @@ const responsesSlice = createSlice({
       state.savingQuestions[key] = false
       state.error = error
     },
-    updateResponseLocal: (state, action) => {
+updateResponseLocal: (state, action) => {
       const { pillarId, questionId, content, responseNumber = 1, individualResponses } = action.payload
+      
+      // CRITICAL: Validate pillar ID to prevent cross-pillar contamination
+      const validPillarIds = ["raison-detre", "type-of-business", "expectations", "extinction"]
+      if (!validPillarIds.includes(pillarId)) {
+        console.error(`CRITICAL: Invalid pillar ID in updateResponseLocal: ${pillarId}. Preventing response corruption.`)
+        return // Do not update state with invalid pillar ID
+      }
+      
+      console.log(`Updating local response for pillar: ${pillarId}, question: ${questionId}`)
       
       if (!state.responses[pillarId]) {
         state.responses[pillarId] = {}

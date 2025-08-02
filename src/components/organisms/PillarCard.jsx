@@ -5,9 +5,17 @@ import ProgressRing from "@/components/molecules/ProgressRing"
 import Card from "@/components/atoms/Card"
 
 const PillarCard = ({ pillar, onClick }) => {
-  const { responses } = useSelector((state) => state.responses)
+const { responses } = useSelector((state) => state.responses)
   
-const pillarResponses = responses[pillar.id] || {}
+  // Validate pillar ID to prevent counting responses from wrong pillars
+  const validPillarIds = ["raison-detre", "type-of-business", "expectations", "extinction"]
+  const isValidPillar = validPillarIds.includes(pillar.id)
+  
+  if (!isValidPillar) {
+    console.warn(`Invalid pillar ID in PillarCard: ${pillar.id}`)
+  }
+  
+  const pillarResponses = isValidPillar ? (responses[pillar.id] || {}) : {}
   
   // Helper function to check if a response is answered
   const isResponseAnswered = (response) => {

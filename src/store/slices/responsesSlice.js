@@ -4,7 +4,83 @@ const initialState = {
   responses: {},
   isLoading: false,
   error: null,
-  savingQuestions: {}
+  savingQuestions: {},
+  completionStats: {
+    overall: { completed: 0, total: 0, percentage: 0 },
+    pillars: {}
+  }
+}
+
+// Helper function to check if a response is answered
+const isResponseAnswered = (response) => {
+  if (!response) return false
+  
+  // Handle different response formats
+  if (typeof response === 'string') {
+    return response.replace(/<[^>]*>/g, '').trim().length > 0
+  }
+  
+  if (typeof response === 'object') {
+    // Handle response with content property
+    if (response.content) {
+      return response.content.replace(/<[^>]*>/g, '').trim().length > 0
+    }
+    
+    // Handle individual responses array
+    if (Array.isArray(response)) {
+      return response.some(r => r && r.content && r.content.replace(/<[^>]*>/g, '').trim().length > 0)
+    }
+    
+    // Handle individual response objects
+    if (response.name || response.content) {
+      const content = response.content || ''
+      return content.replace(/<[^>]*>/g, '').trim().length > 0
+    }
+  }
+  
+  return false
+}
+
+// Helper function to calculate completion statistics
+const calculateCompletionStats = (responses, pillars) => {
+  const stats = {
+    overall: { completed: 0, total: 0, percentage: 0 },
+    pillars: {}
+  }
+  
+  // Import PILLARS if not provided
+  if (!pillars) {
+    // This will be handled by the component calling this
+    return stats
+  }
+  
+  let totalQuestions = 0
+  let totalCompleted = 0
+  
+  pillars.forEach(pillar => {
+    const pillarResponses = responses[pillar.id] || {}
+    const completedQuestions = Object.values(pillarResponses).filter(isResponseAnswered).length
+    const pillarTotal = pillar.questions.length
+    const pillarPercentage = pillarTotal > 0 ? (completedQuestions / pillarTotal) * 100 : 0
+    
+    stats.pillars[pillar.id] = {
+      completed: completedQuestions,
+      total: pillarTotal,
+      percentage: pillarPercentage,
+      isComplete: completedQuestions === pillarTotal
+    }
+    
+    totalQuestions += pillarTotal
+    totalCompleted += completedQuestions
+  })
+  
+  stats.overall = {
+    completed: totalCompleted,
+    total: totalQuestions,
+    percentage: totalQuestions > 0 ? (totalCompleted / totalQuestions) * 100 : 0
+  }
+  
+  return stats
 }
 
 const responsesSlice = createSlice({
@@ -15,7 +91,7 @@ const responsesSlice = createSlice({
       state.isLoading = true
       state.error = null
     },
-fetchResponsesSuccess: (state, action) => {
+    fetchResponsesSuccess: (state, action) => {
       state.isLoading = false
       state.responses = action.payload
       state.error = null
@@ -24,20 +100,20 @@ fetchResponsesSuccess: (state, action) => {
       state.isLoading = false
       state.error = action.payload
     },
-saveResponseStart: (state, action) => {
+    saveResponseStart: (state, action) => {
       const { pillarId, questionId, responseNumber = 1 } = action.payload
       const key = `${pillarId}-${questionId}-${responseNumber}`
       state.savingQuestions[key] = true
       state.error = null
     },
-saveResponseSuccess: (state, action) => {
+    saveResponseSuccess: (state, action) => {
       const { pillarId, questionId, content, responseNumber = 1 } = action.payload
       const key = `${pillarId}-${questionId}-${responseNumber}`
       
       if (!state.responses[pillarId]) {
         state.responses[pillarId] = {}
       }
-if (!state.responses[pillarId][questionId]) {
+      if (!state.responses[pillarId][questionId]) {
         state.responses[pillarId][questionId] = []
       }
       
@@ -56,13 +132,13 @@ if (!state.responses[pillarId][questionId]) {
       state.savingQuestions[key] = false
       state.error = null
     },
-saveResponseFailure: (state, action) => {
+    saveResponseFailure: (state, action) => {
       const { pillarId, questionId, responseNumber = 1, error } = action.payload
       const key = `${pillarId}-${questionId}-${responseNumber}`
       state.savingQuestions[key] = false
       state.error = error
     },
-updateResponseLocal: (state, action) => {
+    updateResponseLocal: (state, action) => {
       const { pillarId, questionId, content, responseNumber = 1, individualResponses } = action.payload
       
       if (!state.responses[pillarId]) {
@@ -142,11 +218,20 @@ updateResponseLocal: (state, action) => {
       state.savingQuestions[key] = false
       state.error = error
     },
+    updateCompletionStats: (state, action) => {
+      const { pillars } = action.payload
+      state.completionStats = calculateCompletionStats(state.responses, pillars)
+    },
     clearError: (state) => {
       state.error = null
     }
   }
 })
+
+// Selectors
+export const selectCompletionStats = (state) => state.responses.completionStats
+export const selectPillarCompletion = (state, pillarId) => state.responses.completionStats.pillars[pillarId]
+export const selectOverallCompletion = (state) => state.responses.completionStats.overall
 
 export const {
   fetchResponsesStart,
@@ -160,6 +245,7 @@ export const {
   saveIndividualResponseStart,
   saveIndividualResponseSuccess,
   saveIndividualResponseFailure,
+  updateCompletionStats,
   clearError
 } = responsesSlice.actions
 

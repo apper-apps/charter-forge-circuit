@@ -52,16 +52,40 @@ const Export = () => {
     window.location.reload()
   }
 
-const calculateCompletionStats = () => {
+// Helper function to check if a response is answered
+  const isResponseAnswered = (response) => {
+    if (!response) return false
+    
+    // Handle different response formats
+    if (typeof response === 'string') {
+      return response.replace(/<[^>]*>/g, '').trim().length > 0
+    }
+    
+    if (typeof response === 'object') {
+      // Handle response with content property
+      if (response.content) {
+        return response.content.replace(/<[^>]*>/g, '').trim().length > 0
+      }
+      
+      // Handle individual responses array
+      if (Array.isArray(response)) {
+        return response.some(r => r && r.content && r.content.replace(/<[^>]*>/g, '').trim().length > 0)
+      }
+      
+      // Handle individual response objects
+      if (response.name || response.content) {
+        const content = response.content || ''
+        return content.replace(/<[^>]*>/g, '').trim().length > 0
+      }
+    }
+    
+    return false
+  }
+
+  const calculateCompletionStats = () => {
     const totalQuestions = PILLARS.reduce((sum, pillar) => sum + pillar.questions.length, 0)
     const completedQuestions = Object.values(responses).reduce((sum, pillarResponses) => {
-      return sum + Object.values(pillarResponses).filter(response => {
-        if (!response) return false
-        if (typeof response === 'string') {
-          return response.trim().length > 0
-        }
-        return true // Consider non-string truthy values as valid responses
-      }).length
+      return sum + Object.values(pillarResponses).filter(isResponseAnswered).length
     }, 0)
     
     return {
@@ -166,13 +190,7 @@ const calculateCompletionStats = () => {
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {PILLARS.map((pillar) => {
               const pillarResponses = responses[pillar.id] || {}
-              const completed = Object.values(pillarResponses).filter(response => {
-                if (!response) return false
-                if (typeof response === 'string') {
-                  return response.trim().length > 0
-                }
-                return true // Consider non-string truthy values as valid responses
-              }).length
+              const completed = Object.values(pillarResponses).filter(isResponseAnswered).length
               const pillarProgress = (completed / pillar.questions.length) * 100
 
               return (

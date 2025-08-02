@@ -56,15 +56,40 @@ const Dashboard = () => {
   // Check if profile is complete
   const isProfileComplete = profile && profile.fullName && profile.businessName
 
+// Helper function to check if a response is answered
+  const isResponseAnswered = (response) => {
+    if (!response) return false
+    
+    // Handle different response formats
+    if (typeof response === 'string') {
+      return response.replace(/<[^>]*>/g, '').trim().length > 0
+    }
+    
+    if (typeof response === 'object') {
+      // Handle response with content property
+      if (response.content) {
+        return response.content.replace(/<[^>]*>/g, '').trim().length > 0
+      }
+      
+      // Handle individual responses array
+      if (Array.isArray(response)) {
+        return response.some(r => r && r.content && r.content.replace(/<[^>]*>/g, '').trim().length > 0)
+      }
+      
+      // Handle individual response objects
+      if (response.name || response.content) {
+        const content = response.content || ''
+        return content.replace(/<[^>]*>/g, '').trim().length > 0
+      }
+    }
+    
+    return false
+  }
+
   // Calculate overall progress
   const totalQuestions = PILLARS.reduce((sum, pillar) => sum + pillar.questions.length, 0)
-const completedQuestions = Object.values(responses).reduce((sum, pillarResponses) => {
-    return sum + Object.values(pillarResponses).filter(response => {
-      if (!response) return false;
-      // Handle response objects with content property
-      const content = response.content || response;
-      return typeof content === 'string' && content.trim().length > 0;
-    }).length
+  const completedQuestions = Object.values(responses).reduce((sum, pillarResponses) => {
+    return sum + Object.values(pillarResponses).filter(isResponseAnswered).length
   }, 0)
   const overallProgress = totalQuestions > 0 ? (completedQuestions / totalQuestions) * 100 : 0
 

@@ -78,10 +78,38 @@ const PillarQuestions = () => {
     )
   }
 
-const pillarResponses = responses[pillarId] || {}
-  const completedQuestions = Object.values(pillarResponses).filter(response => 
-    response && response.content && response.content.replace(/<[^>]*>/g, '').trim().length > 0
-  ).length
+// Helper function to check if a response is answered
+  const isResponseAnswered = (response) => {
+    if (!response) return false
+    
+    // Handle different response formats
+    if (typeof response === 'string') {
+      return response.replace(/<[^>]*>/g, '').trim().length > 0
+    }
+    
+    if (typeof response === 'object') {
+      // Handle response with content property
+      if (response.content) {
+        return response.content.replace(/<[^>]*>/g, '').trim().length > 0
+      }
+      
+      // Handle individual responses array
+      if (Array.isArray(response)) {
+        return response.some(r => r && r.content && r.content.replace(/<[^>]*>/g, '').trim().length > 0)
+      }
+      
+      // Handle individual response objects
+      if (response.name || response.content) {
+        const content = response.content || ''
+        return content.replace(/<[^>]*>/g, '').trim().length > 0
+      }
+    }
+    
+    return false
+  }
+
+  const pillarResponses = responses[pillarId] || {}
+  const completedQuestions = Object.values(pillarResponses).filter(isResponseAnswered).length
   const progress = (completedQuestions / pillar.questions.length) * 100
   const nextPillar = getNextPillar()
 

@@ -110,9 +110,9 @@ const individualResponses = responses[pillarId]?.[questionId] || []
           </div>
         </div>
 
-        <div className="space-y-6">
+<div className="space-y-6">
           <p className="text-sm text-gray-600 mb-4">
-            You can provide up to 5 different responses to this question. Each response will be saved automatically.
+            5 different family members can respond separately to this question. Each response will be saved automatically.
           </p>
           
 {[0, 1, 2, 3, 4].map((responseIndex) => {

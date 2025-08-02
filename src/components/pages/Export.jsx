@@ -52,12 +52,16 @@ const Export = () => {
     window.location.reload()
   }
 
-  const calculateCompletionStats = () => {
+const calculateCompletionStats = () => {
     const totalQuestions = PILLARS.reduce((sum, pillar) => sum + pillar.questions.length, 0)
     const completedQuestions = Object.values(responses).reduce((sum, pillarResponses) => {
-      return sum + Object.values(pillarResponses).filter(response => 
-        response && response.trim().length > 0
-      ).length
+      return sum + Object.values(pillarResponses).filter(response => {
+        if (!response) return false
+        if (typeof response === 'string') {
+          return response.trim().length > 0
+        }
+        return true // Consider non-string truthy values as valid responses
+      }).length
     }, 0)
     
     return {
@@ -159,12 +163,16 @@ const Export = () => {
           </div>
 
           {/* Pillar Breakdown */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {PILLARS.map((pillar) => {
               const pillarResponses = responses[pillar.id] || {}
-              const completed = Object.values(pillarResponses).filter(response => 
-                response && response.trim().length > 0
-              ).length
+              const completed = Object.values(pillarResponses).filter(response => {
+                if (!response) return false
+                if (typeof response === 'string') {
+                  return response.trim().length > 0
+                }
+                return true // Consider non-string truthy values as valid responses
+              }).length
               const pillarProgress = (completed / pillar.questions.length) * 100
 
               return (

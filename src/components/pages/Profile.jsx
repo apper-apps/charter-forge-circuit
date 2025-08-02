@@ -68,7 +68,7 @@ const [formData, setFormData] = useState({
         const profileData = await profileService.getProfile(user.id)
         dispatch(fetchProfileSuccess(profileData))
         
-        if (profileData) {
+if (profileData) {
 setFormData({
             fullName: profileData.fullName || "",
             email: profileData.email || "",
@@ -79,7 +79,7 @@ setFormData({
             businessType: BUSINESS_TYPES.includes(profileData.businessType) ? profileData.businessType : "Other",
             customBusinessType: !BUSINESS_TYPES.includes(profileData.businessType) ? profileData.businessType : "",
             yearsInBusiness: profileData.yearsInBusiness?.toString() || "",
-            numberOfEmployees: profileData.numberOfEmployees?.toString() || "",
+            employeeNumber: profileData.employeeNumber?.toString() || "",
             annualRevenue: profileData.annualRevenue || "",
             country: profileData.country || "",
             city: profileData.city || ""

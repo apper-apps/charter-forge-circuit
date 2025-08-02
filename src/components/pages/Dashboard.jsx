@@ -58,10 +58,13 @@ const Dashboard = () => {
 
   // Calculate overall progress
   const totalQuestions = PILLARS.reduce((sum, pillar) => sum + pillar.questions.length, 0)
-  const completedQuestions = Object.values(responses).reduce((sum, pillarResponses) => {
-    return sum + Object.values(pillarResponses).filter(response => 
-      response && response.trim().length > 0
-    ).length
+const completedQuestions = Object.values(responses).reduce((sum, pillarResponses) => {
+    return sum + Object.values(pillarResponses).filter(response => {
+      if (!response) return false;
+      // Handle response objects with content property
+      const content = response.content || response;
+      return typeof content === 'string' && content.trim().length > 0;
+    }).length
   }, 0)
   const overallProgress = totalQuestions > 0 ? (completedQuestions / totalQuestions) * 100 : 0
 

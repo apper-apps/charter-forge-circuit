@@ -35,9 +35,9 @@ where: [
 
       const response = await this.apperClient.fetchRecords('response', params)
       
-      if (!response.success) {
-        console.error("Error fetching responses:", response.message)
-        throw new Error(response.message)
+if (!response.success) {
+        console.error("Error fetching user responses:", response.message)
+        throw new Error(`Failed to fetch user responses: ${response.message}`)
       }
 
       // Process and organize responses by pillar and question
@@ -50,7 +50,7 @@ where: [
           if (!organizedResponses[pillarId]) {
             organizedResponses[pillarId] = {}
           }
-          if (!organizedResponses[questionId]) {
+          if (!organizedResponses[pillarId][questionId]) {
             organizedResponses[pillarId][questionId] = []
           }
           
@@ -60,9 +60,9 @@ where: [
 
       return organizedResponses
     } catch (error) {
-      console.error("Error fetching responses:", error.message)
+      console.error("Error in getUserResponses service:", error.message)
       throw error
-}
+    }
   }
 
   async getUserResponses(userId) {
@@ -88,8 +88,8 @@ where: [
 
       const response = await this.apperClient.fetchRecords('response', params)
       
-      if (!response.success) {
-        throw new Error(response.message)
+if (!response.success) {
+        throw new Error(`Failed to get responses by user: ${response.message}`)
       }
 
       if (response.data && response.data.length > 0) {
@@ -111,8 +111,8 @@ where: [
 
       const createResponse = await this.apperClient.createRecord('response', createParams)
       
-      if (!createResponse.success) {
-        throw new Error(createResponse.message)
+if (!createResponse.success) {
+        throw new Error(`Failed to create main response: ${createResponse.message}`)
       }
 
       if (createResponse.results && createResponse.results.length > 0) {
@@ -124,7 +124,7 @@ where: [
 
       throw new Error("Failed to create main response")
     } catch (error) {
-      console.error("Error ensuring main response:", error.message)
+console.error("Error in ensureMainResponse service:", error.message)
       throw error
     }
   }
@@ -164,8 +164,8 @@ where: [
       }
       
       return results
-    } catch (error) {
-      console.error("Error saving pillar responses:", error.message)
+} catch (error) {
+      console.error("Error in savePillarResponses service:", error.message)
       throw error
     }
   }

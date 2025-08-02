@@ -57,8 +57,11 @@ export const individualResponseService = {
     }
   },
 
-  async saveIndividualResponse(responseId, name, content, responseIndex) {
+async saveIndividualResponse(responseId, name, content, responseIndex) {
     try {
+      // Ensure proper response ID handling to maintain correct pillar associations
+      const cleanResponseId = parseInt(responseId);
+      
       // Check if individual response exists for this response and index
       const params = {
         fields: [
@@ -71,7 +74,7 @@ export const individualResponseService = {
           {
             FieldName: "responseId",
             Operator: "EqualTo",
-            Values: [parseInt(responseId)]
+            Values: [cleanResponseId]
           }
         ],
         orderBy: [
@@ -88,18 +91,19 @@ export const individualResponseService = {
         throw new Error(existingResponses.message);
       }
 
+      // Ensure proper data association with parent response to maintain pillar integrity
       const updateableData = {
-        Name: `Individual Response - ${responseId} - ${responseIndex} - ${name}`,
-        responseId: parseInt(responseId),
-        individualName: name,
-        responseContent: content
+        Name: `Individual Response - ${cleanResponseId} - ${responseIndex} - ${name || 'Anonymous'}`,
+        responseId: cleanResponseId,
+        individualName: name || '',
+        responseContent: content || ''
       };
 
       const existingData = existingResponses.data || [];
       const existingResponse = existingData[responseIndex];
 
       if (existingResponse) {
-        // Update existing individual response
+        // Update existing individual response with proper association
         const updateParams = {
           records: [
             {
@@ -134,7 +138,7 @@ export const individualResponseService = {
           return successfulUpdates.length > 0 ? successfulUpdates[0].data : null;
         }
       } else {
-        // Create new individual response
+        // Create new individual response with proper parent association
         const createParams = {
           records: [updateableData]
         };

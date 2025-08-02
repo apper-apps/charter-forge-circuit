@@ -40,14 +40,24 @@ async getUserResponses(userId) {
 
       const userResponses = response.data || [];
       
-      // Group responses by pillar, question, and response number
+      // Group responses by pillar, question, and response number with proper pillar ID validation
       const groupedResponses = {};
       userResponses.forEach(response => {
-        if (!groupedResponses[response.pillarId]) {
-          groupedResponses[response.pillarId] = {};
+        // Ensure pillarId is properly formatted and matches expected pillar identifiers
+        const pillarId = String(response.pillarId).trim();
+        const questionId = String(response.questionId).trim();
+        
+        // Validate pillar ID format - ensure it matches the expected pillar identifiers
+        if (!pillarId || !questionId) {
+          console.warn(`Invalid pillar or question ID found: pillarId=${pillarId}, questionId=${questionId}`);
+          return;
         }
-        if (!groupedResponses[response.pillarId][response.questionId]) {
-          groupedResponses[response.pillarId][response.questionId] = [];
+        
+        if (!groupedResponses[pillarId]) {
+          groupedResponses[pillarId] = {};
+        }
+        if (!groupedResponses[pillarId][questionId]) {
+          groupedResponses[pillarId][questionId] = [];
         }
         
         // Handle responseNumber (default to 1 for backward compatibility)
@@ -55,11 +65,11 @@ async getUserResponses(userId) {
         const arrayIndex = responseNumber - 1; // Convert to 0-based index
         
         // Ensure array has enough slots
-        while (groupedResponses[response.pillarId][response.questionId].length <= arrayIndex) {
-          groupedResponses[response.pillarId][response.questionId].push("");
+        while (groupedResponses[pillarId][questionId].length <= arrayIndex) {
+          groupedResponses[pillarId][questionId].push("");
         }
         
-        groupedResponses[response.pillarId][response.questionId][arrayIndex] = response.content || "";
+        groupedResponses[pillarId][questionId][arrayIndex] = response.content || "";
       });
       
       return groupedResponses;
@@ -75,6 +85,10 @@ async getUserResponses(userId) {
 
 async getMainResponse(userId, pillarId, questionId) {
     try {
+      // Ensure consistent string formatting for pillar and question IDs
+      const cleanPillarId = String(pillarId).trim();
+      const cleanQuestionId = String(questionId).trim();
+      
       const params = {
         fields: [
           { field: { Name: "Name" } },
@@ -91,12 +105,12 @@ async getMainResponse(userId, pillarId, questionId) {
           {
             FieldName: "pillarId",
             Operator: "EqualTo",
-            Values: [pillarId]
+            Values: [cleanPillarId]
           },
           {
             FieldName: "questionId",
             Operator: "EqualTo",
-            Values: [questionId]
+            Values: [cleanQuestionId]
           }
         ]
       };
@@ -114,19 +128,23 @@ async getMainResponse(userId, pillarId, questionId) {
     }
   },
 
-  async ensureMainResponse(userId, pillarId, questionId) {
+async ensureMainResponse(userId, pillarId, questionId) {
     try {
+      // Ensure consistent string formatting for pillar and question IDs
+      const cleanPillarId = String(pillarId).trim();
+      const cleanQuestionId = String(questionId).trim();
+      
       // Check if main response exists
-      let mainResponse = await this.getMainResponse(userId, pillarId, questionId);
+      let mainResponse = await this.getMainResponse(userId, cleanPillarId, cleanQuestionId);
       
       if (!mainResponse) {
-        // Create main response if it doesn't exist
+        // Create main response if it doesn't exist with properly formatted IDs
         const createParams = {
           records: [{
-            Name: `Response - ${pillarId} - ${questionId} - User ${userId}`,
+            Name: `Response - ${cleanPillarId} - ${cleanQuestionId} - User ${userId}`,
             userId: parseInt(userId),
-            pillarId: pillarId,
-            questionId: questionId,
+            pillarId: cleanPillarId,
+            questionId: cleanQuestionId,
             responseNumber: 1,
             content: "",
             lastUpdated: new Date().toISOString()
@@ -156,6 +174,10 @@ async getMainResponse(userId, pillarId, questionId) {
 
 async saveResponse(userId, pillarId, questionId, content, responseNumber = 1) {
     try {
+      // Ensure consistent string formatting for pillar and question IDs to prevent misalignment
+      const cleanPillarId = String(pillarId).trim();
+      const cleanQuestionId = String(questionId).trim();
+      
       // First check if response exists for this specific response number
       const params = {
         fields: [
@@ -175,12 +197,12 @@ async saveResponse(userId, pillarId, questionId, content, responseNumber = 1) {
           {
             FieldName: "pillarId",
             Operator: "EqualTo",
-            Values: [pillarId]
+            Values: [cleanPillarId]
           },
           {
             FieldName: "questionId",
             Operator: "EqualTo",
-            Values: [questionId]
+            Values: [cleanQuestionId]
           },
           {
             FieldName: "responseNumber",
@@ -196,12 +218,12 @@ async saveResponse(userId, pillarId, questionId, content, responseNumber = 1) {
         throw new Error(existingResponse.message);
       }
 
-      // Prepare data with only Updateable fields
+      // Prepare data with only Updateable fields and ensure proper pillar/question association
       const updateableData = {
-        Name: `Response - ${pillarId} - ${questionId} - ${responseNumber} - User ${userId}`,
+        Name: `Response - ${cleanPillarId} - ${cleanQuestionId} - ${responseNumber} - User ${userId}`,
         userId: parseInt(userId),
-        pillarId: pillarId,
-        questionId: questionId,
+        pillarId: cleanPillarId,
+        questionId: cleanQuestionId,
         responseNumber: responseNumber,
         content: content,
         lastUpdated: new Date().toISOString()
@@ -243,7 +265,7 @@ async saveResponse(userId, pillarId, questionId, content, responseNumber = 1) {
           return successfulUpdates.length > 0 ? successfulUpdates[0].data : null;
         }
       } else {
-        // Create new response
+        // Create new response with properly formatted identifiers
         const createParams = {
           records: [updateableData]
         };

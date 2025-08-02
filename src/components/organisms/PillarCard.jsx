@@ -8,8 +8,8 @@ const PillarCard = ({ pillar, onClick }) => {
   const { responses } = useSelector((state) => state.responses)
   
   const pillarResponses = responses[pillar.id] || {}
-  const completedQuestions = Object.values(pillarResponses).filter(response => 
-    response && response.trim().length > 0
+const completedQuestions = Object.values(pillarResponses).filter(response => 
+    response?.content?.trim()?.length > 0
   ).length
   const progress = (completedQuestions / pillar.questions.length) * 100
 

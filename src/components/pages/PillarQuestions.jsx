@@ -78,9 +78,9 @@ const PillarQuestions = () => {
     )
   }
 
-  const pillarResponses = responses[pillarId] || {}
+const pillarResponses = responses[pillarId] || {}
   const completedQuestions = Object.values(pillarResponses).filter(response => 
-    response && response.trim().length > 0
+    response && response.content && response.content.replace(/<[^>]*>/g, '').trim().length > 0
   ).length
   const progress = (completedQuestions / pillar.questions.length) * 100
   const nextPillar = getNextPillar()

@@ -51,7 +51,7 @@ const [formData, setFormData] = useState({
     businessType: "",
     customBusinessType: "",
     yearsInBusiness: "",
-    numberOfEmployees: "",
+    employeeNumber: "",
     annualRevenue: "",
     country: "",
     city: ""
@@ -303,15 +303,15 @@ dispatch(saveProfileStart())
                 required
               />
 
-              <FormField
+<FormField
                 label="Number of Employees"
-                name="numberOfEmployees"
+                name="employeeNumber"
                 type="number"
                 min="0"
-                value={formData.numberOfEmployees}
+                value={formData.employeeNumber}
                 onChange={handleChange}
                 placeholder="Enter number of employees"
-                error={errors.numberOfEmployees}
+                error={errors.employeeNumber}
                 required
               />
             </div>

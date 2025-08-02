@@ -156,6 +156,10 @@ export const {
   saveResponseSuccess,
   saveResponseFailure,
   updateResponseLocal,
+  updateIndividualResponse,
+  saveIndividualResponseStart,
+  saveIndividualResponseSuccess,
+  saveIndividualResponseFailure,
   clearError
 } = responsesSlice.actions
 

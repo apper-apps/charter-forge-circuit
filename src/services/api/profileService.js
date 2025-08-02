@@ -17,8 +17,9 @@ fields: [
           { field: { Name: "businessName" } },
           { field: { Name: "position" } },
           { field: { Name: "otherOwners" } },
-          { field: { Name: "businessType" } },
+{ field: { Name: "businessType" } },
           { field: { Name: "yearsInBusiness" } },
+          { field: { Name: "employeeNumber" } },
           { field: { Name: "annualRevenue" } },
           { field: { Name: "country" } },
           { field: { Name: "city" } },
@@ -68,12 +69,13 @@ fields: [
         position: profileData.position,
         otherOwners: profileData.otherOwners,
         businessType: profileData.businessType,
-        yearsInBusiness: parseInt(profileData.yearsInBusiness),
+yearsInBusiness: parseInt(profileData.yearsInBusiness),
+        employeeNumber: parseInt(profileData.employeeNumber),
         annualRevenue: profileData.annualRevenue,
-country: profileData.country,
-city: profileData.city,
-userId: parseInt(userId)
-};
+        country: profileData.country,
+        city: profileData.city,
+        userId: parseInt(userId)
+      };
 
 if (existingProfile) {
         // Update existing profile

@@ -124,8 +124,11 @@ const validateForm = () => {
     if (formData.businessType === "Other" && !formData.customBusinessType.trim()) {
       newErrors.customBusinessType = "Please specify business type"
     }
-    if (!formData.yearsInBusiness || formData.yearsInBusiness < 0) {
+if (!formData.yearsInBusiness || formData.yearsInBusiness < 0) {
       newErrors.yearsInBusiness = "Years in business is required"
+    }
+    if (!formData.numberOfEmployees || formData.numberOfEmployees < 0) {
+      newErrors.numberOfEmployees = "Number of employees is required"
     }
     if (!formData.annualRevenue) newErrors.annualRevenue = "Annual revenue range is required"
     if (!formData.country.trim()) newErrors.country = "Country is required"
@@ -147,9 +150,10 @@ dispatch(saveProfileStart())
     
     try {
       const profileData = {
-        ...formData,
+...formData,
         businessType: formData.businessType === "Other" ? formData.customBusinessType : formData.businessType,
-yearsInBusiness: parseInt(formData.yearsInBusiness)
+        yearsInBusiness: parseInt(formData.yearsInBusiness),
+        employeeNumber: parseInt(formData.numberOfEmployees)
       }
       
       const savedProfile = await profileService.saveProfile(user.id, profileData)
@@ -296,6 +300,18 @@ yearsInBusiness: parseInt(formData.yearsInBusiness)
                 onChange={handleChange}
                 placeholder="Enter number of years"
                 error={errors.yearsInBusiness}
+                required
+              />
+
+              <FormField
+                label="Number of Employees"
+                name="numberOfEmployees"
+                type="number"
+                min="0"
+                value={formData.numberOfEmployees}
+                onChange={handleChange}
+                placeholder="Enter number of employees"
+                error={errors.numberOfEmployees}
                 required
               />
             </div>

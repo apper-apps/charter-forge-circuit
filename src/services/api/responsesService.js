@@ -1,4 +1,4 @@
-import { individualResponseService } from './individualResponseService'
+import { individualResponseService } from "@/services/api/individualResponseService";
 
 const { ApperClient } = window.ApperSDK
 
@@ -48,6 +48,10 @@ class ResponsesService {
       console.error("Error fetching responses:", error.message)
       throw error
     }
+  }
+
+  async getUserResponses(userId) {
+    return await this.getResponsesByUser(userId);
   }
 
   async ensureMainResponse(userId, pillarId, questionId) {

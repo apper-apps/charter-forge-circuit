@@ -73,10 +73,90 @@ async getUserResponses(userId) {
     }
   },
 
+async getMainResponse(userId, pillarId, questionId) {
+    try {
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "userId" } },
+          { field: { Name: "pillarId" } },
+          { field: { Name: "questionId" } }
+        ],
+        where: [
+          {
+            FieldName: "userId",
+            Operator: "EqualTo",
+            Values: [parseInt(userId)]
+          },
+          {
+            FieldName: "pillarId",
+            Operator: "EqualTo",
+            Values: [pillarId]
+          },
+          {
+            FieldName: "questionId",
+            Operator: "EqualTo",
+            Values: [questionId]
+          }
+        ]
+      };
+
+      const response = await apperClient.fetchRecords("response", params);
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      return response.data && response.data.length > 0 ? response.data[0] : null;
+    } catch (error) {
+      console.error("Error getting main response:", error.message);
+      throw error;
+    }
+  },
+
+  async ensureMainResponse(userId, pillarId, questionId) {
+    try {
+      // Check if main response exists
+      let mainResponse = await this.getMainResponse(userId, pillarId, questionId);
+      
+      if (!mainResponse) {
+        // Create main response if it doesn't exist
+        const createParams = {
+          records: [{
+            Name: `Response - ${pillarId} - ${questionId} - User ${userId}`,
+            userId: parseInt(userId),
+            pillarId: pillarId,
+            questionId: questionId,
+            responseNumber: 1,
+            content: "",
+            lastUpdated: new Date().toISOString()
+          }]
+        };
+
+        const response = await apperClient.createRecord("response", createParams);
+        
+        if (!response.success) {
+          console.error(response.message);
+          throw new Error(response.message);
+        }
+
+        if (response.results && response.results.length > 0 && response.results[0].success) {
+          mainResponse = response.results[0].data;
+        } else {
+          throw new Error("Failed to create main response");
+        }
+      }
+      
+      return mainResponse;
+    } catch (error) {
+      console.error("Error ensuring main response:", error.message);
+      throw error;
+    }
+  },
+
 async saveResponse(userId, pillarId, questionId, content, responseNumber = 1) {
     try {
-      // First check if response exists
-// First check if response exists for this specific response number
+      // First check if response exists for this specific response number
       const params = {
         fields: [
           { field: { Name: "Name" } },
@@ -106,7 +186,7 @@ async saveResponse(userId, pillarId, questionId, content, responseNumber = 1) {
             FieldName: "responseNumber",
             Operator: "EqualTo",
             Values: [responseNumber]
-}
+          }
         ]
       };
 
@@ -116,7 +196,7 @@ async saveResponse(userId, pillarId, questionId, content, responseNumber = 1) {
         throw new Error(existingResponse.message);
       }
 
-// Prepare data with only Updateable fields
+      // Prepare data with only Updateable fields
       const updateableData = {
         Name: `Response - ${pillarId} - ${questionId} - ${responseNumber} - User ${userId}`,
         userId: parseInt(userId),

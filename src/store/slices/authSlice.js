@@ -3,7 +3,10 @@ import { createSlice } from "@reduxjs/toolkit"
 const initialState = {
   user: null,
   isLoading: false,
-  error: null
+  error: null,
+  resetPasswordLoading: false,
+  resetPasswordError: null,
+  resetPasswordSuccess: false
 }
 
 const authSlice = createSlice({
@@ -32,6 +35,26 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null
     }
+},
+  resetPasswordStart: (state) => {
+    state.resetPasswordLoading = true
+    state.resetPasswordError = null
+    state.resetPasswordSuccess = false
+  },
+  resetPasswordSuccess: (state) => {
+    state.resetPasswordLoading = false
+    state.resetPasswordError = null
+    state.resetPasswordSuccess = true
+  },
+  resetPasswordFailure: (state, action) => {
+    state.resetPasswordLoading = false
+    state.resetPasswordError = action.payload
+    state.resetPasswordSuccess = false
+  },
+  clearResetPasswordState: (state) => {
+    state.resetPasswordLoading = false
+    state.resetPasswordError = null
+    state.resetPasswordSuccess = false
   }
 })
 export const { 
@@ -39,6 +62,10 @@ export const {
   loginSuccess, 
   loginFailure, 
   logout, 
-  clearError
+  clearError,
+  resetPasswordStart,
+  resetPasswordSuccess, 
+  resetPasswordFailure,
+  clearResetPasswordState
 } = authSlice.actions
 export default authSlice.reducer

@@ -115,7 +115,7 @@ saveResponseStart: (state, action) => {
       state.savingQuestions[key] = true
       state.error = null
     },
-saveResponseSuccess: (state, action) => {
+    saveResponseSuccess: (state, action) => {
       const { pillarId, questionId, content, responseNumber = 1 } = action.payload
       const key = `${pillarId}-${questionId}-${responseNumber}`
       
@@ -128,25 +128,14 @@ saveResponseSuccess: (state, action) => {
       
       // For individual responses, store as array of objects with name and content
       if (typeof content === 'object' && content.individualResponses) {
-        // Clear existing array using Immer-compatible method
-        state.responses[pillarId][questionId].length = 0
-        // Push mapped responses to maintain Immer compatibility
-        const mappedResponses = content.individualResponses.map(response => ({
-          name: response.name || "",
-          content: response.content || ""
-        }))
-        state.responses[pillarId][questionId].push(...mappedResponses)
+        state.responses[pillarId][questionId] = content.individualResponses
       } else {
-        // Legacy support - ensure array has enough slots and consistent object structure
+        // Legacy support - ensure array has enough slots
         const arrayIndex = responseNumber - 1
         while (state.responses[pillarId][questionId].length <= arrayIndex) {
-          state.responses[pillarId][questionId].push({ name: "", content: "" })
+          state.responses[pillarId][questionId].push("")
         }
-        // Convert string content to object structure
-        const responseData = typeof content === 'string' 
-          ? { name: "", content } 
-          : { name: content?.name || "", content: content?.content || "" }
-        state.responses[pillarId][questionId][arrayIndex] = responseData
+        state.responses[pillarId][questionId][arrayIndex] = content
       }
       
       state.savingQuestions[key] = false
@@ -177,10 +166,8 @@ updateResponseLocal: (state, action) => {
         state.responses[pillarId][questionId] = []
       }
       
-// Handle individual responses
+      // Handle individual responses
       if (individualResponses) {
-        // Replace array using Immer-compatible method
-        // Direct assignment is the proper way to replace arrays in Immer
         state.responses[pillarId][questionId] = individualResponses
       } else {
         // Legacy support - ensure array has enough slots
@@ -217,7 +204,7 @@ updateResponseLocal: (state, action) => {
         state.responses[pillarId][questionId][responseIndex][field] = value
       }
     },
-saveIndividualResponseStart: (state, action) => {
+    saveIndividualResponseStart: (state, action) => {
       const { pillarId, questionId, responseIndex } = action.payload
       const key = `${pillarId}-${questionId}-${responseIndex}`
       state.savingQuestions[key] = true
@@ -249,18 +236,6 @@ saveIndividualResponseStart: (state, action) => {
       state.savingQuestions[key] = false
       state.error = error
     },
-    savePillarResponsesStart: (state) => {
-      state.savingPillar = true
-      state.error = null
-    },
-    savePillarResponsesSuccess: (state) => {
-      state.savingPillar = false
-      state.error = null
-    },
-    savePillarResponsesFailure: (state, action) => {
-      state.savingPillar = false
-      state.error = action.payload
-    },
     updateCompletionStats: (state, action) => {
       const { pillars } = action.payload
       state.completionStats = calculateCompletionStats(state.responses, pillars)
@@ -288,9 +263,6 @@ export const {
   saveIndividualResponseStart,
   saveIndividualResponseSuccess,
   saveIndividualResponseFailure,
-  savePillarResponsesStart,
-  savePillarResponsesSuccess,
-  savePillarResponsesFailure,
   updateCompletionStats,
   clearError
 } = responsesSlice.actions

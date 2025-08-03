@@ -2,9 +2,8 @@ import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { motion } from "framer-motion"
-import { fetchResponsesStart, fetchResponsesSuccess, fetchResponsesFailure, savePillarResponsesStart, savePillarResponsesSuccess, savePillarResponsesFailure } from "@/store/slices/responsesSlice"
+import { fetchResponsesStart, fetchResponsesSuccess, fetchResponsesFailure } from "@/store/slices/responsesSlice"
 import { responsesService } from "@/services/api/responsesService"
-import { toast } from 'react-toastify'
 import { PILLARS } from "@/services/mockData/pillars"
 import QuestionCard from "@/components/organisms/QuestionCard"
 import Button from "@/components/atoms/Button"
@@ -14,10 +13,10 @@ import ApperIcon from "@/components/ApperIcon"
 
 const PillarQuestions = () => {
   const { pillarId } = useParams()
-const navigate = useNavigate()
+  const navigate = useNavigate()
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
-  const { responses, isLoading, error, savingPillar } = useSelector((state) => state.responses)
+  const { responses, isLoading, error } = useSelector((state) => state.responses)
 
   const pillar = PILLARS.find(p => p.id === pillarId)
 
@@ -41,67 +40,11 @@ const navigate = useNavigate()
     window.location.reload()
   }
 
-const handleBack = () => {
+  const handleBack = () => {
     navigate("/dashboard")
   }
 
-  const handleSavePillarResponses = async () => {
-    if (!user?.id) {
-      toast.error("User not authenticated")
-      return
-    }
-
-    dispatch(savePillarResponsesStart())
-    
-    try {
-      const pillarResponses = responses[pillarId] || {}
-      const allResponses = []
-      
-      // Collect all responses for this pillar
-      Object.entries(pillarResponses).forEach(([questionId, questionResponses]) => {
-        if (Array.isArray(questionResponses)) {
-          questionResponses.forEach((response, index) => {
-            if (response.name || response.content) {
-              allResponses.push({
-                questionId,
-                responseIndex: index,
-                name: response.name,
-                content: response.content
-              })
-            }
-          })
-        }
-      })
-
-      if (allResponses.length === 0) {
-        toast.info("No responses to save")
-        dispatch(savePillarResponsesSuccess())
-        return
-      }
-
-      await responsesService.savePillarResponses(user.id, pillarId, allResponses)
-      dispatch(savePillarResponsesSuccess())
-      toast.success("✔ Responses saved successfully")
-      
-    } catch (error) {
-      dispatch(savePillarResponsesFailure(error.message))
-      toast.error(`Failed to save responses: ${error.message}`)
-    }
-  }
-
-  const getPreviousPillar = () => {
-    const currentIndex = PILLARS.findIndex(p => p.id === pillarId)
-    return currentIndex > 0 ? PILLARS[currentIndex - 1] : null
-  }
-
-  const handlePreviousPillar = () => {
-    const previousPillar = getPreviousPillar()
-    if (previousPillar) {
-      navigate(`/pillar/${previousPillar.id}`)
-    }
-  }
-
-const getNextPillar = () => {
+  const getNextPillar = () => {
     const currentIndex = PILLARS.findIndex(p => p.id === pillarId)
     return currentIndex < PILLARS.length - 1 ? PILLARS[currentIndex + 1] : null
   }
@@ -165,11 +108,11 @@ const getNextPillar = () => {
     return false
   }
 
-const pillarResponses = responses[pillarId] || {}
+  const pillarResponses = responses[pillarId] || {}
   const completedQuestions = Object.values(pillarResponses).filter(isResponseAnswered).length
   const progress = (completedQuestions / pillar.questions.length) * 100
   const nextPillar = getNextPillar()
-  const previousPillar = getPreviousPillar()
+
   return (
     <div className="max-w-4xl mx-auto p-8">
       {/* Header */}
@@ -234,43 +177,6 @@ const pillarResponses = responses[pillarId] || {}
         ))}
       </div>
 
-{/* Save Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="p-6 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200 mb-6"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-green-900 mb-1 text-left">
-              Save Your Progress
-            </h3>
-            <p className="text-green-700 text-sm text-left">
-              Click "Save Answers" to permanently save all your responses for this pillar.
-            </p>
-          </div>
-          
-          <Button
-            variant="primary"
-            onClick={handleSavePillarResponses}
-            disabled={savingPillar}
-            className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
-          >
-            {savingPillar ? (
-              <>
-                <ApperIcon name="Loader2" size={16} className="animate-spin" />
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <ApperIcon name="Save" size={16} />
-                <span>Save Answers</span>
-              </>
-            )}
-          </Button>
-        </div>
-      </motion.div>
-
       {/* Navigation */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -278,29 +184,18 @@ const pillarResponses = responses[pillarId] || {}
         className="flex items-center justify-between p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl"
       >
         <div>
-          <h3 className="font-semibold text-gray-900 mb-1 text-left">
+<h3 className="font-semibold text-gray-900 mb-1 text-left">
             {completedQuestions === pillar.questions.length ? "Pillar Complete!" : "Keep Going"}
           </h3>
           <p className="text-gray-600 text-sm text-left">
             {completedQuestions === pillar.questions.length
               ? "You've completed all questions in this pillar."
-              : "Remember to save your answers before navigating away."
+              : "Take your time to thoughtfully answer each question."
             }
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
-          {previousPillar && (
-            <Button
-              variant="secondary"
-              onClick={handlePreviousPillar}
-              className="flex items-center space-x-2"
-            >
-              <ApperIcon name="ArrowLeft" size={16} />
-              <span>Previous</span>
-            </Button>
-          )}
-          
+        <div className="flex items-center space-x-4">
           {nextPillar && (
             <Button
               variant="primary"

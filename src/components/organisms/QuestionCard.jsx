@@ -4,11 +4,13 @@ import { motion } from "framer-motion"
 import { updateResponseLocal, saveResponseStart, saveResponseSuccess, saveResponseFailure, updateIndividualResponse, saveIndividualResponseStart, saveIndividualResponseSuccess, saveIndividualResponseFailure } from "@/store/slices/responsesSlice"
 import { responsesService } from "@/services/api/responsesService"
 import { individualResponseService } from "@/services/api/individualResponseService"
+import { answerService } from "@/services/api/answerService"
 import Card from "@/components/atoms/Card"
 import RichTextEditor from "@/components/molecules/RichTextEditor"
 import AutoSaveIndicator from "@/components/molecules/AutoSaveIndicator"
+import Button from "@/components/atoms/Button"
+import ApperIcon from "@/components/ApperIcon"
 import { toast } from "react-toastify"
-
 const QuestionCard = ({ question, pillarId, questionIndex }) => {
   const dispatch = useDispatch()
   const { responses, savingQuestions } = useSelector((state) => state.responses)
@@ -25,6 +27,8 @@ const QuestionCard = ({ question, pillarId, questionIndex }) => {
   const questionId = `q${questionIndex + 1}`
   const individualResponses = isValidPillar ? (responses[pillarId]?.[questionId] || []) : []
   const [lastSaved, setLastSaved] = useState({})
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState(null)
 
   // Load individual responses when component mounts
 useEffect(() => {
@@ -107,8 +111,72 @@ useEffect(() => {
     } catch (error) {
       toast.error("Failed to delete response")
       console.error("Delete error:", error.message)
+}
+  }
+
+  // Consolidate all individual responses into a single answer content
+  const consolidateResponses = () => {
+    const nonEmptyResponses = individualResponses.filter(response => 
+      response && (response.name || response.content)
+    )
+    
+    if (nonEmptyResponses.length === 0) {
+      return ""
+    }
+    
+    return nonEmptyResponses.map((response, index) => {
+      const name = response.name || `Response ${index + 1}`
+      const content = response.content || ""
+      return `**${name}:**\n${content}\n`
+    }).join('\n')
+  }
+
+  // Save consolidated answers to the answer table
+  const handleSaveAnswers = async () => {
+    if (!user?.profile?.Id || !isValidPillar) {
+      toast.error("Unable to save: Missing user profile or invalid pillar")
+      return
+    }
+
+    setIsSaving(true)
+    setSaveError(null)
+    
+    try {
+      const consolidatedContent = consolidateResponses()
+      
+      if (!consolidatedContent.trim()) {
+        toast.warning("No responses to save")
+        setIsSaving(false)
+        return
+      }
+
+      // Get pillar and question IDs from the database
+      // For now, we'll use placeholder IDs - these should be mapped to actual database IDs
+      const pillarDbId = 1 // This should be mapped from pillarId to actual pillar table ID
+      const questionDbId = questionIndex + 1 // This should be mapped to actual question table ID
+      
+      await answerService.saveAnswer(
+        user.profile.Id,
+        pillarDbId,
+        questionDbId,
+        consolidatedContent
+      )
+      
+      toast.success("Answers saved successfully!")
+      setLastSaved(prev => ({ ...prev, consolidated: new Date() }))
+    } catch (error) {
+      console.error("Error saving consolidated answers:", error.message)
+      setSaveError(error.message)
+      toast.error("Failed to save answers: " + error.message)
+    } finally {
+      setIsSaving(false)
     }
   }
+
+  // Check if there are any responses to save
+  const hasResponsesToSave = individualResponses.some(response => 
+    response && (response.name || response.content)
+  )
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -201,12 +269,48 @@ useEffect(() => {
                   </div>
                 </div>
               </div>
-            )
+)
           })}
+        </div>
+
+        {/* Save Answers Button */}
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              {hasResponsesToSave ? "Save all responses for this question" : "No responses to save"}
+            </div>
+            <Button
+              onClick={handleSaveAnswers}
+              disabled={!hasResponsesToSave || isSaving}
+              variant="primary"
+              className="flex items-center space-x-2"
+            >
+              {isSaving ? (
+                <>
+                  <ApperIcon name="Loader2" size={16} className="animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <ApperIcon name="Save" size={16} />
+                  <span>Save Answers</span>
+                </>
+              )}
+            </Button>
+          </div>
+          {saveError && (
+            <div className="mt-2 text-sm text-red-600">
+              Error: {saveError}
+            </div>
+          )}
+          {lastSaved.consolidated && !isSaving && (
+            <div className="mt-2 text-sm text-green-600">
+              Last saved: {lastSaved.consolidated.toLocaleTimeString()}
+            </div>
+          )}
         </div>
       </Card>
     </motion.div>
   )
 }
-
 export default QuestionCard

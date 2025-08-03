@@ -128,11 +128,14 @@ saveResponseSuccess: (state, action) => {
       
       // For individual responses, store as array of objects with name and content
       if (typeof content === 'object' && content.individualResponses) {
-        // Ensure all items in individualResponses have consistent structure
-        state.responses[pillarId][questionId] = content.individualResponses.map(response => ({
+        // Clear existing array using Immer-compatible method
+        state.responses[pillarId][questionId].length = 0
+        // Push mapped responses to maintain Immer compatibility
+        const mappedResponses = content.individualResponses.map(response => ({
           name: response.name || "",
           content: response.content || ""
         }))
+        state.responses[pillarId][questionId].push(...mappedResponses)
       } else {
         // Legacy support - ensure array has enough slots and consistent object structure
         const arrayIndex = responseNumber - 1
@@ -176,7 +179,10 @@ updateResponseLocal: (state, action) => {
       
       // Handle individual responses
       if (individualResponses) {
-        state.responses[pillarId][questionId] = individualResponses
+        // Clear existing array using Immer-compatible method
+        state.responses[pillarId][questionId].length = 0
+        // Push new responses to maintain Immer compatibility
+        state.responses[pillarId][questionId].push(...individualResponses)
       } else {
         // Legacy support - ensure array has enough slots
         const arrayIndex = responseNumber - 1

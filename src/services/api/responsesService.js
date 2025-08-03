@@ -1,6 +1,7 @@
-// Response Service - Handles user responses to pillar questions
+import React from "react";
 import { individualResponseService } from "@/services/api/individualResponseService";
 import Error from "@/components/ui/Error";
+// Response Service - Handles user responses to pillar questions
 // Response Service - Handles user responses to pillar questions
 class ResponsesService {
   constructor() {
@@ -132,6 +133,56 @@ class ResponsesService {
     } catch (error) {
       console.error("Error in ensureMainResponse service:", error.message);
       throw error;
+}
+  }
+
+  async getMainResponse(userId, pillarId, questionId) {
+    try {
+      const params = {
+        fields: [
+          { field: { Name: "Id" } },
+          { field: { Name: "Name" } },
+          { field: { Name: "userId" } },
+          { field: { Name: "pillarId" } },
+          { field: { Name: "questionId" } },
+          { field: { Name: "content" } },
+          { field: { Name: "lastUpdated" } },
+          { field: { Name: "responseNumber" } }
+        ],
+        where: [
+          {
+            FieldName: "userId",
+            Operator: "EqualTo",
+            Values: [parseInt(userId)]
+          },
+          {
+            FieldName: "pillarId",
+            Operator: "EqualTo",
+            Values: [pillarId.toString()]
+          },
+          {
+            FieldName: "questionId",
+            Operator: "EqualTo",
+            Values: [questionId.toString()]
+          }
+        ]
+      };
+
+      const response = await this.apperClient.fetchRecords("response", params);
+      
+      if (!response.success) {
+        console.error("Error fetching main response:", response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.data && response.data.length > 0) {
+        return response.data[0];
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error in getMainResponse service:", error.message);
+      throw new Error(`Failed to fetch main response: ${error.message}`);
     }
   }
 

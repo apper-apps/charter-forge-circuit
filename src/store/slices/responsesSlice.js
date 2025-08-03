@@ -115,7 +115,7 @@ saveResponseStart: (state, action) => {
       state.savingQuestions[key] = true
       state.error = null
     },
-    saveResponseSuccess: (state, action) => {
+saveResponseSuccess: (state, action) => {
       const { pillarId, questionId, content, responseNumber = 1 } = action.payload
       const key = `${pillarId}-${questionId}-${responseNumber}`
       
@@ -128,14 +128,22 @@ saveResponseStart: (state, action) => {
       
       // For individual responses, store as array of objects with name and content
       if (typeof content === 'object' && content.individualResponses) {
-        state.responses[pillarId][questionId] = content.individualResponses
+        // Ensure all items in individualResponses have consistent structure
+        state.responses[pillarId][questionId] = content.individualResponses.map(response => ({
+          name: response.name || "",
+          content: response.content || ""
+        }))
       } else {
-        // Legacy support - ensure array has enough slots
+        // Legacy support - ensure array has enough slots and consistent object structure
         const arrayIndex = responseNumber - 1
         while (state.responses[pillarId][questionId].length <= arrayIndex) {
-          state.responses[pillarId][questionId].push("")
+          state.responses[pillarId][questionId].push({ name: "", content: "" })
         }
-        state.responses[pillarId][questionId][arrayIndex] = content
+        // Convert string content to object structure
+        const responseData = typeof content === 'string' 
+          ? { name: "", content } 
+          : { name: content?.name || "", content: content?.content || "" }
+        state.responses[pillarId][questionId][arrayIndex] = responseData
       }
       
       state.savingQuestions[key] = false

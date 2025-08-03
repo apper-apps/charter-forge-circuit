@@ -177,12 +177,11 @@ updateResponseLocal: (state, action) => {
         state.responses[pillarId][questionId] = []
       }
       
-      // Handle individual responses
+// Handle individual responses
       if (individualResponses) {
         // Replace array using Immer-compatible method
-        // Clear existing array and add all new items
-        state.responses[pillarId][questionId].splice(0)
-        state.responses[pillarId][questionId].push(...individualResponses)
+        // Direct assignment is the proper way to replace arrays in Immer
+        state.responses[pillarId][questionId] = individualResponses
       } else {
         // Legacy support - ensure array has enough slots
         const arrayIndex = responseNumber - 1

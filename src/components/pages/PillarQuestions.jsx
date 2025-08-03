@@ -49,10 +49,14 @@ const PillarQuestions = () => {
     return currentIndex < PILLARS.length - 1 ? PILLARS[currentIndex + 1] : null
   }
 
-  const handleNextPillar = () => {
+const handleNextPillar = () => {
     const nextPillar = getNextPillar()
     if (nextPillar) {
       navigate(`/pillar/${nextPillar.id}`)
+      // Scroll to top of the next pillar after navigation
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }, 100)
     } else {
       navigate("/dashboard")
     }

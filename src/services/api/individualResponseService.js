@@ -10,10 +10,12 @@ export const individualResponseService = {
     try {
       const params = {
         fields: [
-          { field: { Name: "Name" } },
+{ field: { Name: "Name" } },
           { field: { Name: "responseId" } },
           { field: { Name: "individualName" } },
-          { field: { Name: "responseContent" } }
+          { field: { Name: "responseContent" } },
+          { field: { Name: "CreatedOn" } },
+          { field: { Name: "ModifiedOn" } }
         ],
         where: [
           {
@@ -41,11 +43,14 @@ export const individualResponseService = {
       
       // Convert to array format with up to 5 slots
       const responseArray = Array(5).fill({ name: "", content: "" });
-      individualResponses.forEach((item, index) => {
+individualResponses.forEach((item, index) => {
         if (index < 5) {
           responseArray[index] = {
             name: item.individualName || "",
-            content: item.responseContent || ""
+            content: item.responseContent || "",
+            id: item.Id,
+            createdOn: item.CreatedOn,
+            modifiedOn: item.ModifiedOn
           };
         }
       });
@@ -65,10 +70,12 @@ async saveIndividualResponse(responseId, name, content, responseIndex) {
       // Check if individual response exists for this response and index
       const params = {
         fields: [
-          { field: { Name: "Name" } },
+{ field: { Name: "Name" } },
           { field: { Name: "responseId" } },
           { field: { Name: "individualName" } },
-          { field: { Name: "responseContent" } }
+          { field: { Name: "responseContent" } },
+          { field: { Name: "CreatedOn" } },
+          { field: { Name: "ModifiedOn" } }
         ],
         where: [
           {
@@ -92,7 +99,7 @@ async saveIndividualResponse(responseId, name, content, responseIndex) {
       }
 
       // Ensure proper data association with parent response to maintain pillar integrity
-      const updateableData = {
+const updateableData = {
         Name: `Individual Response - ${cleanResponseId} - ${responseIndex} - ${name || 'Anonymous'}`,
         responseId: cleanResponseId,
         individualName: name || '',

@@ -55,6 +55,27 @@ useEffect(() => {
           
           const individualResponses = await individualResponseService.getIndividualResponsesForResponse(mainResponse.Id)
           dispatch(updateResponseLocal({ pillarId, questionId, individualResponses }))
+        } else {
+          // If no main response exists, check if there are existing answers and load them
+          try {
+            const existingAnswers = await answerService.getAnswersByPillar(user.id, pillarId)
+            const questionAnswer = existingAnswers.find(answer => 
+              String(answer.questionId?.Id || answer.questionId) === String(questionId)
+            )
+            
+            if (questionAnswer && questionAnswer.answerContent) {
+              // Parse existing answer content and populate individual responses
+              const answerContent = questionAnswer.answerContent
+              if (answerContent.trim()) {
+                console.log(`Loading existing answer for ${pillarId}/${questionId}`)
+                // Initialize with existing consolidated answer
+                const initialResponse = [{ name: "", content: answerContent }]
+                dispatch(updateResponseLocal({ pillarId, questionId, individualResponses: initialResponse }))
+              }
+            }
+          } catch (answerError) {
+            console.log(`No existing answers found for ${pillarId}/${questionId}:`, answerError.message)
+          }
         }
       } catch (error) {
         console.error(`Error loading individual responses for ${pillarId}/${questionId}:`, error.message)
@@ -64,7 +85,7 @@ useEffect(() => {
     loadIndividualResponses()
   }, [user?.id, pillarId, questionId, dispatch, isValidPillar])
 
-  const saveIndividualResponse = useCallback(async (responseIndex, name, content) => {
+const saveIndividualResponse = useCallback(async (responseIndex, name, content) => {
     if (!user?.id) return
 
     const saveKey = `${pillarId}-${questionId}-${responseIndex}`
@@ -79,6 +100,16 @@ useEffect(() => {
       
       dispatch(saveIndividualResponseSuccess({ pillarId, questionId, responseIndex, name, content }))
       setLastSaved(prev => ({ ...prev, [responseIndex]: new Date() }))
+      
+      // CRITICAL: After saving individual response, consolidate and save as answer
+      // This ensures data persistence across sessions and proper data retrieval
+      try {
+        await handleSaveAnswers()
+        console.log(`Successfully consolidated and saved answer for ${pillarId}/${questionId}`)
+      } catch (consolidationError) {
+        console.warn(`Individual response saved but consolidation failed for ${pillarId}/${questionId}:`, consolidationError.message)
+        // Don't fail the individual save if consolidation fails
+      }
     } catch (error) {
       dispatch(saveIndividualResponseFailure({ pillarId, questionId, responseIndex, error: error.message }))
       toast.error(`Failed to save response ${responseIndex + 1}`)

@@ -131,13 +131,21 @@ useEffect(() => {
     }).join('\n')
   }
 
-  // Save consolidated answers to the answer table
+// Save consolidated answers to the answer table
 const handleSaveAnswers = async () => {
     // Check for user authentication - user should have userId or Id
     const userId = user?.userId || user?.Id
     if (!userId || !isValidPillar) {
       toast.error("Unable to save: Missing user profile or invalid pillar")
       return
+    }
+
+    // CRITICAL: Validate pillar ID to prevent cross-pillar contamination in consolidated answer saving
+    const validPillarIds = ["raison-detre", "type-of-business", "expectations", "extinction"];
+    if (!validPillarIds.includes(pillarId)) {
+      console.error(`CRITICAL: Invalid pillar ID in handleSaveAnswers: ${pillarId}. Preventing consolidated answer save to avoid cross-pillar contamination.`);
+      toast.error(`Invalid pillar ID: ${pillarId}. Cannot save answers.`);
+      return;
     }
 
     setIsSaving(true)
@@ -152,15 +160,15 @@ const handleSaveAnswers = async () => {
         return
       }
 
-      // Get pillar and question IDs from the database
-      // For now, we'll use placeholder IDs - these should be mapped to actual database IDs
-      const pillarDbId = 1 // This should be mapped from pillarId to actual pillar table ID
-      const questionDbId = questionIndex + 1 // This should be mapped to actual question table ID
+      // Map pillar and question IDs to their database lookup field values
+      // These IDs ensure proper association with the specific pillar and question in the database
+      const pillarLookupId = pillarId // Use the pillar identifier as lookup value
+      const questionLookupId = questionIndex + 1 // Map question index to question lookup ID
       
-await answerService.saveAnswer(
+      await answerService.saveAnswer(
         userId,
-        pillarDbId,
-        questionDbId,
+        pillarLookupId,
+        questionLookupId,
         consolidatedContent
       )
       

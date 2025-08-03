@@ -177,12 +177,10 @@ updateResponseLocal: (state, action) => {
         state.responses[pillarId][questionId] = []
       }
       
-      // Handle individual responses
+// Handle individual responses
       if (individualResponses) {
-        // Clear existing array using Immer-compatible method
-        state.responses[pillarId][questionId].length = 0
-        // Push new responses to maintain Immer compatibility
-        state.responses[pillarId][questionId].push(...individualResponses)
+        // Replace array using Immer-compatible method
+        state.responses[pillarId][questionId] = individualResponses
       } else {
         // Legacy support - ensure array has enough slots
         const arrayIndex = responseNumber - 1

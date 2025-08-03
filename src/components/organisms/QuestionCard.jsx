@@ -132,8 +132,10 @@ useEffect(() => {
   }
 
   // Save consolidated answers to the answer table
-  const handleSaveAnswers = async () => {
-    if (!user?.profile?.Id || !isValidPillar) {
+const handleSaveAnswers = async () => {
+    // Check for user authentication - user should have userId or Id
+    const userId = user?.userId || user?.Id
+    if (!userId || !isValidPillar) {
       toast.error("Unable to save: Missing user profile or invalid pillar")
       return
     }
@@ -155,8 +157,8 @@ useEffect(() => {
       const pillarDbId = 1 // This should be mapped from pillarId to actual pillar table ID
       const questionDbId = questionIndex + 1 // This should be mapped to actual question table ID
       
-      await answerService.saveAnswer(
-        user.profile.Id,
+await answerService.saveAnswer(
+        userId,
         pillarDbId,
         questionDbId,
         consolidatedContent

@@ -1,16 +1,17 @@
-import { useState, useEffect, useCallback } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { motion } from "framer-motion"
-import { updateResponseLocal, saveResponseStart, saveResponseSuccess, saveResponseFailure, updateIndividualResponse, saveIndividualResponseStart, saveIndividualResponseSuccess, saveIndividualResponseFailure } from "@/store/slices/responsesSlice"
-import { responsesService } from "@/services/api/responsesService"
-import { individualResponseService } from "@/services/api/individualResponseService"
-import { answerService } from "@/services/api/answerService"
-import Card from "@/components/atoms/Card"
-import RichTextEditor from "@/components/molecules/RichTextEditor"
-import AutoSaveIndicator from "@/components/molecules/AutoSaveIndicator"
-import Button from "@/components/atoms/Button"
-import ApperIcon from "@/components/ApperIcon"
-import { toast } from "react-toastify"
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { responsesService } from "@/services/api/responsesService";
+import { individualResponseService } from "@/services/api/individualResponseService";
+import { answerService } from "@/services/api/answerService";
+import { toast } from "react-toastify";
+import { saveIndividualResponseFailure, saveIndividualResponseStart, saveIndividualResponseSuccess, saveResponseFailure, saveResponseStart, saveResponseSuccess, updateIndividualResponse, updateResponseLocal } from "@/store/slices/responsesSlice";
+import ApperIcon from "@/components/ApperIcon";
+import RichTextEditor from "@/components/molecules/RichTextEditor";
+import AutoSaveIndicator from "@/components/molecules/AutoSaveIndicator";
+import Card from "@/components/atoms/Card";
+import Button from "@/components/atoms/Button";
+import Error from "@/components/ui/Error";
 const QuestionCard = ({ question, pillarId, questionIndex }) => {
   const dispatch = useDispatch()
   const { responses, savingQuestions } = useSelector((state) => state.responses)
@@ -25,13 +26,40 @@ const QuestionCard = ({ question, pillarId, questionIndex }) => {
   }
   
   const questionId = `q${questionIndex + 1}`
-  const individualResponses = isValidPillar ? (responses[pillarId]?.[questionId] || []) : []
+const individualResponses = isValidPillar ? (responses[pillarId]?.[questionId] || []) : []
+  const [familyMembers, setFamilyMembers] = useState([])
   const [lastSaved, setLastSaved] = useState({})
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState(null)
+  
+  // Get default number of family member slots from Redux configuration
+  const defaultFamilyMemberSlots = useSelector((state) => state.responses.defaultFamilyMemberSlots || 3)
 
   // Load individual responses when component mounts
-useEffect(() => {
+// Initialize family members based on existing responses or default
+  useEffect(() => {
+    if (individualResponses.length > 0) {
+      // Use existing responses to populate family members
+      const members = individualResponses.map((response, index) => ({
+        id: `member-${index}`,
+        name: response.name || "",
+        content: response.content || "",
+        index: index
+      }))
+      setFamilyMembers(members)
+    } else {
+      // Initialize with default number of empty family member slots
+      const defaultMembers = Array(defaultFamilyMemberSlots).fill(null).map((_, index) => ({
+        id: `member-${index}`,
+        name: "",
+        content: "",
+        index: index
+      }))
+      setFamilyMembers(defaultMembers)
+    }
+  }, [individualResponses.length, defaultFamilyMemberSlots])
+
+  useEffect(() => {
     const loadIndividualResponses = async () => {
       if (!user?.id || !isValidPillar) {
         if (!isValidPillar) {
@@ -53,8 +81,8 @@ useEffect(() => {
             return
           }
           
-          const individualResponses = await individualResponseService.getIndividualResponsesForResponse(mainResponse.Id)
-          dispatch(updateResponseLocal({ pillarId, questionId, individualResponses }))
+          const loadedResponses = await individualResponseService.getIndividualResponsesForResponse(mainResponse.Id)
+          dispatch(updateResponseLocal({ pillarId, questionId, individualResponses: loadedResponses }))
         } else {
           // If no main response exists, check if there are existing answers and load them
           try {
@@ -129,7 +157,7 @@ const saveIndividualResponse = useCallback(async (responseIndex, name, content) 
     return savingQuestions[saveKey]
   }
 
-  const handleDeleteIndividualResponse = async (responseIndex) => {
+const handleDeleteIndividualResponse = async (responseIndex) => {
     if (!user?.id) return
     
     try {
@@ -142,7 +170,63 @@ const saveIndividualResponse = useCallback(async (responseIndex, name, content) 
     } catch (error) {
       toast.error("Failed to delete response")
       console.error("Delete error:", error.message)
-}
+    }
+  }
+
+  const handleAddFamilyMember = () => {
+    const newIndex = familyMembers.length
+    const newMember = {
+      id: `member-${newIndex}`,
+      name: "",
+      content: "",
+      index: newIndex
+    }
+    setFamilyMembers(prev => [...prev, newMember])
+    
+    // Update Redux state to include new empty slot
+    const updatedResponses = [...individualResponses]
+    updatedResponses[newIndex] = { name: "", content: "" }
+    dispatch(updateResponseLocal({ pillarId, questionId, individualResponses: updatedResponses }))
+  }
+
+  const handleRemoveFamilyMember = async (responseIndex) => {
+    if (familyMembers.length <= 1) {
+      toast.warning("At least one family member response slot is required")
+      return
+    }
+
+    // If there's content, confirm removal
+    const member = familyMembers[responseIndex]
+    if (member && (member.name || member.content)) {
+      if (!confirm(`Remove ${member.name || 'this family member'}? This will permanently delete their response.`)) {
+        return
+      }
+    }
+
+    try {
+      // Delete from backend if it exists
+      if (user?.id) {
+        const mainResponse = await responsesService.getMainResponse(user.id, pillarId, questionId)
+        if (mainResponse) {
+          await individualResponseService.deleteIndividualResponse(mainResponse.Id, responseIndex)
+        }
+      }
+      
+      // Remove from local state
+      const updatedMembers = familyMembers.filter((_, index) => index !== responseIndex)
+        .map((member, newIndex) => ({ ...member, index: newIndex, id: `member-${newIndex}` }))
+      
+      setFamilyMembers(updatedMembers)
+      
+      // Update Redux state
+      const updatedResponses = updatedMembers.map(member => ({ name: member.name, content: member.content }))
+      dispatch(updateResponseLocal({ pillarId, questionId, individualResponses: updatedResponses }))
+      
+      toast.success("Family member removed successfully")
+    } catch (error) {
+      toast.error("Failed to remove family member")
+      console.error("Remove error:", error.message)
+    }
   }
 
   // Consolidate all individual responses into a single answer content
@@ -215,9 +299,10 @@ const handleSaveAnswers = async () => {
   }
 
   // Check if there are any responses to save
-  const hasResponsesToSave = individualResponses.some(response => 
-    response && (response.name || response.content)
+const hasResponsesToSave = familyMembers.some(member => 
+    member && (member.name || member.content)
   )
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -242,27 +327,49 @@ const handleSaveAnswers = async () => {
         </div>
 
 <div className="space-y-6">
-          <p className="text-sm text-gray-600 mb-4">
-            5 different family members can respond separately to this question. Each response will be saved automatically.
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-gray-600">
+              {familyMembers.length} family member{familyMembers.length !== 1 ? 's' : ''} can respond separately to this question. Each response will be saved automatically.
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleAddFamilyMember}
+              className="flex items-center space-x-1"
+            >
+              <ApperIcon name="Plus" size={16} />
+              <span>Add Family Member</span>
+            </Button>
+          </div>
           
-{[0, 1, 2, 3, 4].map((responseIndex) => {
+{familyMembers.map((member, responseIndex) => {
             const response = getIndividualResponse(responseIndex)
             const hasContent = response.name || response.content
             
             return (
-              <div key={responseIndex} className="border border-gray-200 rounded-lg p-4">
+              <div key={member.id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="text-sm font-medium text-gray-700">
-                    Response {responseIndex + 1}
+                    Family Member {responseIndex + 1}
+                    {response.name && ` - ${response.name}`}
                   </h4>
                   <div className="flex items-center space-x-2">
                     {hasContent && (
                       <button
                         onClick={() => handleDeleteIndividualResponse(responseIndex)}
-                        className="text-red-500 hover:text-red-700 text-sm"
+                        className="text-orange-500 hover:text-orange-700 text-sm"
+                        title="Clear this response"
                       >
-                        Remove
+                        Clear
+                      </button>
+                    )}
+                    {familyMembers.length > 1 && (
+                      <button
+                        onClick={() => handleRemoveFamilyMember(responseIndex)}
+                        className="text-red-500 hover:text-red-700 text-sm"
+                        title="Remove this family member slot"
+                      >
+                        <ApperIcon name="Trash2" size={14} />
                       </button>
                     )}
                     <AutoSaveIndicator 
@@ -275,18 +382,24 @@ const handleSaveAnswers = async () => {
                 <div className="space-y-3">
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">
-                      Name
+                      Name & Relationship
                     </label>
                     <input
                       type="text"
                       value={response.name}
-                      onChange={(e) => handleIndividualResponseChange(responseIndex, 'name', e.target.value)}
+                      onChange={(e) => {
+                        handleIndividualResponseChange(responseIndex, 'name', e.target.value)
+                        // Update family member name in local state
+                        setFamilyMembers(prev => prev.map((m, i) => 
+                          i === responseIndex ? { ...m, name: e.target.value } : m
+                        ))
+                      }}
                       onBlur={() => {
                         if (response.name || response.content) {
                           saveIndividualResponse(responseIndex, response.name, response.content)
                         }
                       }}
-                      placeholder="e.g., Aunt Joan, Uncle Rick"
+                      placeholder="e.g., Aunt Joan, Uncle Rick, Father John"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     />
                   </div>
@@ -297,7 +410,13 @@ const handleSaveAnswers = async () => {
                     </label>
                     <RichTextEditor
                       value={response.content}
-                      onChange={(content) => handleIndividualResponseChange(responseIndex, 'content', content)}
+                      onChange={(content) => {
+                        handleIndividualResponseChange(responseIndex, 'content', content)
+                        // Update family member content in local state
+                        setFamilyMembers(prev => prev.map((m, i) => 
+                          i === responseIndex ? { ...m, content: content } : m
+                        ))
+                      }}
                       onAutoSave={(content) => {
                         if (response.name || content) {
                           saveIndividualResponse(responseIndex, response.name, content)
@@ -310,48 +429,47 @@ const handleSaveAnswers = async () => {
                   </div>
                 </div>
               </div>
-)
+            )
           })}
         </div>
-
-        {/* Save Answers Button */}
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600">
-              {hasResponsesToSave ? "Save all responses for this question" : "No responses to save"}
+{/* Save Answers Button */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                {hasResponsesToSave ? `Save all ${familyMembers.length} family member responses for this question` : "No responses to save"}
+              </div>
+              <Button
+                onClick={handleSaveAnswers}
+                disabled={!hasResponsesToSave || isSaving}
+                variant="primary"
+                className="flex items-center space-x-2"
+              >
+                {isSaving ? (
+                  <>
+                    <ApperIcon name="Loader2" size={16} className="animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <ApperIcon name="Save" size={16} />
+                    <span>Save Answers</span>
+                  </>
+                )}
+              </Button>
             </div>
-            <Button
-              onClick={handleSaveAnswers}
-              disabled={!hasResponsesToSave || isSaving}
-              variant="primary"
-              className="flex items-center space-x-2"
-            >
-              {isSaving ? (
-                <>
-                  <ApperIcon name="Loader2" size={16} className="animate-spin" />
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <>
-                  <ApperIcon name="Save" size={16} />
-                  <span>Save Answers</span>
-                </>
-              )}
-            </Button>
+            {saveError && (
+              <div className="mt-2 text-sm text-red-600">
+                Error: {saveError}
+              </div>
+            )}
+            {lastSaved.consolidated && !isSaving && (
+              <div className="mt-2 text-sm text-green-600">
+                Last saved: {lastSaved.consolidated.toLocaleTimeString()}
+              </div>
+            )}
           </div>
-          {saveError && (
-            <div className="mt-2 text-sm text-red-600">
-              Error: {saveError}
-            </div>
-          )}
-          {lastSaved.consolidated && !isSaving && (
-            <div className="mt-2 text-sm text-green-600">
-              Last saved: {lastSaved.consolidated.toLocaleTimeString()}
-            </div>
-          )}
-        </div>
-      </Card>
-    </motion.div>
-  )
-}
+        </Card>
+      </motion.div>
+    )
+  }
 export default QuestionCard

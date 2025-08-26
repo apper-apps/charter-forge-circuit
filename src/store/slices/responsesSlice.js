@@ -1,17 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createSlice } from '@reduxjs/toolkit'
 
-const initialState = {
-  responses: {},
-  isLoading: false,
-  error: null,
-  savingQuestions: {},
-  completionStats: {
-    overall: { completed: 0, total: 0, percentage: 0 },
-    pillars: {}
-  }
-}
-
-// Helper function to check if a response is answered
+// Helper function to check if a response has content
 const isResponseAnswered = (response) => {
   if (!response) return false
   
@@ -26,7 +15,7 @@ const isResponseAnswered = (response) => {
       return response.content.replace(/<[^>]*>/g, '').trim().length > 0
     }
     
-    // Handle individual responses array
+    // Handle individual responses array - support dynamic length
     if (Array.isArray(response)) {
       return response.some(r => r && r.content && r.content.replace(/<[^>]*>/g, '').trim().length > 0)
     }
@@ -41,50 +30,50 @@ const isResponseAnswered = (response) => {
   return false
 }
 
-// Helper function to calculate completion statistics
+// Helper function to calculate completion statistics  
 const calculateCompletionStats = (responses, pillars) => {
-  const stats = {
-    overall: { completed: 0, total: 0, percentage: 0 },
-    pillars: {}
-  }
+  if (!pillars || !Array.isArray(pillars)) return { completed: 0, total: 0, percentage: 0 }
+
+  const totalQuestions = pillars.reduce((sum, pillar) => {
+    return sum + (pillar.questions ? pillar.questions.length : 0)
+  }, 0)
+
+  let completedQuestions = 0
   
-  // Import PILLARS if not provided
-  if (!pillars) {
-    // This will be handled by the component calling this
-    return stats
-  }
-  
-  let totalQuestions = 0
-  let totalCompleted = 0
-  
-  pillars.forEach(pillar => {
-    const pillarResponses = responses[pillar.id] || {}
-    const completedQuestions = Object.values(pillarResponses).filter(isResponseAnswered).length
-    const pillarTotal = pillar.questions.length
-    const pillarPercentage = pillarTotal > 0 ? (completedQuestions / pillarTotal) * 100 : 0
-    
-    stats.pillars[pillar.id] = {
-      completed: completedQuestions,
-      total: pillarTotal,
-      percentage: pillarPercentage,
-      isComplete: completedQuestions === pillarTotal
+  Object.values(responses).forEach(pillarResponses => {
+    if (pillarResponses && typeof pillarResponses === 'object') {
+      Object.values(pillarResponses).forEach(response => {
+        if (isResponseAnswered(response)) {
+          completedQuestions++
+        }
+      })
     }
-    
-    totalQuestions += pillarTotal
-    totalCompleted += completedQuestions
   })
-  
-  stats.overall = {
-    completed: totalCompleted,
+
+  return {
+    completed: completedQuestions,
     total: totalQuestions,
-    percentage: totalQuestions > 0 ? (totalCompleted / totalQuestions) * 100 : 0
+    percentage: totalQuestions > 0 ? Math.round((completedQuestions / totalQuestions) * 100) : 0
   }
-  
-  return stats
+}
+
+const initialState = {
+  responses: {},
+  isLoading: false,
+  error: null,
+  savingQuestions: {},
+  lastSaved: {},
+  defaultFamilyMemberSlots: 3, // Configurable default number of family member slots
+  familyMemberConfiguration: {
+    allowAdd: true,
+    allowRemove: true,
+    minSlots: 1,
+    maxSlots: 10
+  }
 }
 
 const responsesSlice = createSlice({
-  name: "responses",
+  name: 'responses',
   initialState,
   reducers: {
     fetchResponsesStart: (state) => {
@@ -94,30 +83,23 @@ const responsesSlice = createSlice({
     fetchResponsesSuccess: (state, action) => {
       state.isLoading = false
       state.responses = action.payload
-      state.error = null
     },
     fetchResponsesFailure: (state, action) => {
       state.isLoading = false
       state.error = action.payload
     },
-saveResponseStart: (state, action) => {
-      const { pillarId, questionId, responseNumber = 1 } = action.payload
-      
-      // CRITICAL: Validate pillar ID to prevent cross-pillar contamination during save operations
-      const validPillarIds = ["raison-detre", "type-of-business", "expectations", "extinction"];
-      if (!validPillarIds.includes(pillarId)) {
-        console.error(`CRITICAL: Invalid pillar ID in saveResponseStart: ${pillarId}. Preventing save operation to avoid cross-pillar contamination.`);
-        state.error = `Invalid pillar ID: ${pillarId}`;
-        return; // Do not proceed with save operation
-      }
-      
-      const key = `${pillarId}-${questionId}-${responseNumber}`
+    clearError: (state) => {
+      state.error = null
+    },
+    saveResponseStart: (state, action) => {
+      const { pillarId, questionId } = action.payload
+      const key = `${pillarId}-${questionId}`
       state.savingQuestions[key] = true
       state.error = null
     },
     saveResponseSuccess: (state, action) => {
       const { pillarId, questionId, content, responseNumber = 1 } = action.payload
-      const key = `${pillarId}-${questionId}-${responseNumber}`
+      const key = `${pillarId}-${questionId}`
       
       if (!state.responses[pillarId]) {
         state.responses[pillarId] = {}
@@ -126,28 +108,30 @@ saveResponseStart: (state, action) => {
         state.responses[pillarId][questionId] = []
       }
       
-      // For individual responses, store as array of objects with name and content
-      if (typeof content === 'object' && content.individualResponses) {
-        state.responses[pillarId][questionId] = content.individualResponses
+      // Ensure array has enough slots
+      const arrayIndex = responseNumber - 1
+      while (state.responses[pillarId][questionId].length <= arrayIndex) {
+        state.responses[pillarId][questionId].push({ name: "", content: "" })
+      }
+      
+      // Update the specific response
+      if (typeof content === 'string') {
+        state.responses[pillarId][questionId][arrayIndex] = { name: "", content }
       } else {
-        // Legacy support - ensure array has enough slots
-        const arrayIndex = responseNumber - 1
-        while (state.responses[pillarId][questionId].length <= arrayIndex) {
-          state.responses[pillarId][questionId].push("")
-        }
         state.responses[pillarId][questionId][arrayIndex] = content
       }
       
       state.savingQuestions[key] = false
+      state.lastSaved[key] = new Date().toISOString()
       state.error = null
     },
     saveResponseFailure: (state, action) => {
-      const { pillarId, questionId, responseNumber = 1, error } = action.payload
-      const key = `${pillarId}-${questionId}-${responseNumber}`
+      const { pillarId, questionId, error } = action.payload
+      const key = `${pillarId}-${questionId}`
       state.savingQuestions[key] = false
       state.error = error
     },
-updateResponseLocal: (state, action) => {
+    updateResponseLocal: (state, action) => {
       const { pillarId, questionId, content, responseNumber = 1, individualResponses } = action.payload
       
       // CRITICAL: Validate pillar ID to prevent cross-pillar contamination
@@ -166,11 +150,11 @@ updateResponseLocal: (state, action) => {
         state.responses[pillarId][questionId] = []
       }
       
-      // Handle individual responses
+      // Handle individual responses - support dynamic array length
       if (individualResponses) {
         state.responses[pillarId][questionId] = individualResponses
       } else {
-        // Legacy support - ensure array has enough slots
+        // Legacy support - ensure array has enough slots based on actual usage
         const arrayIndex = responseNumber - 1
         while (state.responses[pillarId][questionId].length <= arrayIndex) {
           state.responses[pillarId][questionId].push({ name: "", content: "" })
@@ -193,14 +177,19 @@ updateResponseLocal: (state, action) => {
         state.responses[pillarId][questionId] = []
       }
       
-      // Ensure array has enough slots
-      while (state.responses[pillarId][questionId].length <= responseIndex) {
-        state.responses[pillarId][questionId].push({ name: "", content: "" })
-      }
-      
+      // Support dynamic array sizing - only ensure slots for existing responses
       if (field === 'delete') {
-        state.responses[pillarId][questionId][responseIndex] = { name: "", content: "" }
+        if (responseIndex < state.responses[pillarId][questionId].length) {
+          state.responses[pillarId][questionId][responseIndex] = { name: "", content: "" }
+        }
+      } else if (field === 'remove') {
+        // Completely remove the response slot and reindex
+        state.responses[pillarId][questionId].splice(responseIndex, 1)
       } else {
+        // Ensure array has enough slots for the specific index being updated
+        while (state.responses[pillarId][questionId].length <= responseIndex) {
+          state.responses[pillarId][questionId].push({ name: "", content: "" })
+        }
         state.responses[pillarId][questionId][responseIndex][field] = value
       }
     },
@@ -221,7 +210,7 @@ updateResponseLocal: (state, action) => {
         state.responses[pillarId][questionId] = []
       }
       
-      // Ensure array has enough slots
+      // Ensure array has enough slots for the specific index
       while (state.responses[pillarId][questionId].length <= responseIndex) {
         state.responses[pillarId][questionId].push({ name: "", content: "" })
       }
@@ -236,25 +225,54 @@ updateResponseLocal: (state, action) => {
       state.savingQuestions[key] = false
       state.error = error
     },
-    updateCompletionStats: (state, action) => {
-      const { pillars } = action.payload
-      state.completionStats = calculateCompletionStats(state.responses, pillars)
+    updateFamilyMemberConfiguration: (state, action) => {
+      const { defaultFamilyMemberSlots } = action.payload
+      state.defaultFamilyMemberSlots = defaultFamilyMemberSlots
     },
-    clearError: (state) => {
+    clearResponses: (state) => {
+      state.responses = {}
+      state.savingQuestions = {}
+      state.lastSaved = {}
       state.error = null
     }
   }
 })
 
 // Selectors
-export const selectCompletionStats = (state) => state.responses.completionStats
-export const selectPillarCompletion = (state, pillarId) => state.responses.completionStats.pillars[pillarId]
-export const selectOverallCompletion = (state) => state.responses.completionStats.overall
+export const selectCompletionStats = (state, pillars) => {
+  return calculateCompletionStats(state.responses.responses, pillars)
+}
+
+export const selectOverallCompletion = (state) => {
+  const responses = state.responses.responses
+  const totalResponses = Object.values(responses).reduce((total, pillar) => {
+    return total + Object.keys(pillar).length
+  }, 0)
+  
+  const answeredResponses = Object.values(responses).reduce((total, pillar) => {
+    return total + Object.values(pillar).filter(isResponseAnswered).length
+  }, 0)
+  
+  return totalResponses > 0 ? Math.round((answeredResponses / totalResponses) * 100) : 0
+}
+
+export const selectPillarCompletion = (state, pillarId, pillar) => {
+  const responses = state.responses.responses
+  const pillarResponses = responses[pillarId] || {}
+  
+  if (!pillar || !pillar.questions) return 0
+  
+  const totalQuestions = pillar.questions.length
+  const answeredQuestions = Object.values(pillarResponses).filter(isResponseAnswered).length
+  
+  return totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0
+}
 
 export const {
   fetchResponsesStart,
-  fetchResponsesSuccess,
+  fetchResponsesSuccess, 
   fetchResponsesFailure,
+  clearError,
   saveResponseStart,
   saveResponseSuccess,
   saveResponseFailure,
@@ -263,8 +281,8 @@ export const {
   saveIndividualResponseStart,
   saveIndividualResponseSuccess,
   saveIndividualResponseFailure,
-  updateCompletionStats,
-  clearError
+  updateFamilyMemberConfiguration,
+  clearResponses
 } = responsesSlice.actions
 
 export default responsesSlice.reducer

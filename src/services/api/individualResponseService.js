@@ -42,20 +42,18 @@ export const individualResponseService = {
       const individualResponses = response.data || [];
       
       // Convert to array format with up to 5 slots
-      const responseArray = Array(5).fill({ name: "", content: "" });
-individualResponses.forEach((item, index) => {
-        if (index < 5) {
-          responseArray[index] = {
-            name: item.individualName || "",
-            content: item.responseContent || "",
-            id: item.Id,
-            createdOn: item.CreatedOn,
-            modifiedOn: item.ModifiedOn
-          };
-        }
-      });
+// Return dynamic array based on actual database records instead of fixed size
+      const responseArray = individualResponses.map((item, index) => ({
+        name: item.individualName || "",
+        content: item.responseContent || "",
+        id: item.Id,
+        createdOn: item.CreatedOn,
+        modifiedOn: item.ModifiedOn,
+        relationship: item.relationship_c || ""
+      }));
       
-      return responseArray;
+      // If no responses exist, return empty array (let UI determine initial size)
+      return responseArray.length > 0 ? responseArray : [];
     } catch (error) {
       console.error("Error fetching individual responses:", error.message);
       throw error;
@@ -99,11 +97,13 @@ async saveIndividualResponse(responseId, name, content, responseIndex) {
       }
 
       // Ensure proper data association with parent response to maintain pillar integrity
-const updateableData = {
+// Enhanced data structure to support family member relationships
+      const updateableData = {
         Name: `Individual Response - ${cleanResponseId} - ${responseIndex} - ${name || 'Anonymous'}`,
-        responseId: cleanResponseId,
+        responseId_c: cleanResponseId, // Use correct field name from family_member_c table
         individualName: name || '',
-        responseContent: content || ''
+        responseContent: content || '',
+        relationship_c: name || '' // Store relationship information
       };
 
       const existingData = existingResponses.data || [];

@@ -1,3 +1,5 @@
+import React from "react";
+import Error from "@/components/ui/Error";
 const { ApperClient } = window.ApperSDK;
 
 const apperClient = new ApperClient({
@@ -87,11 +89,11 @@ export const answerService = {
         throw new Error(existingAnswer.message);
       }
 
-      // Prepare data with only Updateable fields
+// Prepare data with only Updateable fields
       const updateableData = {
         Name: `Answer - Pillar ${pillarId} - Question ${questionId} - Profile ${profileId}`,
         questionId: parseInt(questionId),
-        profileId: parseInt(profileId),
+        profileId: parseInt(profileId), 
         pillarId: parseInt(pillarId),
         answerContent: answerContent
       };
@@ -99,7 +101,7 @@ export const answerService = {
       if (existingAnswer.data && existingAnswer.data.length > 0) {
         // Update existing answer
         const existing = existingAnswer.data[0];
-        const updateParams = {
+const updateParams = {
           records: [
             {
               Id: existing.Id,

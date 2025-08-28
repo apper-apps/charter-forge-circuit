@@ -34,7 +34,7 @@ function App() {
   const isAdmin = user?.role === "admin";
 
   // Initialize ApperUI once when the app loads
-  useEffect(() => {
+useEffect(() => {
     const { ApperClient, ApperUI } = window.ApperSDK;
     
     const client = new ApperClient({
@@ -115,7 +115,7 @@ function App() {
         setIsInitialized(true);
       }
     });
-  }, [dispatch, navigate]);
+  }, []); // Remove dependencies to prevent re-initialization
   
   // Authentication methods to share via context
   const authMethods = {

@@ -32,29 +32,29 @@ const authSlice = createSlice({
       state.error = null
       state.isLoading = false
     },
-    clearError: (state) => {
+clearError: (state) => {
       state.error = null
+    },
+    resetPasswordStart: (state) => {
+      state.resetPasswordLoading = true
+      state.resetPasswordError = null
+      state.resetPasswordSuccess = false
+    },
+    resetPasswordSuccess: (state) => {
+      state.resetPasswordLoading = false
+      state.resetPasswordError = null
+      state.resetPasswordSuccess = true
+    },
+    resetPasswordFailure: (state, action) => {
+      state.resetPasswordLoading = false
+      state.resetPasswordError = action.payload
+      state.resetPasswordSuccess = false
+    },
+    clearResetPasswordState: (state) => {
+      state.resetPasswordLoading = false
+      state.resetPasswordError = null
+      state.resetPasswordSuccess = false
     }
-},
-  resetPasswordStart: (state) => {
-    state.resetPasswordLoading = true
-    state.resetPasswordError = null
-    state.resetPasswordSuccess = false
-  },
-  resetPasswordSuccess: (state) => {
-    state.resetPasswordLoading = false
-    state.resetPasswordError = null
-    state.resetPasswordSuccess = true
-  },
-  resetPasswordFailure: (state, action) => {
-    state.resetPasswordLoading = false
-    state.resetPasswordError = action.payload
-    state.resetPasswordSuccess = false
-  },
-  clearResetPasswordState: (state) => {
-    state.resetPasswordLoading = false
-    state.resetPasswordError = null
-    state.resetPasswordSuccess = false
   }
 })
 export const { 

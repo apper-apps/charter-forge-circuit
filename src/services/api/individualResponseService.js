@@ -98,9 +98,9 @@ async saveIndividualResponse(responseId, name, content, responseIndex) {
 
       // Ensure proper data association with parent response to maintain pillar integrity
 // Enhanced data structure to support family member relationships
-      const updateableData = {
+const updateableData = {
         Name: `Individual Response - ${cleanResponseId} - ${responseIndex} - ${name || 'Anonymous'}`,
-        responseId_c: cleanResponseId, // Use correct field name from family_member_c table
+        responseId: cleanResponseId, // Use correct field name from individual_response table
         individualName: name || '',
         responseContent: content || '',
         relationship_c: name || '' // Store relationship information

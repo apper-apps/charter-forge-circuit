@@ -103,7 +103,7 @@ const responsesSlice = createSlice({
       state.error = null
     },
 saveResponseSuccess: (state, action) => {
-      const { pillarId, questionId, content, responseNumber = 1, profileId } = action.payload
+      const { pillarId, questionId, content, responseNumber = 1, profileId, consolidatedAnswer } = action.payload
       const key = `${pillarId}-${questionId}`
       
       if (!state.responses[pillarId]) {
@@ -113,17 +113,36 @@ saveResponseSuccess: (state, action) => {
         state.responses[pillarId][questionId] = []
       }
       
-      // Ensure array has enough slots
-      const arrayIndex = responseNumber - 1
-      while (state.responses[pillarId][questionId].length <= arrayIndex) {
-        state.responses[pillarId][questionId].push({ name: "", content: "" })
-      }
-      
-      // Update the specific response
-      if (typeof content === 'string') {
-        state.responses[pillarId][questionId][arrayIndex] = { name: "", content }
+      // Handle both individual responses and consolidated answers
+      if (consolidatedAnswer) {
+        // Parse consolidated answer back into individual responses
+        try {
+          const sections = consolidatedAnswer.split('\n\n').filter(section => section.trim())
+          const parsedResponses = sections.map(section => {
+            const lines = section.split('\n')
+            const nameMatch = lines[0].match(/\*\*(.*?):\*\*/)
+            const name = nameMatch ? nameMatch[1] : ""
+            const content = lines.slice(1).join('\n').trim()
+            return { name, content }
+          })
+          state.responses[pillarId][questionId] = parsedResponses
+        } catch (error) {
+          console.warn('Failed to parse consolidated answer, storing as single response:', error)
+          state.responses[pillarId][questionId] = [{ name: "", content: consolidatedAnswer }]
+        }
       } else {
-        state.responses[pillarId][questionId][arrayIndex] = content
+        // Ensure array has enough slots for individual response
+        const arrayIndex = responseNumber - 1
+        while (state.responses[pillarId][questionId].length <= arrayIndex) {
+          state.responses[pillarId][questionId].push({ name: "", content: "" })
+        }
+        
+        // Update the specific response
+        if (typeof content === 'string') {
+          state.responses[pillarId][questionId][arrayIndex] = { name: "", content }
+        } else {
+          state.responses[pillarId][questionId][arrayIndex] = content
+        }
       }
       
       state.savingQuestions[key] = false

@@ -296,9 +296,14 @@ const questionLookupId = questionIndex + 1 // Map question index to question loo
   }
 
   // Check if there are any responses to save
-const hasResponsesToSave = familyMembers.some(member => 
-    member && (member.name || member.content)
-  )
+const hasResponsesToSave = useMemo(() => {
+    return individualResponses.some(response => 
+      response && (response.name || response.content || 
+        (typeof response.content === 'string' && response.content.replace(/<[^>]*>/g, '').trim().length > 0))
+    ) || familyMembers.some(member => 
+      member && (member.name || member.content)
+    )
+  }, [individualResponses, familyMembers])
   
   return (
     <motion.div

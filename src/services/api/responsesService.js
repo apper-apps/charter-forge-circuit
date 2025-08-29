@@ -42,7 +42,75 @@ async getUserResponses(userId) {
       
       // Group responses by pillar, question, and response number with proper pillar ID validation
       const groupedResponses = {};
-userResponses.forEach(response => {
+// Load individual responses from individual_response table
+      const individualResponsesMap = {};
+      try {
+        const individualParams = {
+          fields: [
+            { field: { Name: "responseId" } },
+            { field: { Name: "individualName" } },
+            { field: { Name: "responseContent" } },
+            { field: { Name: "CreatedOn" } }
+          ],
+          where: [
+            {
+              FieldName: "responseId",
+              Operator: "HasValue",
+              Values: []
+            }
+          ]
+        };
+        
+        const individualResponse = await apperClient.fetchRecords("individual_response", individualParams);
+        if (individualResponse.success && individualResponse.data) {
+          individualResponse.data.forEach(item => {
+            const responseId = item.responseId?.Id || item.responseId;
+            if (!individualResponsesMap[responseId]) {
+              individualResponsesMap[responseId] = [];
+            }
+            individualResponsesMap[responseId].push({
+              name: item.individualName || "",
+              content: item.responseContent || ""
+            });
+          });
+        }
+      } catch (error) {
+        console.warn("Could not load individual responses:", error.message);
+      }
+
+      // Load consolidated answers from answer table  
+      const consolidatedAnswersMap = {};
+      try {
+        const answerParams = {
+          fields: [
+            { field: { Name: "profileId" } },
+            { field: { Name: "pillarId" } },
+            { field: { Name: "questionId" } },
+            { field: { Name: "answerContent" } }
+          ],
+          where: [
+            {
+              FieldName: "profileId",
+              Operator: "EqualTo", 
+              Values: [parseInt(userId)]
+            }
+          ]
+        };
+        
+        const answersResponse = await apperClient.fetchRecords("answer", answerParams);
+        if (answersResponse.success && answersResponse.data) {
+          answersResponse.data.forEach(answer => {
+            const pillarId = answer.pillarId?.Name || answer.pillarId;
+            const questionId = `q${answer.questionId?.Id || answer.questionId}`;
+            const key = `${pillarId}-${questionId}`;
+            consolidatedAnswersMap[key] = answer.answerContent || "";
+          });
+        }
+      } catch (error) {
+        console.warn("Could not load consolidated answers:", error.message);
+      }
+
+      userResponses.forEach(response => {
         // Ensure pillarId is properly formatted and matches expected pillar identifiers
         const pillarId = String(response.pillarId).trim();
         const questionId = String(response.questionId).trim();
@@ -67,16 +135,47 @@ userResponses.forEach(response => {
           groupedResponses[pillarId][questionId] = [];
         }
         
-        // Handle responseNumber (default to 1 for backward compatibility)
-        const responseNumber = response.responseNumber || 1;
-        const arrayIndex = responseNumber - 1; // Convert to 0-based index
-        
-        // Ensure array has enough slots
-        while (groupedResponses[pillarId][questionId].length <= arrayIndex) {
-          groupedResponses[pillarId][questionId].push("");
+        // Check for individual responses first
+        const individualResponses = individualResponsesMap[response.Id] || [];
+        if (individualResponses.length > 0) {
+          groupedResponses[pillarId][questionId] = individualResponses;
+        } else {
+          // Check for consolidated answer
+          const consolidatedKey = `${pillarId}-${questionId}`;
+          const consolidatedAnswer = consolidatedAnswersMap[consolidatedKey];
+          if (consolidatedAnswer) {
+            // Parse consolidated answer into individual responses
+            try {
+              const sections = consolidatedAnswer.split('\n\n').filter(section => section.trim());
+              const parsedResponses = sections.map(section => {
+                const lines = section.split('\n');
+                const nameMatch = lines[0].match(/\*\*(.*?):\*\*/);
+                const name = nameMatch ? nameMatch[1] : "";
+                const content = lines.slice(1).join('\n').trim();
+                return { name, content };
+              });
+              groupedResponses[pillarId][questionId] = parsedResponses.length > 0 ? parsedResponses : [{ name: "", content: consolidatedAnswer }];
+            } catch (error) {
+              groupedResponses[pillarId][questionId] = [{ name: "", content: consolidatedAnswer }];
+            }
+          } else {
+            // Fall back to original response format
+            const responseNumber = response.responseNumber || 1;
+            const arrayIndex = responseNumber - 1; // Convert to 0-based index
+            
+            // Ensure array has enough slots
+            while (groupedResponses[pillarId][questionId].length <= arrayIndex) {
+              groupedResponses[pillarId][questionId].push({ name: "", content: "" });
+            }
+            
+            const responseContent = response.content || "";
+            if (typeof responseContent === 'string') {
+              groupedResponses[pillarId][questionId][arrayIndex] = { name: "", content: responseContent };
+            } else {
+              groupedResponses[pillarId][questionId][arrayIndex] = responseContent;
+            }
+          }
         }
-        
-        groupedResponses[pillarId][questionId][arrayIndex] = response.content || "";
       });
       
       return groupedResponses;

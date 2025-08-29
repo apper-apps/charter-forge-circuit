@@ -10,19 +10,22 @@ const RichTextEditor = ({
   autoSave = false,
   onAutoSave
 }) => {
-  const [content, setContent] = useState(value)
+const [content, setContent] = useState(value || "")
   const [isFocused, setIsFocused] = useState(false)
   const editorRef = useRef(null)
   const autoSaveTimeoutRef = useRef(null)
 
 useEffect(() => {
-    if (editorRef.current && !isFocused) {
-      editorRef.current.innerHTML = value
+    const currentValue = value || ""
+    if (editorRef.current && !isFocused && editorRef.current.innerHTML !== currentValue) {
+      editorRef.current.innerHTML = currentValue
+      setContent(currentValue)
     }
   }, [value, isFocused])
 
-  useEffect(() => {
-    if (autoSave && onAutoSave && content !== value) {
+useEffect(() => {
+    const currentValue = value || ""
+    if (autoSave && onAutoSave && content && content !== currentValue) {
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current)
       }
@@ -39,8 +42,8 @@ useEffect(() => {
     }
   }, [content, autoSave, onAutoSave, value])
 
-  const handleInput = () => {
-    const newContent = editorRef.current.innerHTML
+const handleInput = () => {
+    const newContent = editorRef.current.innerHTML || ""
     setContent(newContent)
     onChange?.(newContent)
   }
@@ -49,11 +52,13 @@ const handleFocus = () => {
     setIsFocused(true)
   }
 
-  const handleBlur = () => {
+const handleBlur = () => {
     setIsFocused(false)
     // Sync content after blur to ensure latest value is applied
-    if (editorRef.current && value !== editorRef.current.innerHTML) {
-      editorRef.current.innerHTML = value
+    const currentValue = value || ""
+    if (editorRef.current && currentValue !== editorRef.current.innerHTML) {
+      editorRef.current.innerHTML = currentValue
+      setContent(currentValue)
     }
   }
 
@@ -115,6 +120,7 @@ const handleFocus = () => {
         className="rich-editor"
         data-placeholder={placeholder}
         suppressContentEditableWarning={true}
+        dangerouslySetInnerHTML={{ __html: content }}
       />
     </div>
   )

@@ -44,14 +44,15 @@ questions: [
     description: "Clarify roles, responsibilities, and expectations across family, business, and ownership circles. Establish clear boundaries and accountability.",
     gradient: "from-heritage-600 to-heritage-700",
 questions: [
-      "Where do I sit today—Family, Business, Ownership? Am I clear about that?",
-      "Do I believe we have a clear succession plan—or are we hoping things just work out?",
+      "Where do I and other family members sit today as it relates to the 3 circles—Family, Business, Ownership? Am I clear about that?",
+      "Do we have a clear succession plan and if so, is it documented. Or is it a case where we are hoping things just work out?",
       "What do I expect from other family members—and what do I think they expect of me?",
       "What do family members expect from the family business (e.g., economic performance, job security, pride, social status)? All expectations should be validated, and an agreement should be reached among all members for maximum understanding and conflict prevention.",
       "What role should family members play in the firm? This includes considering who is willing and qualified to join, and ensuring that family members contribute something unique to their positions, beyond what an outsider might.",
       "How do we manage the individual vocations and aspirations of family members, respecting their choices inside or outside the business?",
-"How do we ensure fair assessment of family candidates for positions, avoiding favoritism?",
-      "What is the process of amending the charter or adding specific provisions to the charter? This ensures adaptability to changing family needs."
+      "How do we ensure fair assessment of family candidates for positions, avoiding favoritism?",
+      "The Charter: How long should the charter remain in place and what is the process of amending it or adding specific provisions? This ensures adaptability to changing family needs.",
+      "How do we ensure fair assessment of family candidates for positions, avoiding favoritism?"
     ]
   },
   {

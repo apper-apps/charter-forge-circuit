@@ -85,8 +85,12 @@ setFormData({
             city: profileData.city || ""
           })
         }
-      } catch (error) {
-        dispatch(fetchProfileFailure(error.message))
+} catch (error) {
+        const errorMessage = error.message || "Failed to load profile data";
+        dispatch(fetchProfileFailure(errorMessage));
+        if (error.message?.includes("Authentication required")) {
+          toast.error("Please login again to continue");
+        }
       }
     }
 
@@ -127,7 +131,7 @@ const validateForm = () => {
 if (!formData.yearsInBusiness || formData.yearsInBusiness < 0) {
       newErrors.yearsInBusiness = "Years in business is required"
     }
-    if (!formData.numberOfEmployees || formData.numberOfEmployees < 0) {
+    if (!formData.employeeNumber || formData.employeeNumber < 0) {
       newErrors.numberOfEmployees = "Number of employees is required"
     }
     if (!formData.annualRevenue) newErrors.annualRevenue = "Annual revenue range is required"
@@ -153,15 +157,20 @@ dispatch(saveProfileStart())
 ...formData,
         businessType: formData.businessType === "Other" ? formData.customBusinessType : formData.businessType,
         yearsInBusiness: parseInt(formData.yearsInBusiness),
-        employeeNumber: parseInt(formData.numberOfEmployees)
+employeeNumber: parseInt(formData.employeeNumber)
       }
       
       const savedProfile = await profileService.saveProfile(user.id, profileData)
       dispatch(saveProfileSuccess(savedProfile))
       toast.success("Profile updated successfully!")
     } catch (error) {
-      dispatch(saveProfileFailure(error.message))
-      toast.error("Failed to update profile")
+const errorMessage = error.message || "Failed to update profile";
+      dispatch(saveProfileFailure(errorMessage));
+      if (error.message?.includes("Authentication required")) {
+        toast.error("Please login again to continue");
+      } else {
+        toast.error("Failed to update profile");
+      }
     }
   }
 

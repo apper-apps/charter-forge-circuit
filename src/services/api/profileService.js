@@ -45,10 +45,14 @@ fields: [
 
       return response.data && response.data.length > 0 ? response.data[0] : null;
     } catch (error) {
+if (error?.response?.status === 401) {
+        console.error("Authentication failed - user may need to login again");
+        throw new Error("Authentication required. Please login again.");
+      }
       if (error?.response?.data?.message) {
         console.error("Error fetching profile:", error?.response?.data?.message);
       } else {
-        console.error("Error fetching profile:", error.message);
+        console.error("Error fetching profile:", error?.message || error);
       }
       throw error;
     }
@@ -144,10 +148,14 @@ if (existingProfile) {
         }
       }
     } catch (error) {
+if (error?.response?.status === 401) {
+        console.error("Authentication failed during profile save - user may need to login again");
+        throw new Error("Authentication required. Please login again.");
+      }
       if (error?.response?.data?.message) {
         console.error("Error saving profile:", error?.response?.data?.message);
       } else {
-        console.error("Error saving profile:", error.message);
+        console.error("Error saving profile:", error?.message || error);
       }
       throw error;
     }

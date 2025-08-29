@@ -31,7 +31,8 @@ const { user } = useSelector((state) => state.auth)
         const profileData = await profileService.getProfile(user.id)
         dispatch(fetchProfileSuccess(profileData))
       } catch (error) {
-        dispatch(fetchProfileFailure(error.message))
+const errorMessage = error.message || "Failed to load profile data";
+        dispatch(fetchProfileFailure(errorMessage));
       }
 
       // Load responses

@@ -37,13 +37,13 @@ questions: [
       "Has our ownership type and format changed over time, and does it still work for our family's future needs? Families should reflect on their ownership history and consider whether the current structure is appropriate for the future, especially as the family grows in numbers or capabilities."
     ]
   },
-  {
+{
     id: "expectations",
     title: "Expectations",
-    subtitle: "The Three Circles & Beyond",
+    subtitle: "The Three Circles & Beyond", 
     description: "Clarify roles, responsibilities, and expectations across family, business, and ownership circles. Establish clear boundaries and accountability.",
     gradient: "from-heritage-600 to-heritage-700",
-questions: [
+    questions: [
       "Where do I and other family members sit today as it relates to the 3 circles—Family, Business, Ownership? Am I clear about that?",
       "Do we have a clear succession plan and if so, is it documented. Or is it a case where we are hoping things just work out?",
       "What do I expect from other family members—and what do I think they expect of me?",
@@ -51,8 +51,7 @@ questions: [
       "What role should family members play in the firm? This includes considering who is willing and qualified to join, and ensuring that family members contribute something unique to their positions, beyond what an outsider might.",
       "How do we manage the individual vocations and aspirations of family members, respecting their choices inside or outside the business?",
       "How do we ensure fair assessment of family candidates for positions, avoiding favoritism?",
-      "The Charter: How long should the charter remain in place and what is the process of amending it or adding specific provisions? This ensures adaptability to changing family needs.",
-      "How do we ensure fair assessment of family candidates for positions, avoiding favoritism?"
+      "The Charter: How long should the charter remain in place and what is the process of amending it or adding specific provisions? This ensures adaptability to changing family needs."
     ]
   },
   {

@@ -60,14 +60,42 @@ const { participants, isLoading, error, filters, permissionUpdateLoading } = use
   const handleRetry = () => {
     window.location.reload()
   }
+// Use standardized response validation for consistency with user views
+  const isResponseAnswered = (response) => {
+    if (!response) return false
+    
+    // Handle different response formats
+    if (typeof response === 'string') {
+      return response.replace(/<[^>]*>/g, '').trim().length > 0
+    }
+    
+    if (typeof response === 'object') {
+      // Handle response with content property
+      if (response.content) {
+        return response.content.replace(/<[^>]*>/g, '').trim().length > 0
+      }
+      
+      // Handle individual responses array
+      if (Array.isArray(response)) {
+        return response.some(r => r && r.content && r.content.replace(/<[^>]*>/g, '').trim().length > 0)
+      }
+      
+      // Handle individual response objects
+      if (response.name || response.content) {
+        const content = response.content || ''
+        return content.replace(/<[^>]*>/g, '').trim().length > 0
+      }
+    }
+    
+    return false
+  }
+
   const getCompletionStatus = (participant) => {
     if (!participant.responses) return { completed: 0, total: 0, percentage: 0 }
     
     const totalQuestions = PILLARS.reduce((sum, pillar) => sum + pillar.questions.length, 0)
     const completedQuestions = Object.values(participant.responses).reduce((sum, pillarResponses) => {
-      return sum + Object.values(pillarResponses).filter(response => 
-        response && response.trim().length > 0
-      ).length
+      return sum + Object.values(pillarResponses).filter(isResponseAnswered).length
     }, 0)
     
     return {

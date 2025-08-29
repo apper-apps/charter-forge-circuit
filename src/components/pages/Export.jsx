@@ -1,18 +1,18 @@
-import { useState, useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { motion } from "framer-motion"
-import { fetchResponsesStart, fetchResponsesSuccess, fetchResponsesFailure } from "@/store/slices/responsesSlice"
-import { fetchProfileStart, fetchProfileSuccess, fetchProfileFailure } from "@/store/slices/profileSlice"
-import { responsesService } from "@/services/api/responsesService"
-import { profileService } from "@/services/api/profileService"
-import { exportService } from "@/services/api/exportService"
-import { PILLARS } from "@/services/mockData/pillars"
-import Button from "@/components/atoms/Button"
-import Card from "@/components/atoms/Card"
-import Loading from "@/components/ui/Loading"
-import Error from "@/components/ui/Error"
-import ApperIcon from "@/components/ApperIcon"
-import { toast } from "react-toastify"
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { responsesService } from "@/services/api/responsesService";
+import { profileService } from "@/services/api/profileService";
+import { exportService } from "@/services/api/exportService";
+import { PILLARS } from "@/services/mockData/pillars";
+import { toast } from "react-toastify";
+import { fetchResponsesFailure, fetchResponsesStart, fetchResponsesSuccess, selectCompletionStats, selectPillarCompletion } from "@/store/slices/responsesSlice";
+import { fetchProfileFailure, fetchProfileStart, fetchProfileSuccess } from "@/store/slices/profileSlice";
+import ApperIcon from "@/components/ApperIcon";
+import Card from "@/components/atoms/Card";
+import Button from "@/components/atoms/Button";
+import Error from "@/components/ui/Error";
+import Loading from "@/components/ui/Loading";
 
 const Export = () => {
   const dispatch = useDispatch()
@@ -53,55 +53,22 @@ const Export = () => {
   }
 
 // Helper function to check if a response is answered
-  const isResponseAnswered = (response) => {
-    if (!response) return false
-    
-    // Handle different response formats
-    if (typeof response === 'string') {
-      return response.replace(/<[^>]*>/g, '').trim().length > 0
-    }
-    
-    if (typeof response === 'object') {
-      // Handle response with content property
-      if (response.content) {
-        return response.content.replace(/<[^>]*>/g, '').trim().length > 0
-      }
-      
-      // Handle individual responses array
-      if (Array.isArray(response)) {
-        return response.some(r => r && r.content && r.content.replace(/<[^>]*>/g, '').trim().length > 0)
-      }
-      
-      // Handle individual response objects
-      if (response.name || response.content) {
-        const content = response.content || ''
-        return content.replace(/<[^>]*>/g, '').trim().length > 0
-      }
-    }
-    
-    return false
-  }
-
-  const calculateCompletionStats = () => {
-    const totalQuestions = PILLARS.reduce((sum, pillar) => sum + pillar.questions.length, 0)
-    const completedQuestions = Object.values(responses).reduce((sum, pillarResponses) => {
-      return sum + Object.values(pillarResponses).filter(isResponseAnswered).length
-    }, 0)
-    
-    return {
-      total: totalQuestions,
-      completed: completedQuestions,
-      percentage: totalQuestions > 0 ? (completedQuestions / totalQuestions) * 100 : 0
-    }
+// Use centralized completion calculation for consistency with dashboard
+  const completionStats = useSelector(state => selectCompletionStats(state, PILLARS))
+  const { isResponseAnswered } = require('@/store/slices/responsesSlice')
+  
+const calculateCompletionStats = () => {
+    return completionStats
   }
 
   const handleExportPDF = async () => {
     setIsExporting(true)
     try {
-      const charterData = {
+const charterData = {
         profile,
         responses,
-        pillars: PILLARS
+        pillars: PILLARS,
+        completionStats: calculateCompletionStats()
       }
       
       await exportService.exportToPDF(charterData)
@@ -117,10 +84,11 @@ const Export = () => {
   const handleExportWord = async () => {
     setIsExporting(true)
     try {
-      const charterData = {
+const charterData = {
         profile,
         responses,
-        pillars: PILLARS
+        pillars: PILLARS,
+        completionStats: calculateCompletionStats()
       }
       
       await exportService.exportToWord(charterData)
@@ -189,9 +157,9 @@ const Export = () => {
           {/* Pillar Breakdown */}
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {PILLARS.map((pillar) => {
+              const pillarProgress = useSelector(state => selectPillarCompletion(state, pillar.id, pillar))
               const pillarResponses = responses[pillar.id] || {}
               const completed = Object.values(pillarResponses).filter(isResponseAnswered).length
-              const pillarProgress = (completed / pillar.questions.length) * 100
 
               return (
                 <div key={pillar.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
@@ -203,7 +171,7 @@ const Export = () => {
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-semibold text-gray-700">
-                      {Math.round(pillarProgress)}%
+                      {pillarProgress}%
                     </div>
                   </div>
                 </div>

@@ -1,8 +1,10 @@
-import { motion } from "framer-motion"
-import { useSelector } from "react-redux"
-import ApperIcon from "@/components/ApperIcon"
-import ProgressRing from "@/components/molecules/ProgressRing"
-import Card from "@/components/atoms/Card"
+import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
+import React from "react";
+import { selectPillarCompletion } from "@/store/slices/responsesSlice";
+import ApperIcon from "@/components/ApperIcon";
+import ProgressRing from "@/components/molecules/ProgressRing";
+import Card from "@/components/atoms/Card";
 
 const PillarCard = ({ pillar, onClick }) => {
 const { responses } = useSelector((state) => state.responses)
@@ -16,39 +18,10 @@ const { responses } = useSelector((state) => state.responses)
   }
   
   const pillarResponses = isValidPillar ? (responses[pillar.id] || {}) : {}
-  
-  // Helper function to check if a response is answered
-  const isResponseAnswered = (response) => {
-    if (!response) return false
-    
-    // Handle different response formats
-    if (typeof response === 'string') {
-      return response.replace(/<[^>]*>/g, '').trim().length > 0
-    }
-    
-    if (typeof response === 'object') {
-      // Handle response with content property
-      if (response.content) {
-        return response.content.replace(/<[^>]*>/g, '').trim().length > 0
-      }
-      
-      // Handle individual responses array
-      if (Array.isArray(response)) {
-        return response.some(r => r && r.content && r.content.replace(/<[^>]*>/g, '').trim().length > 0)
-      }
-      
-      // Handle individual response objects
-      if (response.name || response.content) {
-        const content = response.content || ''
-        return content.replace(/<[^>]*>/g, '').trim().length > 0
-      }
-    }
-    
-    return false
-  }
-  
+// Use centralized completion calculation for consistency
+  const progress = useSelector(state => selectPillarCompletion(state, pillar.id, pillar))
+  const { isResponseAnswered } = require('@/store/slices/responsesSlice')
   const completedQuestions = Object.values(pillarResponses).filter(isResponseAnswered).length
-  const progress = (completedQuestions / pillar.questions.length) * 100
 
   const getIconForPillar = (pillarId) => {
     switch (pillarId) {

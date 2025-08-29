@@ -31,6 +31,36 @@ const isResponseAnswered = (response) => {
 }
 
 // Helper function to calculate completion statistics  
+// Standardized response validation - handles all response formats consistently
+const isResponseAnswered = (response) => {
+  if (!response) return false
+  
+  // Handle different response formats
+  if (typeof response === 'string') {
+    return response.replace(/<[^>]*>/g, '').trim().length > 0
+  }
+  
+  if (typeof response === 'object') {
+    // Handle response with content property
+    if (response.content) {
+      return response.content.replace(/<[^>]*>/g, '').trim().length > 0
+    }
+    
+    // Handle individual responses array
+    if (Array.isArray(response)) {
+      return response.some(r => r && r.content && r.content.replace(/<[^>]*>/g, '').trim().length > 0)
+    }
+    
+    // Handle individual response objects
+    if (response.name || response.content) {
+      const content = response.content || ''
+      return content.replace(/<[^>]*>/g, '').trim().length > 0
+    }
+  }
+  
+  return false
+}
+
 const calculateCompletionStats = (responses, pillars) => {
   if (!pillars || !Array.isArray(pillars)) return { completed: 0, total: 0, percentage: 0 }
 
@@ -316,21 +346,14 @@ const calculateAndUpdateCompletions = async (state, profileId, updatedPillarId =
   }
 }
 
+// Centralized selectors using standardized completion logic
 export const selectCompletionStats = (state, pillars) => {
   return calculateCompletionStats(state.responses.responses, pillars)
 }
 
-export const selectOverallCompletion = (state) => {
-  const responses = state.responses.responses
-  const totalResponses = Object.values(responses).reduce((total, pillar) => {
-    return total + Object.keys(pillar).length
-  }, 0)
-  
-  const answeredResponses = Object.values(responses).reduce((total, pillar) => {
-    return total + Object.values(pillar).filter(isResponseAnswered).length
-  }, 0)
-  
-  return totalResponses > 0 ? Math.round((answeredResponses / totalResponses) * 100) : 0
+export const selectOverallCompletion = (state, pillars) => {
+  const stats = calculateCompletionStats(state.responses.responses, pillars)
+  return stats.percentage
 }
 
 export const selectPillarCompletion = (state, pillarId, pillar) => {
@@ -344,6 +367,9 @@ export const selectPillarCompletion = (state, pillarId, pillar) => {
   
   return totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0
 }
+
+// Export the standardized response validation for use in components
+export { isResponseAnswered }
 
 export const {
   fetchResponsesStart,

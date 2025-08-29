@@ -5,14 +5,13 @@ import { motion } from "framer-motion";
 import { responsesService } from "@/services/api/responsesService";
 import { profileService } from "@/services/api/profileService";
 import { PILLARS } from "@/services/mockData/pillars";
-import { fetchResponsesFailure, fetchResponsesStart, fetchResponsesSuccess } from "@/store/slices/responsesSlice";
+import { fetchResponsesFailure, fetchResponsesStart, fetchResponsesSuccess, selectCompletionStats } from "@/store/slices/responsesSlice";
 import { fetchProfileFailure, fetchProfileStart, fetchProfileSuccess } from "@/store/slices/profileSlice";
 import ApperIcon from "@/components/ApperIcon";
 import Profile from "@/components/pages/Profile";
 import PillarCard from "@/components/organisms/PillarCard";
 import Error from "@/components/ui/Error";
 import Loading from "@/components/ui/Loading";
-
 const Dashboard = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -60,41 +59,9 @@ const { user } = useSelector((state) => state.auth)
   const isProfileComplete = profile && profile.fullName && profile.businessName
 
 // Helper function to check if a response is answered
-  const isResponseAnswered = (response) => {
-    if (!response) return false
-    
-    // Handle different response formats
-    if (typeof response === 'string') {
-      return response.replace(/<[^>]*>/g, '').trim().length > 0
-    }
-    
-    if (typeof response === 'object') {
-      // Handle response with content property
-      if (response.content) {
-        return response.content.replace(/<[^>]*>/g, '').trim().length > 0
-      }
-      
-      // Handle individual responses array
-      if (Array.isArray(response)) {
-        return response.some(r => r && r.content && r.content.replace(/<[^>]*>/g, '').trim().length > 0)
-      }
-      
-      // Handle individual response objects
-      if (response.name || response.content) {
-        const content = response.content || ''
-        return content.replace(/<[^>]*>/g, '').trim().length > 0
-      }
-    }
-    
-    return false
-  }
-
-  // Calculate overall progress
-const totalQuestions = PILLARS.reduce((sum, pillar) => sum + pillar.questions.length, 0)
-  const completedQuestions = Object.values(responses).reduce((sum, pillarResponses) => {
-    return sum + Object.values(pillarResponses).filter(isResponseAnswered).length
-  }, 0)
-  const calculatedProgress = totalQuestions > 0 ? (completedQuestions / totalQuestions) * 100 : 0
+// Use centralized completion calculation for consistency
+  const completionStats = useSelector(state => selectCompletionStats(state, PILLARS))
+  const { completed: completedQuestions, total: totalQuestions, percentage: calculatedProgress } = completionStats
   
   // Use persisted completion data if available, otherwise fall back to calculated progress
   const overallProgress = charterCompletion?.completionPercentage || calculatedProgress
@@ -127,18 +94,23 @@ className="mb-8"
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-lg font-semibold text-primary-900">Charter Progress</h3>
-              <p className="text-primary-700">
+<p className="text-primary-700">
 {completedQuestions} of {totalQuestions} questions completed
               </p>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-primary-900">
-{Math.round(overallProgress)}%
+{Math.round(calculatedProgress)}%
               </div>
               <div className="text-sm text-primary-700">Complete</div>
             </div>
           </div>
-          <div className="w-full bg-primary-200 rounded-full h-3">
+<div className="w-full bg-primary-200 rounded-full h-3">
+            <div 
+              className="bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full transition-all duration-300 progress-fill" 
+              style={{ width: `${Math.min(calculatedProgress, 100)}%` }}
+            ></div>
+          </div>
 <motion.div
               className="bg-gradient-to-r from-accent-500 to-primary-600 h-3 rounded-full"
               initial={{ width: 0 }}

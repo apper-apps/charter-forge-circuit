@@ -90,9 +90,6 @@ className="mb-8"
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Welcome to CILC Family Business Charter Builder
         </h1>
-        <p className="text-lg text-gray-600 mb-6">
-          {profile?.businessName ? `Building the charter for ${profile.businessName}` : "Build your comprehensive family business charter through guided reflection"}
-        </p>
 
         {/* Progress Overview */}
         <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-xl p-6 border border-primary-100">

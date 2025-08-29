@@ -57,7 +57,7 @@ const { logout: apperLogout } = useContext(AuthContext)
                 />
               </div>
 <div>
-                <h1 className="text-xl font-bold text-gray-900 text-left">Family Business Charter</h1>
+<h1 className="text-xl font-bold text-gray-900 text-left">Family Business Charter Builder</h1>
                 <p className="text-sm text-gray-600 text-left">
                   {isAdmin ? "Admin Dashboard" : "Build Your Family Charter"}
                 </p>

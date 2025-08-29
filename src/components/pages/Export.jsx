@@ -6,7 +6,7 @@ import { profileService } from "@/services/api/profileService";
 import { exportService } from "@/services/api/exportService";
 import { PILLARS } from "@/services/mockData/pillars";
 import { toast } from "react-toastify";
-import { fetchResponsesFailure, fetchResponsesStart, fetchResponsesSuccess, selectCompletionStats, selectPillarCompletion } from "@/store/slices/responsesSlice";
+import { fetchResponsesFailure, fetchResponsesStart, fetchResponsesSuccess, selectCompletionStats, selectPillarCompletion, isResponseAnswered } from "@/store/slices/responsesSlice";
 import { fetchProfileFailure, fetchProfileStart, fetchProfileSuccess } from "@/store/slices/profileSlice";
 import ApperIcon from "@/components/ApperIcon";
 import Card from "@/components/atoms/Card";
@@ -55,7 +55,7 @@ const Export = () => {
 // Helper function to check if a response is answered
 // Use centralized completion calculation for consistency with dashboard
   const completionStats = useSelector(state => selectCompletionStats(state, PILLARS))
-  const { isResponseAnswered } = require('@/store/slices/responsesSlice')
+// isResponseAnswered is now imported at the top of the file
   
 const calculateCompletionStats = () => {
     return completionStats
@@ -156,8 +156,9 @@ const charterData = {
 
           {/* Pillar Breakdown */}
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {PILLARS.map((pillar) => {
-              const pillarProgress = useSelector(state => selectPillarCompletion(state, pillar.id, pillar))
+{PILLARS.map((pillar) => {
+              // Move useSelector to component level to avoid hooks in callbacks
+              const pillarProgress = selectPillarCompletion({ responses: { responses } }, pillar.id, pillar)
               const pillarResponses = responses[pillar.id] || {}
               const completed = Object.values(pillarResponses).filter(isResponseAnswered).length
 

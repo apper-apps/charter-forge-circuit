@@ -106,12 +106,7 @@ className="mb-8"
             </div>
           </div>
 <div className="w-full bg-primary-200 rounded-full h-3">
-            <div 
-              className="bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full transition-all duration-300 progress-fill" 
-              style={{ width: `${Math.min(calculatedProgress, 100)}%` }}
-            ></div>
-          </div>
-<motion.div
+            <motion.div
               className="bg-gradient-to-r from-accent-500 to-primary-600 h-3 rounded-full"
               initial={{ width: 0 }}
               animate={{ width: `${overallProgress}%` }}

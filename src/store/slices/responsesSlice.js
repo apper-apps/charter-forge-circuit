@@ -31,35 +31,7 @@ const isResponseAnswered = (response) => {
 }
 
 // Helper function to calculate completion statistics  
-// Standardized response validation - handles all response formats consistently
-const isResponseAnswered = (response) => {
-  if (!response) return false
-  
-  // Handle different response formats
-  if (typeof response === 'string') {
-    return response.replace(/<[^>]*>/g, '').trim().length > 0
-  }
-  
-  if (typeof response === 'object') {
-    // Handle response with content property
-    if (response.content) {
-      return response.content.replace(/<[^>]*>/g, '').trim().length > 0
-    }
-    
-    // Handle individual responses array
-    if (Array.isArray(response)) {
-      return response.some(r => r && r.content && r.content.replace(/<[^>]*>/g, '').trim().length > 0)
-    }
-    
-    // Handle individual response objects
-    if (response.name || response.content) {
-      const content = response.content || ''
-      return content.replace(/<[^>]*>/g, '').trim().length > 0
-    }
-  }
-  
-  return false
-}
+// Removed duplicate isResponseAnswered function declaration
 
 const calculateCompletionStats = (responses, pillars) => {
   if (!pillars || !Array.isArray(pillars)) return { completed: 0, total: 0, percentage: 0 }

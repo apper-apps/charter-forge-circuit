@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 import React from "react";
-import { selectPillarCompletion } from "@/store/slices/responsesSlice";
+import { selectPillarCompletion, isResponseAnswered } from "@/store/slices/responsesSlice";
 import ApperIcon from "@/components/ApperIcon";
 import ProgressRing from "@/components/molecules/ProgressRing";
 import Card from "@/components/atoms/Card";
@@ -20,7 +20,7 @@ const { responses } = useSelector((state) => state.responses)
   const pillarResponses = isValidPillar ? (responses[pillar.id] || {}) : {}
 // Use centralized completion calculation for consistency
   const progress = useSelector(state => selectPillarCompletion(state, pillar.id, pillar))
-  const { isResponseAnswered } = require('@/store/slices/responsesSlice')
+// isResponseAnswered is now imported at the top of the file
   const completedQuestions = Object.values(pillarResponses).filter(isResponseAnswered).length
 
   const getIconForPillar = (pillarId) => {

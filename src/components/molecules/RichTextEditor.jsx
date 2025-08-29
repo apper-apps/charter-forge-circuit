@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react"
-import { cn } from "@/utils/cn"
-import ApperIcon from "@/components/ApperIcon"
+import React, { useEffect, useRef, useState } from "react";
+import { cn } from "@/utils/cn";
+import ApperIcon from "@/components/ApperIcon";
 
 const RichTextEditor = ({ 
   value = "", 
@@ -109,18 +109,16 @@ const handleBlur = () => {
         </button>
       </div>
 
-      {/* Editor */}
-<div
+{/* Editor */}
+      <div
         ref={editorRef}
         contentEditable
-        dir="ltr"
         onInput={handleInput}
         onFocus={handleFocus}
         onBlur={handleBlur}
         className="rich-editor"
         data-placeholder={placeholder}
         suppressContentEditableWarning={true}
-        dangerouslySetInnerHTML={{ __html: content }}
       />
     </div>
   )

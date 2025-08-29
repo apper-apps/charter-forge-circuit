@@ -10,7 +10,6 @@ const Textarea = forwardRef(({
 return (
     <textarea
       rows={rows}
-      dir="ltr"
       className={cn(
         "form-field resize-none",
         error && "border-red-500 focus:ring-red-500 focus:border-red-500",

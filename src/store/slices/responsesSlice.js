@@ -72,6 +72,11 @@ const initialState = {
   }
 }
 
+// Import completion services for real-time progress updates
+import { charterCompletionService } from '@/services/api/charterCompletionService'
+import { pillarCompletionService } from '@/services/api/pillarCompletionService'
+import { PILLARS } from '@/services/mockData/pillars'
+
 const responsesSlice = createSlice({
   name: 'responses',
   initialState,
@@ -97,8 +102,8 @@ const responsesSlice = createSlice({
       state.savingQuestions[key] = true
       state.error = null
     },
-    saveResponseSuccess: (state, action) => {
-      const { pillarId, questionId, content, responseNumber = 1 } = action.payload
+saveResponseSuccess: (state, action) => {
+      const { pillarId, questionId, content, responseNumber = 1, profileId } = action.payload
       const key = `${pillarId}-${questionId}`
       
       if (!state.responses[pillarId]) {
@@ -124,6 +129,11 @@ const responsesSlice = createSlice({
       state.savingQuestions[key] = false
       state.lastSaved[key] = new Date().toISOString()
       state.error = null
+      
+      // Calculate and update completion percentages in real-time
+      if (profileId) {
+        calculateAndUpdateCompletions(state, profileId, pillarId)
+      }
     },
     saveResponseFailure: (state, action) => {
       const { pillarId, questionId, error } = action.payload
@@ -131,8 +141,8 @@ const responsesSlice = createSlice({
       state.savingQuestions[key] = false
       state.error = error
     },
-    updateResponseLocal: (state, action) => {
-      const { pillarId, questionId, content, responseNumber = 1, individualResponses } = action.payload
+updateResponseLocal: (state, action) => {
+      const { pillarId, questionId, content, responseNumber = 1, individualResponses, profileId } = action.payload
       
       // CRITICAL: Validate pillar ID to prevent cross-pillar contamination
       const validPillarIds = ["raison-detre", "type-of-business", "expectations", "extinction"]
@@ -165,6 +175,11 @@ const responsesSlice = createSlice({
             ? { name: "", content } 
             : content
         }
+      }
+      
+      // Recalculate completion percentages in real-time as user types
+      if (profileId) {
+        calculateAndUpdateCompletions(state, profileId, pillarId)
       }
     },
     updateIndividualResponse: (state, action) => {
@@ -239,6 +254,49 @@ const responsesSlice = createSlice({
 })
 
 // Selectors
+// Helper function to calculate and update completion percentages
+const calculateAndUpdateCompletions = async (state, profileId, updatedPillarId = null) => {
+  try {
+    const responses = state.responses
+    
+    // Calculate pillar completion percentages
+    if (updatedPillarId) {
+      const pillar = PILLARS.find(p => p.id === updatedPillarId)
+      if (pillar) {
+        const pillarResponses = responses[updatedPillarId] || {}
+        const completedQuestions = Object.values(pillarResponses).filter(isResponseAnswered).length
+        const pillarCompletion = (completedQuestions / pillar.questions.length) * 100
+        const isComplete = pillarCompletion === 100
+        
+        // Update pillar completion in database (async - don't block UI)
+        pillarCompletionService.updatePillarCompletion(
+          profileId, 
+          updatedPillarId, 
+          pillarCompletion, 
+          isComplete
+        ).catch(error => {
+          console.error('Error updating pillar completion:', error)
+        })
+      }
+    }
+    
+    // Calculate overall charter completion
+    const totalQuestions = PILLARS.reduce((sum, pillar) => sum + pillar.questions.length, 0)
+    const completedQuestions = Object.values(responses).reduce((sum, pillarResponses) => {
+      return sum + Object.values(pillarResponses).filter(isResponseAnswered).length
+    }, 0)
+    const overallProgress = totalQuestions > 0 ? (completedQuestions / totalQuestions) * 100 : 0
+    
+    // Update charter completion in database (async - don't block UI)
+    charterCompletionService.updateCharterCompletion(profileId, overallProgress).catch(error => {
+      console.error('Error updating charter completion:', error)
+    })
+    
+  } catch (error) {
+    console.error('Error calculating completions:', error)
+  }
+}
+
 export const selectCompletionStats = (state, pillars) => {
   return calculateCompletionStats(state.responses.responses, pillars)
 }

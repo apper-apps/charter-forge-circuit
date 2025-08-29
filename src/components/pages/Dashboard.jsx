@@ -1,23 +1,26 @@
-import { useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { useDispatch, useSelector } from "react-redux"
-import { motion } from "framer-motion"
-import { fetchResponsesStart, fetchResponsesSuccess, fetchResponsesFailure } from "@/store/slices/responsesSlice"
-import { fetchProfileStart, fetchProfileSuccess, fetchProfileFailure } from "@/store/slices/profileSlice"
-import { responsesService } from "@/services/api/responsesService"
-import { profileService } from "@/services/api/profileService"
-import { PILLARS } from "@/services/mockData/pillars"
-import PillarCard from "@/components/organisms/PillarCard"
-import Loading from "@/components/ui/Loading"
-import Error from "@/components/ui/Error"
-import ApperIcon from "@/components/ApperIcon"
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { responsesService } from "@/services/api/responsesService";
+import { profileService } from "@/services/api/profileService";
+import { PILLARS } from "@/services/mockData/pillars";
+import { fetchResponsesFailure, fetchResponsesStart, fetchResponsesSuccess } from "@/store/slices/responsesSlice";
+import { fetchProfileFailure, fetchProfileStart, fetchProfileSuccess } from "@/store/slices/profileSlice";
+import ApperIcon from "@/components/ApperIcon";
+import Profile from "@/components/pages/Profile";
+import PillarCard from "@/components/organisms/PillarCard";
+import Error from "@/components/ui/Error";
+import Loading from "@/components/ui/Loading";
 
 const Dashboard = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { user } = useSelector((state) => state.auth)
+const { user } = useSelector((state) => state.auth)
   const { responses, isLoading: responsesLoading, error: responsesError } = useSelector((state) => state.responses)
   const { profile, isLoading: profileLoading } = useSelector((state) => state.profile)
+  const [charterCompletion, setCharterCompletion] = useState(null)
+  const [completionLoading, setCompletionLoading] = useState(false)
 
   useEffect(() => {
     if (!user?.id) return
@@ -87,11 +90,14 @@ const Dashboard = () => {
   }
 
   // Calculate overall progress
-  const totalQuestions = PILLARS.reduce((sum, pillar) => sum + pillar.questions.length, 0)
+const totalQuestions = PILLARS.reduce((sum, pillar) => sum + pillar.questions.length, 0)
   const completedQuestions = Object.values(responses).reduce((sum, pillarResponses) => {
     return sum + Object.values(pillarResponses).filter(isResponseAnswered).length
   }, 0)
-  const overallProgress = totalQuestions > 0 ? (completedQuestions / totalQuestions) * 100 : 0
+  const calculatedProgress = totalQuestions > 0 ? (completedQuestions / totalQuestions) * 100 : 0
+  
+  // Use persisted completion data if available, otherwise fall back to calculated progress
+  const overallProgress = charterCompletion?.completionPercentage || calculatedProgress
 
   if (responsesLoading || profileLoading) {
     return <Loading type="dashboard" />
@@ -122,18 +128,18 @@ className="mb-8"
             <div>
               <h3 className="text-lg font-semibold text-primary-900">Charter Progress</h3>
               <p className="text-primary-700">
-                {completedQuestions} of {totalQuestions} questions completed
+{completedQuestions} of {totalQuestions} questions completed
               </p>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-primary-900">
-                {Math.round(overallProgress)}%
+{Math.round(overallProgress)}%
               </div>
               <div className="text-sm text-primary-700">Complete</div>
             </div>
           </div>
           <div className="w-full bg-primary-200 rounded-full h-3">
-            <motion.div
+<motion.div
               className="bg-gradient-to-r from-accent-500 to-primary-600 h-3 rounded-full"
               initial={{ width: 0 }}
               animate={{ width: `${overallProgress}%` }}

@@ -61,10 +61,11 @@ const { participants, isLoading, error, filters, permissionUpdateLoading } = use
     window.location.reload()
   }
 // Use standardized response validation for consistency with user views
+// Use centralized response validation for consistency across all components
   const isResponseAnswered = (response) => {
     if (!response) return false
     
-    // Handle different response formats
+    // Handle different response formats consistently with responsesSlice
     if (typeof response === 'string') {
       return response.replace(/<[^>]*>/g, '').trim().length > 0
     }
@@ -75,7 +76,7 @@ const { participants, isLoading, error, filters, permissionUpdateLoading } = use
         return response.content.replace(/<[^>]*>/g, '').trim().length > 0
       }
       
-      // Handle individual responses array
+      // Handle individual responses array - support dynamic length
       if (Array.isArray(response)) {
         return response.some(r => r && r.content && r.content.replace(/<[^>]*>/g, '').trim().length > 0)
       }
@@ -90,6 +91,7 @@ const { participants, isLoading, error, filters, permissionUpdateLoading } = use
     return false
   }
 
+// Consistent completion status calculation matching dashboard and export logic
   const getCompletionStatus = (participant) => {
     if (!participant.responses) return { completed: 0, total: 0, percentage: 0 }
     
@@ -101,7 +103,7 @@ const { participants, isLoading, error, filters, permissionUpdateLoading } = use
     return {
       completed: completedQuestions,
       total: totalQuestions,
-      percentage: totalQuestions > 0 ? (completedQuestions / totalQuestions) * 100 : 0
+      percentage: totalQuestions > 0 ? Math.round((completedQuestions / totalQuestions) * 100) : 0
     }
   }
 
@@ -242,7 +244,7 @@ const { participants, isLoading, error, filters, permissionUpdateLoading } = use
               </thead>
               <tbody>
                 {filteredParticipants.map((participant) => {
-                  const status = getCompletionStatus(participant)
+const status = getCompletionStatus(participant)
                   
                   return (
                     <tr key={participant.id}>
@@ -254,7 +256,7 @@ const { participants, isLoading, error, filters, permissionUpdateLoading } = use
                             </span>
                           </div>
                           <div>
-<p className="font-medium text-gray-900 text-left">
+                            <p className="font-medium text-gray-900 text-left">
                               {participant.profile?.fullName || "No name"}
                             </p>
                             <p className="text-sm text-gray-500 text-left">{participant.email}</p>
@@ -263,7 +265,7 @@ const { participants, isLoading, error, filters, permissionUpdateLoading } = use
                       </td>
                       <td>
                         <div>
-<p className="font-medium text-gray-900 text-left">
+                          <p className="font-medium text-gray-900 text-left">
                             {participant.profile?.businessName || "Not specified"}
                           </p>
                           <p className="text-sm text-gray-500 text-left">
@@ -287,10 +289,10 @@ const { participants, isLoading, error, filters, permissionUpdateLoading } = use
                             />
                           </div>
                           <span className="text-sm font-medium text-gray-700 min-w-[50px]">
-                            {Math.round(status.percentage)}%
+                            {status.percentage}%
                           </span>
                         </div>
-<p className="text-xs text-gray-500 mt-1 text-left">
+                        <p className="text-xs text-gray-500 mt-1 text-left">
                           {status.completed} of {status.total} questions
                         </p>
                       </td>

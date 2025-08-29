@@ -17,10 +17,10 @@ const { responses } = useSelector((state) => state.responses)
     console.warn(`Invalid pillar ID in PillarCard: ${pillar.id}`)
   }
   
-  const pillarResponses = isValidPillar ? (responses[pillar.id] || {}) : {}
-// Use centralized completion calculation for consistency
+const pillarResponses = isValidPillar ? (responses[pillar.id] || {}) : {}
+  // Use centralized completion calculation for consistency across all components
   const progress = useSelector(state => selectPillarCompletion(state, pillar.id, pillar))
-// isResponseAnswered is now imported at the top of the file
+  // isResponseAnswered is now imported at the top of the file for consistency
   const completedQuestions = Object.values(pillarResponses).filter(isResponseAnswered).length
 
   const getIconForPillar = (pillarId) => {

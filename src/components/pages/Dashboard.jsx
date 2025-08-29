@@ -61,11 +61,15 @@ const { user } = useSelector((state) => state.auth)
 // Helper function to check if a response is answered
 // Use centralized completion calculation for consistency
   const completionStats = useSelector(state => selectCompletionStats(state, PILLARS))
-  const { completed: completedQuestions, total: totalQuestions, percentage: calculatedProgress } = completionStats
+const { completed: completedQuestions, total: totalQuestions, percentage: calculatedProgress } = completionStats
   
   // Use persisted completion data if available, otherwise fall back to calculated progress
   const overallProgress = charterCompletion?.completionPercentage || calculatedProgress
-
+  
+  // Ensure we display consistent completion statistics across all views
+  const displayedCompleted = completedQuestions
+  const displayedTotal = totalQuestions
+  const displayedPercentage = Math.round(overallProgress)
   if (responsesLoading || profileLoading) {
     return <Loading type="dashboard" />
   }
@@ -95,12 +99,12 @@ className="mb-8"
             <div>
               <h3 className="text-lg font-semibold text-primary-900">Charter Progress</h3>
 <p className="text-primary-700">
-{completedQuestions} of {totalQuestions} questions completed
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-primary-900">
-{Math.round(calculatedProgress)}%
+                  {displayedCompleted} of {displayedTotal} questions completed
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-primary-900">
+                  {displayedPercentage}%
               </div>
               <div className="text-sm text-primary-700">Complete</div>
             </div>

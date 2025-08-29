@@ -1,10 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-// Helper function to check if a response has content
+// Centralized helper function to check if a response has content
+// Used consistently across Dashboard, Export, AdminDashboard, and PillarCard components
 const isResponseAnswered = (response) => {
   if (!response) return false
   
-  // Handle different response formats
+  // Handle different response formats consistently
   if (typeof response === 'string') {
     return response.replace(/<[^>]*>/g, '').trim().length > 0
   }
@@ -33,6 +34,7 @@ const isResponseAnswered = (response) => {
 // Helper function to calculate completion statistics  
 // Removed duplicate isResponseAnswered function declaration
 
+// Centralized completion calculation used across Dashboard, Export, and AdminDashboard
 const calculateCompletionStats = (responses, pillars) => {
   if (!pillars || !Array.isArray(pillars)) return { completed: 0, total: 0, percentage: 0 }
 
@@ -284,9 +286,9 @@ const calculateAndUpdateCompletions = async (state, profileId, updatedPillarId =
     if (updatedPillarId) {
       const pillar = PILLARS.find(p => p.id === updatedPillarId)
       if (pillar) {
-        const pillarResponses = responses[updatedPillarId] || {}
+const pillarResponses = responses[updatedPillarId] || {}
         const completedQuestions = Object.values(pillarResponses).filter(isResponseAnswered).length
-        const pillarCompletion = (completedQuestions / pillar.questions.length) * 100
+        const pillarCompletion = Math.round((completedQuestions / pillar.questions.length) * 100)
         const isComplete = pillarCompletion === 100
         
         // Update pillar completion in database (async - don't block UI)
@@ -301,12 +303,12 @@ const calculateAndUpdateCompletions = async (state, profileId, updatedPillarId =
       }
     }
     
-    // Calculate overall charter completion
+    // Calculate overall charter completion using consistent rounding
     const totalQuestions = PILLARS.reduce((sum, pillar) => sum + pillar.questions.length, 0)
     const completedQuestions = Object.values(responses).reduce((sum, pillarResponses) => {
       return sum + Object.values(pillarResponses).filter(isResponseAnswered).length
     }, 0)
-    const overallProgress = totalQuestions > 0 ? (completedQuestions / totalQuestions) * 100 : 0
+    const overallProgress = totalQuestions > 0 ? Math.round((completedQuestions / totalQuestions) * 100) : 0
     
     // Update charter completion in database (async - don't block UI)
     charterCompletionService.updateCharterCompletion(profileId, overallProgress).catch(error => {
@@ -328,6 +330,7 @@ export const selectOverallCompletion = (state, pillars) => {
   return stats.percentage
 }
 
+// Centralized pillar completion selector ensuring consistent percentage calculation
 export const selectPillarCompletion = (state, pillarId, pillar) => {
   const responses = state.responses.responses
   const pillarResponses = responses[pillarId] || {}
@@ -340,7 +343,7 @@ export const selectPillarCompletion = (state, pillarId, pillar) => {
   return totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0
 }
 
-// Export the standardized response validation for use in components
+// Export the standardized response validation and completion functions for use in components
 export { isResponseAnswered }
 
 export const {

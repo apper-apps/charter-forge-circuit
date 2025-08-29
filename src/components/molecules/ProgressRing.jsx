@@ -10,6 +10,9 @@ const ProgressRing = ({
   const circumference = radius * 2 * Math.PI
   const strokeDashoffset = circumference - (progress / 100) * circumference
 
+// Ensure progress value is properly rounded for consistent display
+  const displayProgress = Math.round(progress)
+  
   return (
     <div className={`relative ${className}`}>
       <svg width={size} height={size} className="progress-ring">
@@ -40,7 +43,7 @@ const ProgressRing = ({
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <span className="text-xs font-semibold text-gray-700">
-          {Math.round(progress)}%
+          {displayProgress}%
         </span>
       </div>
     </div>

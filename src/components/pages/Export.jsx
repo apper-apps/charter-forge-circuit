@@ -53,12 +53,17 @@ const Export = () => {
   }
 
 // Helper function to check if a response is answered
-// Use centralized completion calculation for consistency with dashboard
+  // Use centralized completion calculation for consistency with dashboard
   const completionStats = useSelector(state => selectCompletionStats(state, PILLARS))
-// isResponseAnswered is now imported at the top of the file
+  // isResponseAnswered is now imported at the top of the file
   
-const calculateCompletionStats = () => {
-    return completionStats
+  const calculateCompletionStats = () => {
+    // Ensure consistent completion calculation across dashboard and export
+    return {
+      completed: completionStats.completed,
+      total: completionStats.total,
+      percentage: Math.round(completionStats.percentage)
+    }
   }
 
   const handleExportPDF = async () => {
@@ -85,12 +90,11 @@ const charterData = {
     setIsExporting(true)
     try {
 const charterData = {
-        profile,
+profile,
         responses,
         pillars: PILLARS,
         completionStats: calculateCompletionStats()
       }
-      
       await exportService.exportToWord(charterData)
       toast.success("Charter exported to Word successfully!")
     } catch (error) {
@@ -132,14 +136,14 @@ const charterData = {
         <Card className="p-8 mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-<h2 className="text-xl font-semibold text-gray-900 mb-2 text-left">Charter Completion Status</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2 text-left">Charter Completion Status</h2>
               <p className="text-gray-600 text-left">
                 You've completed {stats.completed} of {stats.total} questions
               </p>
             </div>
             <div className="text-right">
               <div className="text-3xl font-bold text-primary-700">
-                {Math.round(stats.percentage)}%
+                {stats.percentage}%
               </div>
               <div className="text-sm text-gray-600">Complete</div>
             </div>
@@ -156,28 +160,30 @@ const charterData = {
 
           {/* Pillar Breakdown */}
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-{PILLARS.map((pillar) => {
-              // Move useSelector to component level to avoid hooks in callbacks
-              const pillarProgress = selectPillarCompletion({ responses: { responses } }, pillar.id, pillar)
-              const pillarResponses = responses[pillar.id] || {}
-              const completed = Object.values(pillarResponses).filter(isResponseAnswered).length
+              {PILLARS.map((pillar) => {
+                // Use consistent completion calculation for pillar progress
+                const pillarResponses = responses[pillar.id] || {}
+                const completed = Object.values(pillarResponses).filter(isResponseAnswered).length
+                const pillarProgress = pillar.questions.length > 0 
+                  ? Math.round((completed / pillar.questions.length) * 100) 
+                  : 0
 
-              return (
-                <div key={pillar.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div>
-<h3 className="font-medium text-gray-900 text-left">{pillar.title}</h3>
-                    <p className="text-sm text-gray-600 text-left">
-                      {completed} of {pillar.questions.length} questions
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-semibold text-gray-700">
-                      {pillarProgress}%
+                return (
+                  <div key={pillar.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <h3 className="font-medium text-gray-900 text-left">{pillar.title}</h3>
+                      <p className="text-sm text-gray-600 text-left">
+                        {completed} of {pillar.questions.length} questions
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-gray-700">
+                        {pillarProgress}%
+                      </div>
                     </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })}
           </div>
         </Card>
 
@@ -189,7 +195,7 @@ const charterData = {
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">PDF Export</h3>
 <p className="text-gray-600 mb-6 text-left">
-              Download a professional PDF version of your charter, perfect for sharing and printing.
+                Download a professional PDF version of your charter, perfect for sharing and printing.
             </p>
             <Button
               variant="primary"
@@ -208,8 +214,8 @@ const charterData = {
               <ApperIcon name="FileEdit" className="w-8 h-8 text-blue-600" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Word Document</h3>
-            <p className="text-gray-600 mb-6">
-Download as a Microsoft Word document for easy editing and customization.
+<p className="text-gray-600 mb-6 text-left">
+              Download as a Microsoft Word document for easy editing and customization.
             </p>
             <Button
               variant="secondary"

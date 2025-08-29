@@ -217,10 +217,8 @@ const handleDeleteIndividualResponse = async (responseIndex) => {
         .map((member, newIndex) => ({ ...member, index: newIndex, id: `member-${newIndex}` }))
       
       setFamilyMembers(updatedMembers)
-      
-      // Update Redux state
-      const updatedResponses = updatedMembers.map(member => ({ name: member.name, content: member.content }))
-      dispatch(updateResponseLocal({ pillarId, questionId, individualResponses: updatedResponses }))
+// Update Redux state using the 'remove' action to properly handle array removal and reindexing
+      dispatch(updateIndividualResponse({ pillarId, questionId, responseIndex, field: 'remove' }))
       
       toast.success("Family member removed successfully")
     } catch (error) {

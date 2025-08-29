@@ -278,8 +278,7 @@ const handleSaveAnswers = async () => {
       // Map pillar and question IDs to their database lookup field values
       // These IDs ensure proper association with the specific pillar and question in the database
       const pillarLookupId = pillarId // Use the pillar identifier as lookup value
-      const questionLookupId = questionIndex + 1 // Map question index to question lookup ID
-      
+const questionLookupId = questionIndex + 1 // Map question index to question lookup ID
       await answerService.saveAnswer(
         userId,
         pillarLookupId,

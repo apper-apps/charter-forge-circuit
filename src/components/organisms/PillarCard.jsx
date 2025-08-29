@@ -92,7 +92,7 @@ const { responses } = useSelector((state) => state.responses)
         </p>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500">
+<span className="text-sm text-gray-500">
             {completedQuestions} of {pillar.questions.length} questions completed
           </span>
           <ApperIcon 

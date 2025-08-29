@@ -27,13 +27,14 @@ questions: [
     gradient: "from-accent-600 to-accent-700",
 questions: [
       "Do I want us to keep this business for generations, or prepare to sell one day? Why?",
-      "What kind of role do I want—operator, owner, investor, supporter?",
-      "Who should be allowed to own shares—and who shouldn't? Where do I draw the line, and why?",
-      "What type of family business do we want to be (e.g., Sole Owner, Partnership, Distributed, Concentrated)? This choice influences how the business evolves and how new spaces are created for future generations, preventing power struggles.",
-      "What is the scope of our shared assets? Families must decide how much of their assets, beyond the operating company, they will own collectively (e.g., car collections, vacation homes, investments, philanthropic endowments).",
-      "Who is eligible to be an owner? This decision determines whether ownership is restricted to bloodline descendants, or includes in-laws, and if there are participation criteria (e.g., only operators, governors, or investors).",
-      "Which owners will have control? Families must decide whether control is unified in a subset of owners or shared among all owners, considering voting rights, non-voting shares, or trust arrangements.",
-      "Has our ownership type changed over time, and does it still work for our family's future needs? Families should reflect on their ownership history and consider whether the current structure is appropriate for the future, especially as the family grows in numbers or capabilities."
+      "What kind of role do I have now and what role do I want—operator, owner, investor, supporter?",
+      "How do we define family? Who is allowed to own shares—and who is not? Where do we draw the line, and why?",
+      "Operating Roles: Who works in the business now and in what positions and do those positions have titles and job descriptions.",
+      "Ownership Today: Do you have a shareholder's agreement? List the Shareholders, % holdings and any restrictions",
+      "Future: Who should be eligible to be an owner and if yes, under what conditions. This decision determines whether ownership is restricted to bloodline descendants, or includes in-laws, and if there are participation criteria (e.g., only operators, governors, or investors).",
+      "Is there a hiring Policy for family members (Entry criteria, probation, performance standards, promotions etc.)?",
+      "What are the compensation principles for family members vs non-family members.",
+      "Has our ownership type and format changed over time, and does it still work for our family's future needs? Families should reflect on their ownership history and consider whether the current structure is appropriate for the future, especially as the family grows in numbers or capabilities."
     ]
   },
   {

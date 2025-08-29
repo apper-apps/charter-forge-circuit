@@ -71,7 +71,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               )}
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900 text-left">Charter Forge</h2>
+<h2 className="text-lg font-bold text-gray-900 text-left">Family Business Charter Builder</h2>
               <p className="text-xs text-gray-600 text-left">
                 {isAdmin ? "Admin Panel" : "Charter Builder"}
               </p>

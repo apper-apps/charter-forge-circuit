@@ -130,7 +130,7 @@ const Onboarding = () => {
           <div className="w-16 h-16 bg-gradient-to-br from-primary-600 to-accent-600 rounded-xl flex items-center justify-center mx-auto mb-4">
             <ApperIcon name="UserPlus" className="w-8 h-8 text-white" />
           </div>
-<h1 className="text-3xl font-bold text-gray-900 mb-2 text-left">Welcome to Charter Forge</h1>
+<h1 className="text-3xl font-bold text-gray-900 mb-2 text-left">Welcome to Family Business Charter Builder</h1>
           <p className="text-lg text-gray-600 text-left">
             Let's start by getting to know you and your family business
           </p>
